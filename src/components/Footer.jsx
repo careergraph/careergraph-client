@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { navLinks } from "../data/navLinks";
+import logoSvg from "../assets/logo.svg";
 
 export default function Footer() {
   return (
@@ -9,7 +10,7 @@ export default function Footer() {
           <div className="flex items-center justify-items-center gap-2">
             <img
               className="h-9 md:h-9.5 w-auto shrink-0"
-              src="/assets/logo.svg"
+              src={logoSvg}
               alt="Logo"
               width={140}
               height={40}

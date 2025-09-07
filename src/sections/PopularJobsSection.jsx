@@ -1,5 +1,5 @@
 import JobsCardCommon from "../components/Cards/JobsCardCommon";
-import SectionTitle from "../components/SectionTitle";
+import SectionTitle from "../components/Sections/SectionTitle";
 
 export default function PopularJobsSection() {
   return (

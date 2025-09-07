@@ -1,8 +1,8 @@
 import { SparklesIcon } from "lucide-react";
-import SectionTitle from "../components/SectionTitle";
-import { pricingData } from "../data/pricingData";
+import SectionTitle from "./SectionTitle";
+import { pricingData } from "../../data/pricingData";
 
-export default function Pricing() {
+export default function SectionPricing() {
     return (
         <>
             <SectionTitle text1="Pricing" text2="Our Pricing Plans" text3="Flexible pricing options designed to meet your needs — whether you're just getting started or scaling up." />
