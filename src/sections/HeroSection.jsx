@@ -1,9 +1,13 @@
 import { ChevronRightIcon, SparklesIcon } from "lucide-react";
 import mainBanner from "../assets/images/main-banner.png";
+import dotBanner from "../assets/images/hero-section-dot-image.png";
 
 export default function HeroSection() {
   return (
-    <div className="flex flex-col items-center justify-center text-center bg-[url('/assets/hero-section-dot-image.png')] bg-cover bg-no-repeat">
+    <div
+      className="flex flex-col items-center justify-center text-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${dotBanner})` }}
+    >
       <a
         href="#"
         className="flex items-center gap-2 rounded-full p-1 pr-3 mt-44 text-indigo-600 bg-indigo-50"
@@ -33,7 +37,7 @@ export default function HeroSection() {
         </button>
       </div>
       <img
-        className="w-5/6 max-w-lg mt-16 drop-shadow-2xl drop-shadow-blue-500/15 mx-auto"
+        className="w-5/6 max-w-lg mt-5 mb-3 drop-shadow-2xl drop-shadow-blue-500/15 mx-auto"
         src={mainBanner}
         alt="Hero Section Card Image"
         width={1500}
