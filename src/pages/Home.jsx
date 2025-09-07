@@ -2,9 +2,10 @@ import BottomBanner from "../sections/BottomBanner";
 import { FaqSection } from "../sections/FaqSection";
 import FeaturesSection from "../sections/FeaturesSection";
 import HeroSection from "../sections/HeroSection";
-import NewJobsSection from "../sections/NewJobsSection";
+import PopularJobsSection from "../sections/PopularJobsSection";
+import PersonalJobsSection from "../sections/PersonalJobsSection";
 import Pricing from "../sections/Pricing";
-import Testimonials from "../sections/Testimonials";
+import TestimonialsSection from "../sections/TestimonialsSection";
 import TrustedCompanies from "../sections/TrustedCompanies";
 
 export default function Home() {
@@ -12,9 +13,10 @@ export default function Home() {
         <>
             <HeroSection />
             <TrustedCompanies />
-            <NewJobsSection />
+            <PersonalJobsSection />
+            <PopularJobsSection />
             <FeaturesSection />
-            <Testimonials />
+            <TestimonialsSection />
             <Pricing />
             <FaqSection />
             <BottomBanner />

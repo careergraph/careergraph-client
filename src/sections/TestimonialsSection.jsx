@@ -1,9 +1,9 @@
 import Marquee from "react-fast-marquee";
-import TestimonialCard from "../components/TestimonialCard";
+import TestimonialCard from "../components/Cards/TestimonialCard";
 import { testimonialsData } from "../data/testimonialsData";
 import SectionTitle from "../components/SectionTitle";
 
-export default function Testimonials() {
+export default function TestimonialsSection() {
     return (
         <>
             <SectionTitle text1="Testimonials" text2="Our Social Proof" text3="A visual collection of our most recent works - each piece crafted with intention, emotion and style." />
