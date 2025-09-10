@@ -1,13 +1,11 @@
 import { MapPin, Briefcase, GraduationCap, Calendar, Heart, Building2 } from "lucide-react";
 import Breadcrumbs from "~/components/navigation/Breadcrumbs";
-import JobHeader from "~/components/job-detail/JobHeader";
-import ApplyBar from "~/components/job-detail/ApplyBar";
-import Section from "~/components/job-detail/Section";
-import CompanyCard from "~/components/job-detail/CompanyCard";
-import SimilarJobsList from "~/components/job-detail/SimilarJobsList";
-import { useEffect, useState } from "react";
-import InfoJobSection from "~/components/job-detail/InfoJobSection";
-import { fetchJobFormatLocal } from "~/mock/jobFormat";
+import JobHeader from "~/components/JobDetail/JobHeader";
+import ApplyBar from "~/components/JobDetail/ApplyBar";
+import Section from "~/components/JobDetail/Section";
+import CompanyCard from "~/components/JobDetail/CompanyCard";
+import SimilarJobsList from "~/components/JobDetail/SimilarJobsList";
+import JobSections from "~/components/JobDetail/JobSections";
 
 const job = {
   title: "Nam Nhân Viên Kế Toán Văn Phòng (Quận Gò Vấp)",
@@ -56,18 +54,39 @@ const similarJobs = [
   },
 ];
 
+const sectionsFromDB = [
+  {
+    key: "desc",
+    items: [
+      "Thực hiện việc lập hóa đơn và xử lý sai sót phát sinh.",
+      "Đối chiếu kiểm tra chứng từ mua bán hàng hoá, xuất – nhập hoá đơn GTGT.",
+      "Kiểm soát và thanh toán công nợ.",
+      "Quản lý theo dõi báo cáo xuất, nhập, tồn kho.",
+      "Lưu trữ chứng từ, hồ sơ kế toán.",
+      "Soạn thảo văn bản hành chính và các công việc khác do cấp trên giao.",
+      "Làm việc T2 - T6, T7 làm việc buổi sáng."
+    ]
+  },
+  {
+    key: "requirements",
+    items: [
+      "Nam tốt nghiệp Cao đẳng hoặc Đại học chuyên ngành Kế toán.",
+      "Nắm vững nguyên lý kế toán – thuế; cẩn thận, trung thực.",
+      "Kỹ năng trình bày & giao tiếp mạch lạc; biết quản lý thời gian."
+    ]
+  },
+  {
+    key: "benefits",
+    items: [
+      `Thu nhập ${job.salary} (trao đổi khi phỏng vấn).`,
+      "Được đào tạo trong quá trình làm việc, môi trường thân thiện.",
+      "Chế độ BHXH/BHYT/BHTN theo Luật Lao động, nghỉ lễ tết."
+    ]
+  }
+];
+
 export default function JobDetailPage() {
 
-  const jobId = "job-001"; 
-  const [formatHtml, setFormatHtml] = useState("");
-  const [loading, setLoading] = useState(true);
-
-   useEffect(() => {
-    // 🔹 Hiện tại: dùng mock local
-    fetchJobFormatLocal(jobId)
-      .then((html) => setFormatHtml(html))
-      .finally(() => setLoading(false));
-    }, [jobId]);
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-1 mt-18">
       <Breadcrumbs
@@ -96,11 +115,7 @@ export default function JobDetailPage() {
             }
           />
 
-          <InfoJobSection
-            title="Thông tin công việc"
-            html={formatHtml}
-            isLoading={loading}
-          />
+            <JobSections sections={sectionsFromDB} />
         </div>
 
         <aside className="lg:col-span-1 space-y-6">
