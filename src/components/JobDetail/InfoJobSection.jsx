@@ -1,5 +1,5 @@
 // /src/components/job-detail/AdminFormatSection.jsx
-import Section from "~/components/job-detail/Section";
+import Section from "~/components/JobDetail/Section";
 import DOMPurify from "dompurify";
 
 export default function AdminFormatSection({
