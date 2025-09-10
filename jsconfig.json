@@ -1,0 +1,10 @@
+// jsconfig.json
+{
+    "compilerOptions": {
+        "baseUrl": ".", // gốc là thư mục hiện tại
+        "paths": {
+            "~/*": ["src/*"] // alias ~ trỏ về src/
+        }
+    },
+    "exclude": ["node_modules", "dist"]
+}
