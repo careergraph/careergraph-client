@@ -3,11 +3,11 @@ const routes = {
     homeDefault: '/home',
     login:'/login',
     register:'/register',
-    about: 'about',
-    reviews: 'reviews',
-    handbook: 'handbook',
-    jobs: 'jobs',
-    viecLam: 'viec-lam'
+    about: '/about',
+    reviews: '/reviews',
+    handbook: '/handbook',
+    jobs: '/jobs',
+    jobDetail: '/job',
     
 }
 export default routes;
