@@ -5,7 +5,7 @@ import dotBanner from "../assets/images/hero-section-dot-image.png";
 export default function HeroSection() {
   return (
     <div
-      className="flex flex-col items-center justify-center text-center bg-cover bg-no-repeat"
+      className="mt-[-100px] flex flex-col items-center justify-center text-center bg-cover bg-no-repeat"
       style={{ backgroundImage: `url(${dotBanner})` }}
     >
       <a
@@ -20,7 +20,7 @@ export default function HeroSection() {
           <ChevronRightIcon size={16} />
         </p>
       </a>
-      <h1 className="text-[40px]/12 md:text-[45px]/16 font-semibold max-w-3xl mt-4">
+      <h1 className="text-[40px]/12 md:text-[45px]/16 font-semibold max-w-3xl">
         CareerGraph Connect candidates and employers faster
       </h1>
       <p className="text-base text-slate-600 max-w-lg mt-5">

@@ -15,6 +15,8 @@ export default function PersonalJobsSection() {
         <JobCardPersonal />
         <JobCardPersonal />
         <JobCardPersonal />
+        <JobCardPersonal />
+        <JobCardPersonal />
       </div>
     </>
   );

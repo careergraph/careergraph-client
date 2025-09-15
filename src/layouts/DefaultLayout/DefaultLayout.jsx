@@ -7,7 +7,7 @@ function DefaultLayout({children}) {
     return ( 
         <div>
             <Navbar/>
-            <div className="md:px-16 lg:px-24 xl:px-32">
+            <div className="md:px-16 lg:px-24 xl:px-32 pt-25">
                 <div>{children}</div>  
             </div>
             <Footer />
