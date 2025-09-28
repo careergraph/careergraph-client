@@ -8,6 +8,7 @@ import NotFound from "../pages/NotFound";
 import Register from "../pages/Register";
 import JobDetail from "../pages/JobDetail";
 import Jobs from "../pages/Jobs";
+import CareerGuide from "../pages/CareerGuide";
 
 const publicRoutes = [
   { path: config.routes.home, component: Home },
@@ -19,6 +20,7 @@ const publicRoutes = [
   { path: config.routes.login, component: Login, layout: FooterOnly },
   { path: config.routes.register, component: Register, layout: FooterOnly },
   { path: config.routes.jobDetail, component: JobDetail },
+  { path: config.routes.camNang, component: CareerGuide },
 ];
 
 const privateRoutes = [];
