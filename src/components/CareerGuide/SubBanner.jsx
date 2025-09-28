@@ -1,0 +1,23 @@
+import Breadcrumbs from "~/components/navigation/Breadcrumbs";
+import Container from "../Container";
+export default function SubBanner ({
+  src,
+  breadcrumbs = [
+    { label: "Trang chủ", href: "#" },
+    { label: "Cẩm nang nghề nghiệp" },
+  ],
+}){
+  return (
+    <div className="bg-white">
+      <Container className="py-4">
+        <Breadcrumbs items={breadcrumbs} />
+      </Container>
+
+      <Container>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-50 via-sky-50 to-cyan-50">
+          <img src={src? src : "https://vieclam24h.vn/_next/image?url=https%3A%2F%2Fwp-cms-media.s3.ap-east-1.amazonaws.com%2FCAM_NANG_NN_1280x320_3c63494b69.jpg&w=3840&q=75"}/>
+        </div>
+      </Container>
+    </div>
+  );
+};

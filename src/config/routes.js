@@ -8,6 +8,7 @@ const routes = {
     handbook: '/handbook',
     jobs: '/jobs',
     jobDetail: '/job',
+    camNang: '/nghe-nghiep',
     
 }
 export default routes;
