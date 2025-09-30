@@ -10,7 +10,7 @@ export default function ApplyBar() {
       </div>
       <div className="flex-2">
         <SecondaryButton
-          text="Lưu công việc này"
+          text="Lưu công việc"
           className={"w-full"}
           icon={<Heart className="ml-2" size={18} />}
           onClick={() => alert("Đã lưu")}

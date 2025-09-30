@@ -1,6 +1,6 @@
-import Navbar from '../../components/Navbar';
+import Navbar from '../../layouts/components/Navbar/Navbar';
 import Breadcrumbs from '../../components/navigation/Breadcrumbs';
-import Footer from '../../components/Footer';
+import Footer from '../../layouts/components/Footer/Footer';
 
 function SubLayout({ children }) {
     return (

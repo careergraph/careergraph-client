@@ -1,5 +1,6 @@
 import config from "../config";
 import { FooterOnly } from "../layouts";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 import Home from "../pages/Home";
 import Login from "../pages/Login";
@@ -9,6 +10,7 @@ import Register from "../pages/Register";
 import JobDetail from "../pages/JobDetail";
 import Jobs from "../pages/Jobs";
 import CareerGuide from "../pages/CareerGuide";
+import Profile from "../pages/Profile";
 
 const publicRoutes = [
   { path: config.routes.home, component: Home },
@@ -23,6 +25,15 @@ const publicRoutes = [
   { path: config.routes.camNang, component: CareerGuide },
 ];
 
-const privateRoutes = [];
+const privateRoutes = [
+  { 
+    path: "/profile", 
+    component: () => (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ) 
+  },
+];
 
 export { publicRoutes, privateRoutes };
