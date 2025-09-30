@@ -6,9 +6,9 @@ export default function CategorySection() {
   return (
     <>
       <SectionTitle
-        text1="Job Categories"
-        text2="More Category For Job"
-        text3="Many job categories for candidates to search according to their skills, helping candidates optimize their time searching for suitable jobs."
+        text1="Danh mục việc làm"
+        text2="Nhiều danh mục việc làm hơn"
+        text3="Nhiều danh mục việc làm để ứng viên tìm kiếm theo kỹ năng của mình, giúp ứng viên tối ưu thời gian tìm kiếm công việc phù hợp."
       />
 
       <div className="flex flex-wrap items-center justify-center gap-10 mt-16">

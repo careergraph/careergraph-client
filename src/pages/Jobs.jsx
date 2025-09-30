@@ -19,10 +19,10 @@ export default function Jobs() {
                 "linear-gradient(to right, #6a5af9, #7b6cf9, #a78bfa)",
             }}
           >
-            Find the best jobs, faster
+            Tìm việc làm tốt nhất, nhanh nhất
           </h1>
           <p className="mt-3 text-lg text-slate-400">
-            Over 1,000+ job postings updated daily
+            Hơn 1,000+ tin tuyển dụng được cập nhật hàng ngày
           </p>
 
           {/* Search area */}
@@ -31,15 +31,15 @@ export default function Jobs() {
               <input
                 type="text"
                 className="flex-1 rounded-md border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Job title, company name"
+                placeholder="Tên công việc, tên công ty"
               />
               <input
                 type="text"
                 className="md:w-64 rounded-md border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Location"
+                placeholder="Địa điểm"
               />
               <button className="md:w-40 rounded-md bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700 transition">
-                Search
+                Tìm kiếm
               </button>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function Jobs() {
             <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-sm">
               <img
                 src={mainBanner}
-                alt="Advertisement"
+                alt="Quảng cáo"
                 className="w-full h-48 md:h-60 object-cover"
                 loading="lazy"
               />

@@ -21,11 +21,12 @@ export default function Footer() {
             </div>
           </div>
           <p className="mt-6">
-            Launch your career or find top talent with our AI-driven job search
-            platform, built for speed, precision, and growth. Whether you're a
-            job seeker or employer, our tools—ATS matching, CV templates, career
-            blogs, and Google integrations—streamline your journey in a
-            professional, user-friendly environment.
+            Khởi nghiệp hoặc tìm kiếm nhân tài hàng đầu với nền tảng tìm kiếm
+            việc làm AI của chúng tôi, được xây dựng để đạt được tốc độ, độ
+            chính xác và tăng trưởng. Cho dù bạn là người tìm việc hay nhà tuyển
+            dụng, các công cụ của chúng tôi—kết nối ATS, mẫu CV, blog nghề
+            nghiệp và tích hợp Google—sẽ giúp bạn đơn giản hóa hành trình trong
+            một môi trường chuyên nghiệp.
           </p>
         </div>
         <div className="flex-1 flex items-start md:justify-end gap-20">

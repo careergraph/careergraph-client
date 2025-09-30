@@ -5,9 +5,9 @@ export default function PopularJobsSection() {
   return (
     <>
       <SectionTitle
-        text1="Popular Jobs"
-        text2="Popular Jobs Overview"
-        text3="These are jobs that many candidates apply for, maybe it will help you in the job search process."
+        text1="Việc làm phổ biến"
+        text2="Tổng quan việc làm phổ biến"
+        text3="Những công việc được nhiều ứng viên quan tâm, có thể sẽ hữu ích trong quá trình tìm kiếm việc làm của bạn."
       />
 
       <div className="flex flex-wrap items-center justify-center gap-10 mt-16">

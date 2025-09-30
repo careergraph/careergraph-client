@@ -16,23 +16,23 @@ function JobsCardCommon() {
         <div className="flex flex-col items-center justify-between w-1/4 space-y-4 h-80%">
           <img
             src={cardSectionCompanyAccessed}
-            alt="Company Logo"
+            alt="Logo công ty"
             className="w-20 h-20 rounded-full object-contain"
           />
 
-          <ViewJobButton label="Detail" />
+          <ViewJobButton label="Xem" />
         </div>
 
-        <div className="flex flex-col justify-between w-3/4 h-80%">
+        <div className="flex flex-col justify-between w-3/4 h-80% ml-[-2px]">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Accessed</h2>
             <p className="text-sm text-indigo-500 font-medium mb-2">
-              Software Developer
+              Lập trình viên phần mềm
             </p>
             <p className="text-sm text-slate-500 line-clamp-2 mb-3">
-              Passionate about clean code, scalable systems, and solving
-              real-world problems with elegant software. Always eager to learn
-              new technologies and contribute to impactful projects.
+              Đam mê viết code sạch, hệ thống có thể mở rộng và giải quyết
+              các vấn đề thực tế bằng phần mềm tinh tế. Luôn háo hức học hỏi
+              công nghệ mới và đóng góp vào các dự án có tác động.
             </p>
           </div>
 
