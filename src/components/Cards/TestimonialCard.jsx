@@ -32,7 +32,7 @@ export default function TestimonialCard({ testimonial }) {
         </div>
       </div>
       <p className="text-sm pt-4 text-gray-800">
-        Radiant made undercutting all of our competitors an absolute breeze.
+        Career Graph giúp tôi tìm được công việc mơ ước một cách dễ dàng và nhanh chóng.
       </p>
     </div>
   );

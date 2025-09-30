@@ -1,22 +1,22 @@
 export const navLinks = [
   {
-    name: "Home",
+    name: "Trang chủ",
     href: "/home",
   },
   {
-    name: "Jobs",
+    name: "Việc làm",
     href: "/jobs",
   },
   {
-    name: "Handbook",
+    name: "Cẩm nang",
     href: "/handbook",
   },
   {
-    name: "Reviews",
+    name: "Đánh giá",
     href: "/reviews",
   },
   {
-    name: "About",
+    name: "Giới thiệu",
     href: "/about",
   },
 ];

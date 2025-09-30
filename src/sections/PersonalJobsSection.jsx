@@ -5,9 +5,9 @@ export default function PersonalJobsSection() {
   return (
     <>
       <SectionTitle
-        text1="Personal Jobs"
-        text2="Personal Jobs Overview"
-        text3="We base on your CV and personal information you have provided to suggest suitable jobs for you to apply for."
+        text1="Việc làm cá nhân"
+        text2="Tổng quan việc làm cá nhân"
+        text3="Chúng tôi dựa trên CV và thông tin cá nhân bạn đã cung cấp để đề xuất những công việc phù hợp để bạn ứng tuyển."
       />
 
       <div className="flex flex-wrap items-center justify-center gap-10 mt-16">

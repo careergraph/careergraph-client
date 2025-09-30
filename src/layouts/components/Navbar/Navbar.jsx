@@ -170,13 +170,13 @@ export default function Navbar() {
               onClick={() => navigate("/login")}
               className="hidden md:block hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
             >
-              Sign in
+              Đăng nhập
             </button>
             <button
               onClick={() => navigate("/register")}
               className="hidden md:block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
             >
-              Sign up
+              Đăng ký
             </button>
           </>
         )}
