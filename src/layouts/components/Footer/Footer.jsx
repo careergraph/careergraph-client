@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { navLinks } from "../data/navLinks";
-import logoSvg from "../assets/logo.svg";
+import { navLinks } from "../../../data/navLinks";
+import logoSvg from "../../../assets/logo.svg";
 
 export default function Footer() {
   return (

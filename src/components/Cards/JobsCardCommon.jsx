@@ -10,7 +10,7 @@ function JobsCardCommon() {
   return (
     <div
       ref={divRef}
-      className="relative w-[600px] h-56 rounded-xl p-px bg-gray-50 backdrop-blur-md text-gray-200 overflow-hidden shadow-sm cursor-pointer"
+      className="relative w-full max-w-[450px] h-56 rounded-xl p-px bg-gray-50 backdrop-blur-md text-gray-200 overflow-hidden shadow-sm cursor-pointer"
     >
       <div className="relative z-10 bg-white backdrop-blur-sm p-5 h-full w-full rounded-[11px] flex flex-row items-center space-x-6">
         <div className="flex flex-col items-center justify-between w-1/4 space-y-4 h-80%">
@@ -20,7 +20,7 @@ function JobsCardCommon() {
             className="w-20 h-20 rounded-full object-contain"
           />
 
-          <ViewJobButton label="View Job" />
+          <ViewJobButton label="Detail" />
         </div>
 
         <div className="flex flex-col justify-between w-3/4 h-80%">
