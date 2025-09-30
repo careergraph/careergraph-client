@@ -31,17 +31,17 @@ function JobCardPersonal() {
       />
 
       <div className="relative z-10 bg-gray-50/90 backdrop-blur-sm p-5 h-full w-full rounded-[11px] flex flex-col items-center justify-center text-center">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex justify-between items-center w-full gap-4">
           <img
             src={cardSectionCompanyAccessed}
-            alt="Profile Avatar"
+            alt="Ảnh đại diện"
             className="w-18 h-18 rounded-full my-3 object-contain"
           />
 
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col items-start text-left space-y-2">
             <h2 className="text-xl font-bold text-gray-900 mb-1">Accessed</h2>
             <p className="text-sm text-indigo-500 font-medium mb-3">
-              Software Developer
+              Lập trình viên phần mềm
             </p>
           </div>
         </div>
@@ -53,19 +53,23 @@ function JobCardPersonal() {
         </div>
 
         <p className="text-sm text-slate-500 mb-5 px-3 line-clamp-3">
-          Passionate about clean code, scalable systems, and solving real-world
-          problems with elegant software. Always eager to learn new technologies
-          and contribute to impactful projects.
+          Đam mê viết code sạch, hệ thống có thể mở rộng và giải quyết các vấn
+          đề thực tế bằng phần mềm tinh tế. Luôn háo hức học hỏi công nghệ mới
+          và đóng góp vào các dự án có tác động.
         </p>
         <div className="flex justify-between items-center w-full px-5 mb-3">
           <button className="hover:-translate-y-0.5 transition text-slate-500 hover:text-indigo-500">
-            <img src={cardSectionSaveIcon} alt="Save" className="size-6" />
+            <img src={cardSectionSaveIcon} alt="Lưu" className="size-6" />
           </button>
           <button className="hover:-translate-y-0.5 transition text-slate-500 hover:text-indigo-500">
-            <img src={cardSectionApplyIcon} alt="Save" className="size-6" />
+            <img
+              src={cardSectionApplyIcon}
+              alt="Ứng tuyển"
+              className="size-6"
+            />
           </button>
           <button className="hover:-translate-y-0.5 transition text-slate-500 hover:text-indigo-500">
-            <img src={cardSectionShareIcon} alt="Save" className="size-6" />
+            <img src={cardSectionShareIcon} alt="Chia sẻ" className="size-6" />
           </button>
         </div>
       </div>

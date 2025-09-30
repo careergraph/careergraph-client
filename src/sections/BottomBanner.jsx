@@ -7,22 +7,21 @@ export default function BottomBanner() {
       <div className="flex md:flex-row flex-col border border-indigo-500/30 rounded-lg items-start md:items-center justify-between gap-5 text-sm max-w-5xl bg-white p-8">
         <div className="max-w-md w-full">
           <h1 className="text-3xl font-semibold text-gray-700">
-            Subscribe to our newsletter
+            Đăng ký nhận bản tin của chúng tôi
           </h1>
 
           <p className="text-gray-500 mt-2">
-            Nostrud amet eu ullamco nisi aute in ad minim nostrud adipisicing
-            velit quis. Duis tempor incididunt dolore.
+            Nhận thông tin về việc làm mới nhất, cẩm nang nghề nghiệp và các cơ hội phát triển sự nghiệp.
           </p>
 
           <div className="flex items-center gap-4 mt-10">
             <input
               className="py-2 px-3 w-full outline-none focus:border-indigo-500/60 transition max-w-64 border border-gray-500/30 rounded-md"
               type="text"
-              placeholder="Enter you email"
+              placeholder="Nhập email của bạn"
             />
 
-            <ViewJobButton label="Send" />
+            <ViewJobButton label="Gửi" />
           </div>
         </div>
 
@@ -46,13 +45,12 @@ export default function BottomBanner() {
             </div>
 
             <h3 className="text-base font-medium text-gray-800">
-              Weekly articles
+              Bài viết hàng tuần
             </h3>
           </div>
 
           <p className="text-gray-500">
-            Non laboris consequat cupidatat laborum magna. Eiusmod non irure
-            cupidatat duis commodo amet.
+            Nhận các bài viết chuyên sâu về nghề nghiệp, kỹ năng và xu hướng thị trường lao động.
           </p>
         </div>
 
@@ -76,12 +74,11 @@ export default function BottomBanner() {
               </svg>
             </div>
 
-            <h3 className="text-base font-medium text-gray-800">No spam</h3>
+            <h3 className="text-base font-medium text-gray-800">Không spam</h3>
           </div>
 
           <p className="text-gray-500">
-            Non laboris consequat cupidatat laborum magna. Eiusmod non irure
-            cupidatat duis commodo amet.
+            Chúng tôi cam kết không gửi thư rác. Chỉ những thông tin hữu ích và liên quan đến sự nghiệp của bạn.
           </p>
         </div>
       </div>

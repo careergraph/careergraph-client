@@ -10,58 +10,58 @@ import job8 from "../assets/images/job-category-8.png";
 export const categoriesJob = [
   {
     resource: job1,
-    title: "Engineering",
+    title: "Kỹ thuật",
     color: "bg-indigo-200/40",
     description:
-      "Design, build, and innovate solutions across various technical fields.",
+      "Thiết kế, xây dựng và đổi mới các giải pháp trong các lĩnh vực kỹ thuật khác nhau.",
   },
   {
     resource: job2,
-    title: "Business",
+    title: "Kinh doanh",
     color: "bg-pink-200/40",
     description:
-      "Plan strategies, manage resources, and drive organizational growth.",
+      "Lập kế hoạch chiến lược, quản lý nguồn lực và thúc đẩy tăng trưởng tổ chức.",
   },
   {
     resource: job4,
-    title: "Art & Music",
+    title: "Nghệ thuật & Âm nhạc",
     color: "bg-yellow-200/40",
     description:
-      "Express creativity through visual arts, performance, and music.",
+      "Thể hiện sự sáng tạo thông qua nghệ thuật thị giác, biểu diễn và âm nhạc.",
   },
   {
     resource: job3,
-    title: "Administrative",
+    title: "Hành chính",
     color: "bg-green-200/40",
     description:
-      "Support daily operations with organization, and coordination.",
+      "Hỗ trợ hoạt động hàng ngày với tổ chức và phối hợp.",
   },
   {
     resource: job5,
-    title: "Sales",
+    title: "Bán hàng",
     color: "bg-purple-200/40",
     description:
-      "Promote products, build relationships, and achieve revenue goals.",
+      "Quảng bá sản phẩm, xây dựng mối quan hệ và đạt được mục tiêu doanh thu.",
   },
   {
     resource: job6,
-    title: "Education",
+    title: "Giáo dục",
     color: "bg-blue-200/40",
     description:
-      "Teach, mentor, and inspire learners across different age groups.",
+      "Giảng dạy, hướng dẫn và truyền cảm hứng cho người học ở các độ tuổi khác nhau.",
   },
   {
     resource: job7,
-    title: "Customer & Support",
+    title: "Chăm sóc khách hàng",
     color: "bg-orange-200/40",
     description:
-      "Assist clients, solve problems, and ensure customer satisfaction.",
+      "Hỗ trợ khách hàng, giải quyết vấn đề và đảm bảo sự hài lòng của khách hàng.",
   },
   {
     resource: job8,
-    title: "Manufacturing",
+    title: "Sản xuất",
     color: "bg-teal-200/40",
     description:
-      "Produce goods efficiently with quality control and innovation.",
+      "Sản xuất hàng hóa hiệu quả với kiểm soát chất lượng và đổi mới.",
   },
 ];

@@ -26,11 +26,11 @@ export default function ChatBotButton() {
         <div className="button-bg rounded-full p-0.5 hover:scale-105 transition duration-300 active:scale-100">
           <button
             className="w-14 h-14 flex items-center justify-center rounded-full bg-white shadow-lg hover:shadow-blue-400/50"
-            aria-label="AI Chatbot"
+            aria-label="Trợ lý AI"
           >
             <img
               src={chatbotButtonIcon}
-              alt="AI Chatbot"
+              alt="Trợ lý AI"
               className="w-6 h-6"
             />
           </button>
