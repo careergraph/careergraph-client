@@ -1,8 +1,6 @@
 import { MapPin, Briefcase, GraduationCap, Calendar, Heart, Building2 } from "lucide-react";
 import Breadcrumbs from "~/components/navigation/Breadcrumbs";
 import JobHeader from "~/components/JobDetail/JobHeader";
-import ApplyBar from "~/components/JobDetail/ApplyBar";
-import Section from "~/components/JobDetail/Section";
 import CompanyCard from "~/components/JobDetail/CompanyCard";
 import SimilarJobsList from "~/components/JobDetail/SimilarJobsList";
 import JobSections from "~/components/JobDetail/JobSections";
@@ -88,7 +86,7 @@ const sectionsFromDB = [
 export default function JobDetailPage() {
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-1 mt-18">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-1 mt-2">
       <Breadcrumbs
         items={[
           { label: "Trang chủ", href: "/" },

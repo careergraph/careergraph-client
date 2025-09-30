@@ -1,6 +1,4 @@
 import ApplyBar from "./ApplyBar";
-import { MapPin, Briefcase, GraduationCap, Calendar, Heart, Building2 } from "lucide-react";
-import { PrimaryButton, SecondaryButton } from "./Button";
 
 export default function JobHeader({ title, highlights = [], extra }) {
   return (
