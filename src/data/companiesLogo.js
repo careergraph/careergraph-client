@@ -1,22 +1,22 @@
 export const companiesLogo = [
     {
-        name: "Framer",
-        logo: "/assets/companies-logo/framer.svg",
+        name: "FPT Software",
+        logo: "/assets/companies-logo/fpt.svg",
     },
     {
-        name: "Huawei",
-        logo: "/assets/companies-logo/huawei.svg",
+        name: "Viettel",
+        logo: "/assets/companies-logo/viettel.svg",
     },
     {
-        name: "Instagram",
-        logo: "/assets/companies-logo/instagram.svg",
+        name: "VinGroup",
+        logo: "/assets/companies-logo/vingroup.svg",
     },
     {
         name: "Microsoft",
         logo: "/assets/companies-logo/microsoft.svg",
     },
     {
-        name: "Walmart",
-        logo: "/assets/companies-logo/walmart.svg",
+        name: "Samsung",
+        logo: "/assets/companies-logo/samsung.svg",
     }
 ];

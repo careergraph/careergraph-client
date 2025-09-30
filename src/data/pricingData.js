@@ -2,89 +2,89 @@ import { CheckIcon } from "lucide-react";
 
 export const pricingData = [
     {
-        title: "Basic Plan",
+        title: "Gói Cơ bản",
         price: 29,
         features: [
             {
-                name: "5 Projects",
+                name: "5 hồ sơ ứng tuyển",
                 icon: CheckIcon,
             },
             {
-                name: "10 GB Storage",
+                name: "10 GB lưu trữ",
                 icon: CheckIcon,
             },
             {
-                name: "Basic Support",
+                name: "Hỗ trợ cơ bản",
                 icon: CheckIcon,
             },
             {
-                name: "Community Access",
+                name: "Truy cập cộng đồng",
                 icon: CheckIcon,
             },
             {
-                name: "Basic code review",
+                name: "Đánh giá CV cơ bản",
                 icon: CheckIcon,
             },
         ],
-        buttonText: "Get Started",
+        buttonText: "Bắt đầu",
     },
     {
-        title: "Pro Plan",
+        title: "Gói Chuyên nghiệp",
         price: 79,
         mostPopular: true,
         features: [
             {
-                name: "50 Projects",
+                name: "50 hồ sơ ứng tuyển",
                 icon: CheckIcon,
             },
             {
-                name: "100 GB Storage",
+                name: "100 GB lưu trữ",
                 icon: CheckIcon,
             },
             {
-                name: "Priority Support",
+                name: "Hỗ trợ ưu tiên",
                 icon: CheckIcon,
             },
             {
-                name: "Team Collaboration",
+                name: "Cộng tác nhóm",
                 icon: CheckIcon,
             },
             {
-                name: "Advanced Analytics",
+                name: "Phân tích nâng cao",
                 icon: CheckIcon,
             },
             {
-                name: "Premium Code Review",
+                name: "Đánh giá CV chuyên nghiệp",
                 icon: CheckIcon,
             }
         ],
-        buttonText: "Upgrade Now",
+        buttonText: "Nâng cấp ngay",
     },
     {
-        title: "Enterprise Plan",
+        title: "Gói Doanh nghiệp",
         price: 149,
         features: [
             {
-                name: "Unlimited Projects",
+                name: "Không giới hạn hồ sơ",
                 icon: CheckIcon,
             },
             {
-                name: "1 TB Storage",
+                name: "1 TB lưu trữ",
                 icon: CheckIcon,
             },
             {
-                name: "24/7 Dedicated Support",
+                name: "Hỗ trợ 24/7 chuyên dụng",
                 icon: CheckIcon,
             },
             {
-                name: "Custom Integrations",
+                name: "Tích hợp tùy chỉnh",
                 icon: CheckIcon,
             },
             {
-                name: "SLA Guarantee",
+                name: "Cam kết SLA",
                 icon: CheckIcon,
             }
         ],
-        buttonText: "Contact Sales",
+        buttonText: "Liên hệ bán hàng",
     }
 ];

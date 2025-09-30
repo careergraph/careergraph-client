@@ -11,15 +11,15 @@ export default function FaqSection() {
       <img
         className="max-w-sm w-full rounded-xl h-auto"
         src="https://images.unsplash.com/photo-1555212697-194d092e3b8f?q=80&w=830&h=844&auto=format&fit=crop"
-        alt="faq illustration"
+        alt="Hình minh họa FAQ"
       />
 
       {/* Nội dung FAQ */}
       <div>
         <SectionTitle
-          text1="FAQ's"
-          text2="Looking for answer?"
-          text3="Ship Beautiful Frontends Without the Overhead — Customizable, Scalable, and Developer-Friendly UI Components."
+          text1="Câu hỏi thường gặp"
+          text2="Bạn đang tìm câu trả lời?"
+          text3="Tìm hiểu thêm về Career Graph và các tính năng hỗ trợ tìm kiếm việc làm hiệu quả."
         />
 
         {faqsData.map((faq, index) => (

@@ -13,12 +13,11 @@ export default function NotFound() {
       <div className="h-1 w-16 rounded my-5 md:my-7"></div>
 
       <p className="text-2xl md:text-3xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] font-bold bg-clip-text text-transparent">
-        Page Not Found
+        Không tìm thấy trang
       </p>
 
       <p className="text-sm md:text-base mt-4 text-gray-500 max-w-md text-center">
-        The page you are looking for might have been removed, had its name
-        changed, or is temporarily unavailable.
+        Trang bạn đang tìm kiếm có thể đã bị xóa, đổi tên hoặc tạm thời không khả dụng.
       </p>
 
       <div className="flex items-center gap-4 mt-6">
@@ -26,14 +25,14 @@ export default function NotFound() {
           href="/home"
           className="bg-indigo-500 hover:bg-indigo-800 px-7 py-2.5 text-white rounded-md active:scale-95 transition-all"
         >
-          Return Home
+          Về trang chủ
         </a>
 
         <a
           href="home"
           className="border border-gray-300 px-7 py-2.5 text-gray-800 rounded-md active:scale-95 transition-all"
         >
-          Contact support
+          Liên hệ hỗ trợ
         </a>
       </div>
     </div>

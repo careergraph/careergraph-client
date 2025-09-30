@@ -6,7 +6,7 @@ import SectionTitle from "../components/Sections/SectionTitle";
 export default function TestimonialsSection() {
     return (
         <>
-            <SectionTitle text1="Testimonials" text2="Our Social Proof" text3="A visual collection of our most recent works - each piece crafted with intention, emotion and style." />
+            <SectionTitle text1="Đánh giá" text2="Phản hồi từ người dùng" text3="Những chia sẻ chân thực từ người dùng về trải nghiệm tìm việc làm trên Career Graph." />
 
             <Marquee className="max-w-5xl mx-auto mt-11" gradient={true} speed={25}>
                 <div className="flex items-center justify-center py-5">
