@@ -11,6 +11,8 @@ import JobDetail from "../pages/JobDetail";
 import Jobs from "../pages/Jobs";
 import CareerGuide from "../pages/CareerGuide";
 import Profile from "../pages/Profile";
+import ProfileDashboardLayout from "~/layouts/ProfileDashboardLayout/ProfileDashboardLayout";
+import ProfileDashboard from "~/pages/ProfileDashboard";
 
 const publicRoutes = [
   { path: routes.home, component: Home },
@@ -21,18 +23,19 @@ const publicRoutes = [
   { path: routes.about, component: About },
   { path: routes.login, component: Login, layout: FooterOnly },
   { path: routes.register, component: Register, layout: FooterOnly },
-  { path: routes.jobDetail, component: JobDetail }
+  { path: routes.jobDetail, component: JobDetail },
+  { path: routes.profile, component: ProfileDashboard, layout: ProfileDashboardLayout },
 ];
 
 const privateRoutes = [
-  { 
-    path: routes.profile, 
-    component: () => (
-      <ProtectedRoute>
-        <Profile />
-      </ProtectedRoute>
-    ) 
-  },
+  // { 
+  //   path: routes.profile, 
+  //   component: () => (
+  //     <ProtectedRoute>
+  //       <Profile />
+  //     </ProtectedRoute>
+  //   ) 
+  // },
 ];
 
 export { publicRoutes, privateRoutes };

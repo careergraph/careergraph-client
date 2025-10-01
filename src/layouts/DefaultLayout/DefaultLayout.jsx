@@ -14,6 +14,4 @@ function DefaultLayout({children}) {
         </div>
         );
 }
-
-
 export default DefaultLayout;
