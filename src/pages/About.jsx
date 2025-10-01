@@ -1,8 +1,8 @@
-import NewsLetterSection from "../sections/BottomBanner";
-import FaqSection from "../sections/FaqSection";
-import FeaturesSection from "../sections/FeaturesSection";
-import SectionPricing from "../components/Sections/SectionPricing";
-import BlogListSection from "../sections/BlogListSection";
+import NewsLetterSection from "../sections/Blog/BottomBanner";
+import FaqSection from "../sections/Blog/FaqSection";
+import FeaturesSection from "../sections/Blog/FeaturesSection";
+import SectionPricing from "../sections/Blog/SectionPricing";
+import BlogListSection from "../sections/Blog/BlogListSection";
 
 export default function About() {
   return (
