@@ -1,6 +1,6 @@
 import { routes } from "../config";
 import { FooterOnly } from "../layouts";
-import ProtectedRoute from "../components/ProtectedRoute";
+import ProtectedRoute from "../components/Containers/ProtectedRoute";
 
 import Home from "../pages/Home";
 import Login from "../pages/Login";

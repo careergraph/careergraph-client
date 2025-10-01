@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Component để bảo vệ các trang cần đăng nhập
 const ProtectedRoute = ({ children }) => {

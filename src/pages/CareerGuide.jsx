@@ -1,11 +1,10 @@
 import React from "react";
-import FeaturedArticleItem from "~/components/CareerGuide/Feature/FeaturedArticleItem"
-import FeaturedArticles from "~/components/CareerGuide/Feature/FeaturedArticles";
-import FeaturedKeywords from "~/components/CareerGuide/Feature/FeaturedKeywords";
-import HeaderNavSub from "~/components/CareerGuide/HeaderNavSub";
-import NewArticles from "~/components/CareerGuide/New/NewArticles";
+import FeaturedArticles from "~/sections/CareerGuide/Feature/FeaturedArticles";
+import FeaturedKeywords from "~/sections/CareerGuide/Feature/FeaturedKeywords";
+// import HeaderNavSub from "~/sections/CareerGuide/HeaderNavSub";
+import NewArticles from "~/sections/CareerGuide/New/NewArticles";
 
-import SubBanner from "~/components/CareerGuide/SubBanner";
+import SubBanner from "~/sections/CareerGuide/SubBanner";
 
 
 
@@ -78,7 +77,7 @@ export default function CareerGuide() {
   ];
   return (
     <main className="bg-white">
-      <HeaderNavSub/>
+      {/* <HeaderNavSub/> */}
       <SubBanner />
       <FeaturedArticles featured={featured} items={listItems} />
       <NewArticles items={listItems}/>
