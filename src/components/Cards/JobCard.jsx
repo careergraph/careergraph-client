@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function JobCard() {
   const navigate = useNavigate();
   const handleNavigate = () => {
-    navigate("/job");
+    navigate("/job/1");
   };
   return (
     <div
@@ -20,7 +20,7 @@ export default function JobCard() {
       <div className="flex-shrink-0">
         <img
           src="/logo-company.png"
-          alt="Logo công ty"
+          alt="Company Logo"
           className="w-16 h-16 rounded-lg border border-slate-200 object-cover"
         />
       </div>
@@ -67,13 +67,13 @@ export default function JobCard() {
                 className="mt-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 transition-all duration-200"
                 onClick={(e) => { e.stopPropagation(); /* Save logic */ }}
               >
-                Lưu
+                Save
               </button>
               <button
                 className="mt-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-200"
                 onClick={(e) => { e.stopPropagation(); handleNavigate(); }}
               >
-                Chi tiết
+                Detail
               </button>
             </div>
           </div>
