@@ -96,7 +96,13 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           <ChevronDown size={18} className="text-indigo-400 transition" />
         )}
       </button>
-      <div className={`transition-all duration-300 ${expandedSections[sectionKey] ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+      <div
+        className={`transition-all duration-300 ${
+          expandedSections[sectionKey]
+            ? "max-h-[500px] opacity-100"
+            : "max-h-0 opacity-0 overflow-hidden"
+        }`}
+      >
         {children}
       </div>
     </div>
@@ -130,7 +136,9 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
               <span className="bg-indigo-100 p-2 rounded-full shadow">
                 <Filter size={22} className="text-indigo-600" />
               </span>
-              <h3 className="font-bold text-xl text-indigo-700 tracking-tight">Bộ lọc</h3>
+              <h3 className="font-bold text-xl text-indigo-700 tracking-tight">
+                Bộ lọc
+              </h3>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -147,23 +155,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
               </button>
             </div>
           </div>
-
-          {/* Search */}
-          <FilterSection title="Từ khoá" sectionKey="search">
-            <div className="relative">
-              <Search
-                size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
-              />
-              <input
-                type="text"
-                placeholder="VD: Frontend, Sale, Data Analyst..."
-                value={filters.search}
-                readOnly={false}
-                className="w-full pl-11 pr-4 py-2.5 border border-indigo-100 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
-              />
-            </div>
-          </FilterSection>
 
           {/* Categories */}
           <FilterSection title="Ngành nghề" sectionKey="category">
@@ -183,7 +174,15 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
                     }
                     className="mr-3 text-indigo-600 focus:ring-indigo-500 accent-indigo-500"
                   />
-                  <span className={`text-sm ${filters.category === category ? 'text-indigo-700 font-semibold' : 'text-slate-700'}`}>{category}</span>
+                  <span
+                    className={`text-sm ${
+                      filters.category === category
+                        ? "text-indigo-700 font-semibold"
+                        : "text-slate-700"
+                    }`}
+                  >
+                    {category}
+                  </span>
                 </label>
               ))}
             </div>
@@ -231,14 +230,25 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           <FilterSection title="Kinh nghiệm" sectionKey="rating">
             <div className="space-y-2">
               {ratings.map((exp) => (
-                <label key={exp} className="flex items-center cursor-pointer px-2 py-1 rounded-lg hover:bg-indigo-50 transition">
+                <label
+                  key={exp}
+                  className="flex items-center cursor-pointer px-2 py-1 rounded-lg hover:bg-indigo-50 transition"
+                >
                   <input
                     type="checkbox"
                     checked={filters.rating.includes(exp)}
                     onChange={() => handleRatingChange(exp)}
                     className="mr-3 text-indigo-600 focus:ring-indigo-500 accent-indigo-500"
                   />
-                  <span className={`text-sm ${filters.rating.includes(exp) ? 'text-indigo-700 font-semibold' : 'text-slate-700'}`}>{exp}</span>
+                  <span
+                    className={`text-sm ${
+                      filters.rating.includes(exp)
+                        ? "text-indigo-700 font-semibold"
+                        : "text-slate-700"
+                    }`}
+                  >
+                    {exp}
+                  </span>
                 </label>
               ))}
             </div>
@@ -252,12 +262,16 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
                   key={brand}
                   onClick={() => handleBrandChange(brand)}
                   className={`px-4 py-1.5 text-sm rounded-full border font-medium shadow-sm transition flex items-center gap-1
-                    ${filters.brand.includes(brand)
-                      ? "bg-indigo-100 text-indigo-700 border-indigo-300 scale-105"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50"}
+                    ${
+                      filters.brand.includes(brand)
+                        ? "bg-indigo-100 text-indigo-700 border-indigo-300 scale-105"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50"
+                    }
                   `}
                 >
-                  {filters.brand.includes(brand) && <span className="w-2 h-2 bg-indigo-400 rounded-full mr-1"></span>}
+                  {filters.brand.includes(brand) && (
+                    <span className="w-2 h-2 bg-indigo-400 rounded-full mr-1"></span>
+                  )}
                   {brand}
                 </button>
               ))}
