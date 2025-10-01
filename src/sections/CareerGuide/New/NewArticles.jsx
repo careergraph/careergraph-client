@@ -1,5 +1,5 @@
 
-import Container from "~/components/Container";
+import Container from "~/components/Containers/Container";
 import FeaturedCard from "../Feature/FeatureCard";
 import FeaturedArticleItem from "../Feature/FeaturedArticleItem";
 import NewArticleItem from "./NewArticleItem";

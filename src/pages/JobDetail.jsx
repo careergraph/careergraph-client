@@ -1,9 +1,9 @@
 import { MapPin, Briefcase, GraduationCap, Calendar, Heart, Building2 } from "lucide-react";
-import Breadcrumbs from "~/components/navigation/Breadcrumbs";
-import JobHeader from "~/components/JobDetail/JobHeader";
-import CompanyCard from "~/components/JobDetail/CompanyCard";
-import SimilarJobsList from "~/components/JobDetail/SimilarJobsList";
-import JobSections from "~/components/JobDetail/JobSections";
+import Breadcrumbs from "~/components/Navigate/Breadcrumbs";
+import JobHeader from "~/sections/JobDetail/JobHeader";
+import CompanyCard from "~/sections/JobDetail/CompanyCard";
+import SimilarJobsList from "~/sections/JobDetail/SimilarJobsList";
+import JobSections from "~/sections/JobDetail/JobSections";
 
 const job = {
   title: "Nam Nhân Viên Kế Toán Văn Phòng (Quận Gò Vấp)",

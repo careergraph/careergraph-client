@@ -1,5 +1,5 @@
 import React from "react";
-import Container from "~/components/Container";
+import Container from "~/components/Containers/Container";
 
 
 export default function FeaturedKeywords({ title = "Từ khoá nổi bật", keywords = [] }) {

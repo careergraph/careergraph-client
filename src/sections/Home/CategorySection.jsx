@@ -1,6 +1,6 @@
-import CategoryCard from "../components/Cards/CategoryCard";
-import SectionTitle from "../components/Sections/SectionTitle";
-import { categoriesJob } from "../data/categoriesJob";
+import CategoryCard from "../../components/Cards/CategoryCard";
+import SectionTitle from "../../components/Sections/SectionTitle";
+import { categoriesJob } from "../../data/categoriesJob";
 
 export default function CategorySection() {
   return (

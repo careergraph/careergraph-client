@@ -1,7 +1,8 @@
-import JobsSidebar from "~/sections/JobsSidebar";
+import JobsSidebar from "~/sections/Job/JobsSidebar";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
-import mainBanner from "../assets/images/main-banner.png";
 import JobCard from "~/components/Cards/JobCard";
+import SearchBar from "~/components/Search/SearchBar";
+import BannerSlider from "~/sections/Job/BannerSlider";
 
 export default function Jobs() {
   return (
@@ -11,9 +12,9 @@ export default function Jobs() {
         className="relative -mt-24 bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${dotBanner})` }}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-40 pb-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-30 pb-10">
           <h1
-            className="text-5xl md:text-6xl font-semibold drop-shadow bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-semibold drop-shadow bg-clip-text text-transparent"
             style={{
               backgroundImage:
                 "linear-gradient(to right, #6a5af9, #7b6cf9, #a78bfa)",
@@ -26,22 +27,13 @@ export default function Jobs() {
           </p>
 
           {/* Search area */}
-          <div className="mt-6 bg-white/95 backdrop-blur rounded-xl shadow p-3 md:p-4">
-            <div className="flex flex-col md:flex-row gap-3">
-              <input
-                type="text"
-                className="flex-1 rounded-md border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Tên công việc, tên công ty"
-              />
-              <input
-                type="text"
-                className="md:w-64 rounded-md border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Địa điểm"
-              />
-              <button className="md:w-40 rounded-md bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700 transition">
-                Tìm kiếm
-              </button>
-            </div>
+          <div className="mt-6 flex justify-end">
+            <SearchBar
+              onSearch={({ keyword }) => {
+                // Xử lý tìm kiếm ở đây
+                alert(keyword);
+              }}
+            />
           </div>
         </div>
       </div>
@@ -51,7 +43,7 @@ export default function Jobs() {
         <div className="grid grid-cols-12 gap-6">
           {/* Sidebar */}
           <aside className="col-span-12 md:col-span-4">
-            <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-auto pr-1">
+            <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-auto pr-1 mt-[-100px]">
               <JobsSidebar
                 isOpen={true}
                 onClose={() => {}}
@@ -63,14 +55,7 @@ export default function Jobs() {
           {/* Banner + Job List */}
           <section className="col-span-12 md:col-span-8 space-y-6">
             {/* Banner */}
-            <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-sm">
-              <img
-                src={mainBanner}
-                alt="Quảng cáo"
-                className="w-full h-48 md:h-60 object-cover"
-                loading="lazy"
-              />
-            </div>
+            <BannerSlider />
 
             {/* Job List */}
             <div className="space-y-4">

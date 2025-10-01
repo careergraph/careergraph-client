@@ -1,6 +1,6 @@
 import { useState } from "react";
-import SectionTitle from "../components/Sections/SectionTitle";
-import { faqsData } from "../data/faqsData";
+import SectionTitle from "../../components/Sections/SectionTitle";
+import { faqsData } from "../../data/faqsData";
 
 export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState(null);
