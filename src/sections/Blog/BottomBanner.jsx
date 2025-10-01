@@ -1,5 +1,5 @@
 import { GithubIcon } from "lucide-react";
-import ViewJobButton from "../components/Buttons/ViewJobButton";
+import ViewJobButton from "../../components/Buttons/ViewJobButton";
 
 export default function BottomBanner() {
   return (

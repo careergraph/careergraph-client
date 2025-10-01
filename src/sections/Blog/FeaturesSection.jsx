@@ -1,4 +1,4 @@
-import SectionTitle from "../components/Sections/SectionTitle";
+import SectionTitle from "../../components/Sections/SectionTitle";
 
 export default function FeaturesSection() {
   return (

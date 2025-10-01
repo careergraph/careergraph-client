@@ -1,10 +1,10 @@
 import Breadcrumbs from "~/components/navigation/Breadcrumbs";
-import Container from "../Container";
+import Container from "../../components/Container";
 export default function SubBanner ({
   src,
   breadcrumbs = [
-    { label: "Trang chủ", href: "#" },
-    { label: "Cẩm nang nghề nghiệp" },
+    { label: "Trang chủ", href: "/home" },
+    { label: "Cẩm nang" },
   ],
 }){
   return (

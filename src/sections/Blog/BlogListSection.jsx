@@ -1,5 +1,5 @@
-import BlogCard from "../components/Cards/BlogCard";
-import SectionTitle from "../components/Sections/SectionTitle";
+import BlogCard from "../../components/Cards/BlogCard";
+import SectionTitle from "../../components/Sections/SectionTitle";
 
 export default function BlogListSection() {
   return (

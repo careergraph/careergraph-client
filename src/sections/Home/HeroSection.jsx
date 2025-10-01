@@ -1,6 +1,6 @@
 import { ChevronRightIcon, SparklesIcon } from "lucide-react";
-import mainBanner from "../assets/images/main-banner.png";
-import dotBanner from "../assets/images/hero-section-dot-image.png";
+import mainBanner from "../../assets/images/main-banner.png";
+import dotBanner from "../../assets/images/hero-section-dot-image.png";
 
 export default function HeroSection() {
   return (
