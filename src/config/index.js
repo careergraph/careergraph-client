@@ -1,7 +1,7 @@
 // Cấu hình routes cho ứng dụng
 export const routes = {
   home: "/",
-  homeDefault: "/home", 
+  homeDefault: "/home",
   jobs: "/jobs",
   handbook: "/handbook",
   reviews: "/reviews",
@@ -9,7 +9,7 @@ export const routes = {
   login: "/login",
   register: "/register",
   jobDetail: "/job/:id",
-  profile: "/profile"
+  profile: "/profile",
 };
 
 // Cấu hình API endpoints
@@ -18,27 +18,28 @@ export const apiConfig = {
   endpoints: {
     auth: {
       login: "/auth/login",
-      register: "/auth/register", 
+      register: "/auth/register",
       verify: "/auth/verify",
-      logout: "/auth/logout"
+      logout: "/auth/logout",
     },
     jobs: {
       list: "/jobs",
       detail: "/jobs/:id",
-      search: "/jobs/search"
-    }
-  }
+      search: "/jobs/search",
+      categories: "/jobs/categories",
+    },
+  },
 };
 
 // Cấu hình khác
 export const appConfig = {
   name: "Career Graph",
   version: "1.0.0",
-  description: "Nền tảng tìm kiếm việc làm hàng đầu Việt Nam"
+  description: "Nền tảng tìm kiếm việc làm hàng đầu Việt Nam",
 };
 
 export default {
   routes,
   apiConfig,
-  appConfig
+  appConfig,
 };
