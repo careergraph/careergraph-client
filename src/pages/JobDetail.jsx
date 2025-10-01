@@ -1,5 +1,5 @@
 import { MapPin, Briefcase, GraduationCap, Calendar, Heart, Building2 } from "lucide-react";
-import Breadcrumbs from "~/components/navigation/Breadcrumbs";
+import Breadcrumbs from "~/components/Navigate/Breadcrumbs";
 import JobHeader from "~/sections/JobDetail/JobHeader";
 import CompanyCard from "~/sections/JobDetail/CompanyCard";
 import SimilarJobsList from "~/sections/JobDetail/SimilarJobsList";
