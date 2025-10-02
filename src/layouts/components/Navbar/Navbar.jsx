@@ -1,9 +1,10 @@
-import { MenuIcon, XIcon, User, LogOut } from "lucide-react";
+import { MenuIcon, XIcon, User, LogOut, Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { navLinks } from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
 import { useAuth } from "../../../contexts/AuthContext";
+import ProfileDropdown from "~/components/ProfileMenu/ProfileDropdown";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -22,14 +23,14 @@ export default function Navbar() {
   // Đóng dropdown khi click bên ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showUserMenu && !event.target.closest('.relative')) {
+      if (showUserMenu && !event.target.closest(".relative")) {
         setShowUserMenu(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showUserMenu]);
 
@@ -37,7 +38,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setShowUserMenu(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -61,7 +62,7 @@ export default function Navbar() {
           </div>
         </div>
       </Link>
-      <div className="hidden items-center md:gap-8 lg:gap-9 font-medium md:flex lg:pl-20">
+      <div className="hidden md:flex flex-1 justify-center items-center gap-8 font-medium">
         {navLinks.map((link) => (
           <NavLink
             key={link.name}
@@ -84,84 +85,53 @@ export default function Navbar() {
           </NavLink>
         ))}
         {isAuthenticated ? (
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              Xin chào, {user?.fullName || user?.email}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition"
-            >
-              <LogOut size={16} />
-              Đăng xuất
-            </button>
-          </div>
-        ) : (
-          <>
-            <button
-              onClick={() => {
-                setOpenMobileMenu(false);
-                navigate("/login");
-              }}
-            >
-              Sign in
-            </button>
-            <button
-              onClick={() => {
-                setOpenMobileMenu(false);
-                navigate("/register");
-              }}
-            >
-              Sign up
-            </button>
-          </>
-        )}
-        <button
-          className="aspect-square size-10 p-1 items-center justify-center bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md flex"
-          onClick={() => setOpenMobileMenu(false)}
-        >
-          <XIcon />
-        </button>
-      </div>
-      <div className="flex items-center gap-4">
-        {isAuthenticated ? (
           <div className="hidden md:flex items-center gap-4">
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
-              >
-                <User size={20} />
-                <span className="text-sm font-medium">
-                  {user?.fullName || user?.email}
-                </span>
+            <div className="flex items-center gap-3">
+              {/* Nút chuông thông báo */}
+              <button className="relative p-2 rounded-full hover:bg-indigo-600 transition">
+                <Bell size={20} />
+                {/* Badge số thông báo (nếu có) */}
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
               </button>
-              
-              {/* Dropdown menu */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                    {user?.email}
+
+              {/* Avatar + tên */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
+                >
+                  <User size={20} />
+                  <span className="text-sm font-medium">
+                    {user?.fullName || user?.email}
+                  </span>
+                </button>
+
+                {/* Dropdown menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+                      {user?.email}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigate("/profile");
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <User size={16} />
+                      Thông tin cá nhân
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <LogOut size={16} />
+                      Đăng xuất
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      navigate('/profile');
-                      setShowUserMenu(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                  >
-                    <User size={16} />
-                    Thông tin cá nhân
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                  >
-                    <LogOut size={16} />
-                    Đăng xuất
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -175,6 +145,66 @@ export default function Navbar() {
             <button
               onClick={() => navigate("/register")}
               className="hidden md:block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
+            >
+              Đăng ký
+            </button>
+          </>
+        )}
+        <button
+          className="aspect-square size-10 p-1 items-center justify-center bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md flex"
+          onClick={() => setOpenMobileMenu(false)}
+        >
+          <XIcon />
+        </button>
+      </div>
+
+      {/* Desktop */}
+      <div className="flex items-center gap-4">
+        {isAuthenticated ? (
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              {/* Nút chuông thông báo */}
+              <button className="relative p-2 rounded-full hover:bg-slate-100 transition">
+                <Bell size={22} />
+                {/* Badge số thông báo (nếu có) */}
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+              </button>
+
+              {/* Avatar + Tên */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
+                >
+                  {/* Avatar */}
+                  <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
+                    {user?.fullName
+                      ? user.fullName.charAt(0).toUpperCase()
+                      : "U"}
+                  </div>
+
+                  {/* Tên */}
+                  <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
+                    {user?.fullName || "Người dùng"}
+                  </span>
+                </button>
+
+                {/* Dropdown menu */}
+                {showUserMenu && <ProfileDropdown />}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate("/login")}
+              className="hidden md:block h-9 hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
+            >
+              Đăng nhập
+            </button>
+            <button
+              onClick={() => navigate("/register")}
+              className="hidden md:block h-9 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
             >
               Đăng ký
             </button>
