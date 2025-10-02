@@ -3,12 +3,11 @@ import CategoryCard from "../../components/Cards/CategoryCard";
 import SectionTitle from "../../components/Sections/SectionTitle";
 import { getJobCategories } from "~/api/jobsApi";
 import CategoryCardSkeleton from "../../components/Cards/CategoryCardSkeleton";
-import { jobResource } from "~/data/jobResource";
+import { jobResource, colorMap } from "~/data/jobResource";
 
 export default function CategorySection() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -18,7 +17,8 @@ export default function CategorySection() {
         console.log("Categories response:", response.data);
         setCategories(response.data);
       } catch (error) {
-        setError("Failed to fetch categories: " + error.message);
+        console.error("Error fetching categories:", error);
+        // TODO: Handle error
       } finally {
         setLoading(false);
       }
@@ -42,9 +42,7 @@ export default function CategorySection() {
       </>
     );
   }
-  if (error) {
-    return <div className="text-red-500 text-center py-8">{error}</div>;
-  }
+
   return (
     <>
       <SectionTitle
@@ -59,7 +57,7 @@ export default function CategorySection() {
             title={category.name}
             description={category.description}
             resource={jobResource[index]}
-            color={category.color}
+            color={colorMap[category.name] || "bg-gray-200/40"}
           />
         ))}
       </div>
