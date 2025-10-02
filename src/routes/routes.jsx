@@ -10,7 +10,6 @@ import Register from "../pages/Register";
 import JobDetail from "../pages/JobDetail";
 import Jobs from "../pages/Jobs";
 import CareerGuide from "../pages/CareerGuide";
-import Profile from "../pages/Profile";
 import ProfileDashboardLayout from "~/layouts/ProfileDashboardLayout/ProfileDashboardLayout";
 import ProfileDashboard from "~/pages/ProfileDashboard";
 
