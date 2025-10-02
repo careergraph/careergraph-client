@@ -27,6 +27,8 @@ export const apiConfig = {
       detail: "/jobs/:id",
       search: "/jobs/search",
       categories: "/jobs/categories",
+      popular: "/jobs/popular",
+      personalized: "/jobs/personalized",
     },
   },
 };

@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { useState, useEffect, createContext, useContext } from "react";
+import { apiConfig } from "~/config";
 
 // Tạo AuthContext
 const AuthContext = createContext();
@@ -28,15 +30,15 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       // Lấy token từ localStorage
-      const token = localStorage.getItem('authToken');
-      
+      const token = localStorage.getItem("authToken");
+
       if (token) {
         // Gọi API để verify token và lấy thông tin user
-        const response = await fetch('http://localhost:8080/careergraph/api/v1/auth/verify', {
-          method: 'GET',
+        const response = await fetch(`${apiConfig.baseURL}/auth/verify`, {
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
@@ -46,15 +48,15 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
         } else {
           // Token không hợp lệ, xóa khỏi localStorage
-          localStorage.removeItem('authToken');
+          localStorage.removeItem("authToken");
           setUser(null);
-          setIsAuthenticated(false);
+          setIsAuthenticated(true);
         }
       }
     } catch (error) {
-      console.error('Lỗi khi kiểm tra trạng thái đăng nhập:', error);
+      console.error("Lỗi khi kiểm tra trạng thái đăng nhập:", error);
       // Xóa token nếu có lỗi
-      localStorage.removeItem('authToken');
+      localStorage.removeItem("authToken");
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -66,29 +68,34 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setIsLoading(true);
-      
-      const response = await fetch('http://localhost:8080/careergraph/api/v1/auth/login', {
-        method: 'POST',
+
+      const response = await fetch(`${apiConfig.baseURL}/auth/login`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const obj = await response.json();
 
       if (response.ok) {
-        // Lưu token vào localStorage
-        localStorage.setItem('authToken', data.token);
-        setUser(data.user);
+        // Save token into localStorage
+        localStorage.setItem("authToken", obj.data.accessToken);
+
+        // Call API get userInfo here and setUser
+        // setUser(data.user);
         setIsAuthenticated(true);
-        return { success: true, message: 'Đăng nhập thành công!' };
+        return { success: true, message: "Đăng nhập thành công!" };
       } else {
-        return { success: false, message: data.message || 'Đăng nhập thất bại!' };
+        return {
+          success: false,
+          message: obj.data.message || "Đăng nhập thất bại!",
+        };
       }
     } catch (error) {
-      console.error('Lỗi khi đăng nhập:', error);
-      return { success: false, message: 'Có lỗi xảy ra khi đăng nhập!' };
+      console.error("Lỗi khi đăng nhập:", error);
+      return { success: false, message: "Có lỗi xảy ra khi đăng nhập!" };
     } finally {
       setIsLoading(false);
     }
@@ -98,11 +105,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (fullName, email, password) => {
     try {
       setIsLoading(true);
-      
-      const response = await fetch('http://localhost:8080/careergraph/api/v1/auth/register', {
-        method: 'POST',
+
+      const response = await fetch(`${apiConfig.baseURL}/auth/register`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ fullName, email, password }),
       });
@@ -110,21 +117,36 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        return { success: true, message: 'Đăng ký thành công! Vui lòng đăng nhập.' };
+        return {
+          success: true,
+          message: "Đăng ký thành công! Vui lòng đăng nhập.",
+        };
       } else {
-        return { success: false, message: data.message || 'Đăng ký thất bại!' };
+        return { success: false, message: data.message || "Đăng ký thất bại!" };
       }
     } catch (error) {
-      console.error('Lỗi khi đăng ký:', error);
-      return { success: false, message: 'Có lỗi xảy ra khi đăng ký!' };
+      console.error("Lỗi khi đăng ký:", error);
+      return { success: false, message: "Có lỗi xảy ra khi đăng ký!" };
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Hàm đăng xuất
+  // Hàm đăng xuất: Truyền token xuống để đưa vào blacklist
   const logout = () => {
-    localStorage.removeItem('authToken');
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      fetch(`${apiConfig.baseURL}/auth/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    // Xóa token sau khi đăng xuất
+    localStorage.removeItem("authToken");
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -139,9 +161,5 @@ export const AuthProvider = ({ children }) => {
     logout,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
