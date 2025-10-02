@@ -13,13 +13,13 @@ function Toggle({ checked, onChange }) {
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-7 w-15 items-center rounded-full transition
+      className={`relative inline-flex h-7 w-13 items-center rounded-full transition
         ${checked ? "bg-indigo-600" : "bg-slate-300"}`}
       aria-pressed={checked}
     >
       <span
         className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition
-          ${checked ? "translate-x-4" : "translate-x-1"}`}
+          ${checked ? "translate-x-5" : "translate-x-1"}`}
       />
     </button>
   );
