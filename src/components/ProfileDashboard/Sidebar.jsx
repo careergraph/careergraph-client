@@ -75,7 +75,7 @@ function SideBar({name = "Thịnh Lương Quang",
         </button>
     );
     return ( 
-        <aside className={`pl-2 h-[80vh] overflow-y-auto ${classNames}`}>
+        <aside className={`pl-2  ${classNames}`}>
             <div className="rounded-2xl bg-white shadow-sm p-4">
                 {/* Header tên */}
                 <h2 className="text-lg font-extrabold text-slate-900 mb-3">{name}</h2>
