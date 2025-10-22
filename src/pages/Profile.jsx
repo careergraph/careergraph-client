@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import ProfileCard from "./ProfileCard";
-import CVCards from "./CVCard";
-import JobCriteriaCard from "./JobCriteria";
-import GeneralInfoCard from "./GeneralInfoCard";
-import WorkExperienceCard from "./WorkExperienceCard";
-import EducationCard from "./EducationCard";
-import SkillsCard from "./SkillsCard";
-import ProjectsCard from "./ProjectsCard";
-import CertificatesCard from "./CertificatesCard";
-import LanguageCard from "./LanguageCard";
+import ProfileCard from "../components/ProfileDashboard/ProfileCard";
+import CVCards from "../components/ProfileDashboard/CVCard";
+import JobCriteriaCard from "../components/ProfileDashboard/JobCriteria";
+import GeneralInfoCard from "../components/ProfileDashboard/GeneralInfoCard";
+import WorkExperienceCard from "../components/ProfileDashboard/WorkExperienceCard";
+import EducationCard from "../components/ProfileDashboard/EducationCard";
+import SkillsCard from "../components/ProfileDashboard/SkillsCard";
+import ProjectsCard from "../components/ProfileDashboard/ProjectsCard";
+import CertificatesCard from "../components/ProfileDashboard/CertificatesCard";
+import LanguageCard from "../components/ProfileDashboard/LanguageCard";
 
 
 export default function Profile({className}) {
@@ -88,7 +88,7 @@ export default function Profile({className}) {
       <div className="flex-1 px-6">
         {/* Hồ sơ */}
         <div className="text-lg font-bold text-slate-900 mb-3"> Hồ sơ của tôi</div>
-        <div className="max-w-5xl mx-auto mb-4">
+        <div className=" mx-auto mb-4">
           <ProfileCard />
         </div>
 

@@ -10,6 +10,11 @@ export const routes = {
   register: "/register",
   jobDetail: "/job/:id",
   profile: "/profile",
+  appliedJobs: "/jobs/applied",
+  savedJobs: "/jobs/saved",
+  waitingJobs: "/jobs/waiting",
+  jobAlerts: "/jobs/alerts",
+  employersViews: "/employers/views",
 };
 
 // Cấu hình API endpoints
