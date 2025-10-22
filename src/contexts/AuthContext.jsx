@@ -1,6 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { apiConfig } from "~/config";
+import { http } from "~/services/http/request";
+import { getToken,removeToken, setToken } from "~/utils/storage";
+
+
 
 // Tạo AuthContext
 const AuthContext = createContext();
@@ -21,79 +25,91 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Kiểm tra xem user đã đăng nhập chưa khi app khởi động
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  // Hàm kiểm tra trạng thái đăng nhập
-  const checkAuthStatus = async () => {
+  // Lấy thông tin người dùng đang đăng nhập
+  const fetchMe = useCallback( async () => {
     try {
-      // Lấy token từ localStorage
-      const token = localStorage.getItem("authToken");
-
-      if (token) {
-        // Gọi API để verify token và lấy thông tin user
-        const response = await fetch(`${apiConfig.baseURL}/auth/verify`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          setIsAuthenticated(true);
-        } else {
-          // Token không hợp lệ, xóa khỏi localStorage
-          localStorage.removeItem("authToken");
-          setUser(null);
-          setIsAuthenticated(true);
-        }
+      if(!getToken()){
+        setUser(null)
+        setIsAuthenticated(false);
+        return;
       }
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra trạng thái đăng nhập:", error);
-      // Xóa token nếu có lỗi
-      localStorage.removeItem("authToken");
+      const data  = await http("/candidates/me", { method: "GET", auth: true});
+      const u = data?.data || data?.user;
+      setUser(u);
+      setIsAuthenticated(true);
+    }catch {
       setUser(null);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
+      setIsAuthenticated(false)
     }
-  };
+  }, [])
 
+   const tryRefresh = useCallback(async () => {
+    try {
+      // const res = await fetch(`${apiConfig.baseURL}/auth/refresh`, {
+      //   method: "POST",
+      //   credentials: "include", // Gửi cookie HttpOnly
+      // });
+      // const data = await res.json();
+      const data = await http("/auth/refresh", {
+        method: "POST",
+        auth: false,                          // <-- QUAN TRỌNG
+      });
+      const newAccess = data?.data?.accessToken || data?.accessToken;
+
+      if (newAccess) {
+        setToken(newAccess);
+        await fetchMe();
+      } else {
+        removeToken();
+        setIsAuthenticated(false);
+      }
+    } catch (e) {
+      console.warn("Refresh token invalid:", e);
+      removeToken();
+      setIsAuthenticated(false);
+    }
+  }, [fetchMe]);
+
+  useEffect(()=> {
+    (async () => {
+      try{
+        if (getToken()) {
+          await fetchMe();
+        } else {
+          await tryRefresh(); // <-- gọi refresh tự động
+        }
+      }finally{
+        setIsLoading(false)
+      }
+    })();
+  }, [fetchMe, tryRefresh])
   // Hàm đăng nhập
   const login = async (email, password) => {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${apiConfig.baseURL}/auth/login`, {
+      const data = await http("/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+        body: { email, password },
+        auth: false,                          // <-- QUAN TRỌNG
       });
+      console.log("data:" + data)
+      // if (!data?.data?.status.ok) {
+      //   throw new Error(data?.message || "Đăng nhập thất bại");
+      // }
 
-      const obj = await response.json();
-
-      if (response.ok) {
-        // Save token into localStorage
-        localStorage.setItem("authToken", obj.data.accessToken);
-
-        // Call API get userInfo here and setUser
-        // setUser(data.user);
-        setIsAuthenticated(true);
+        const access = data?.data?.accessToken || data?.accessToken|| data;
+        console.log(access)
+        if (!access) throw new Error("Thiếu accessToken");
+        console.log(access);
+        setToken(access);
+        await fetchMe(); 
         return { success: true, message: "Đăng nhập thành công!" };
-      } else {
-        return {
-          success: false,
-          message: obj.data.message || "Đăng nhập thất bại!",
-        };
-      }
+
     } catch (error) {
+      removeToken();
+      setUser(null);
+      setIsAuthenticated(false);
       console.error("Lỗi khi đăng nhập:", error);
       return { success: false, message: "Có lỗi xảy ra khi đăng nhập!" };
     } finally {
@@ -133,22 +149,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Hàm đăng xuất: Truyền token xuống để đưa vào blacklist
-  const logout = () => {
-    const token = localStorage.getItem("authToken");
+   const logout = async () => {
+    const token = getToken();
     if (token) {
-      fetch(`${apiConfig.baseURL}/auth/logout`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      try {
+        await fetch(`${apiConfig.baseURL}/auth/logout`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+      }catch {
+        //
+      }finally {
+        // Xóa token sau khi đăng xuất
+        removeToken();
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+      
     }
-
-    // Xóa token sau khi đăng xuất
-    localStorage.removeItem("authToken");
-    setUser(null);
-    setIsAuthenticated(false);
+    removeToken()
+    
   };
 
   // Giá trị được cung cấp cho các component con

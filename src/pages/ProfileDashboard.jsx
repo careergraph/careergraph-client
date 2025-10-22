@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import Profile from "~/components/ProfileDashboard/Profile";
+import Profile from "~/pages/Profile";
 import SideBar from "~/components/ProfileDashboard/SideBar";
 
 

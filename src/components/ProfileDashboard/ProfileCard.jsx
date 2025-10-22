@@ -1,5 +1,5 @@
 // ProfileCard.jsx
-import { useState, useId, useEffect } from "react";
+import { useState, useId, useEffect, useRef } from "react";
 import {
   Pencil,            // edit-alt
   Mail,              // envelope
@@ -12,7 +12,7 @@ import {
   UserRound,         // user-s (avatar placeholder)
   Camera
 } from "lucide-react";
-
+import { UserAPI } from "~/services/user.service";
 
 function RightDrawer({ open, onClose, title, children }) {
   const titleId = useId();
@@ -235,8 +235,120 @@ function PersonalForm({ defaultValues = {}, onSubmit }) {
 }
 
 export default function ProfileCard() {
-  const [openEdit, setOpenEdit] = useState(false);
 
+  const [openEdit, setOpenEdit] = useState(false);
+  const [info, setInfo] = useState(null)
+  const [err, setErr] = useState("");
+
+  const [loading, setLoading] = useState(true);
+
+  const [avatarUrl, setAvatarUrl] = useState(""); // preview avatar
+  const fileInputRef = useRef(null);
+
+  // Lấy hồ sơ chỉ 1 lần khi mount
+  useEffect(()=> {
+
+    let mounted = true;
+    setLoading(true);
+
+    UserAPI.me()
+      .then((res)=> {
+        const data  =  res.data ?? res
+        console.log(data)
+        if(!mounted) return
+        setInfo(data);
+
+        if(data?.candidateId){
+          UserAPI.getFileUrl({id:data.id, type:"AVATAR"})
+          .then((r)=> {
+            const url = r?.data ?? r;
+            if(mounted && url ) setAvatarUrl(url);
+          })
+          .catch(()=>{})
+        }
+      })
+      .catch((e) => setErr(e.message|| "Không tải hồ sơ được"))
+      .finally(()=> mounted && setLoading(false));
+      return ()=> {mounted = false}
+  },[])
+
+  const openFileDialog = () => fileInputRef.current?.click();
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.file?.[0];
+    if(!file || !info.candidateId) return;
+    try {
+      const bloUrl = URL.createObjectURL(file);
+      setAvatarUrl(bloUrl);
+
+      await UserAPI.uploadFile({id: info.candidateId, type: "AVATAR", file});
+
+      //Lấy url thật từ server 
+      const r = await UserAPI.getFileUrl({id: info.candidateId, type: "AVATAR", file})
+      const url = r?.data ?? r;
+      if (url) setAvatarUrl(url);
+    }catch(e1){
+      alert(e1.message || "Upload avatar thất bại")
+    }finally{
+      e.target.value="";
+    }
+  }
+
+   // Map server info -> default form values
+  const toFormDefaults = (d) => ({
+    fullName: d?.firstName || "",
+    email: d?.email || "",
+    province: d?.province || "",
+    district: d?.district || "",
+    birth: (d?.dateOfBirth || "").slice(0, 10), // giữ "YYYY-MM-DD"
+    gender: d?.gender === "MALE" ? "Nam" : (d?.gender === "FEMALE" ? "Nữ" : ""),
+    marital: d?.isMarried ? "Đã lập gia đình" : "Độc thân",
+  })
+
+
+   // Map form -> payload BE
+  const toPayload = (f) => ({
+    name: f.fullName?.trim(),
+    phone: f.phone?.trim(),
+    province: f.province || "",
+    district: f.district || "",
+    dateOfBirth: f.birth || null, // giữ format yyyy-mm-dd
+    gender: f.gender === "Nam" ? "MALE" : (f.gender === "Nữ" ? "FEMALE" : null),
+    isMarried: f.marital === "Đã lập gia đình",
+  });
+
+
+  const onSubmitForm = async (values) => {
+    setOpenEdit(false);
+    if (!values) return; // bấm Hủy
+    const payload = toPayload(values);
+
+    // optimistic update UI
+    const prev = info;
+    const nextInfo = {
+      ...info,
+      name: payload.name,
+      phone: payload.phone,
+      province: payload.province,
+      district: payload.district,
+      dateOfBirth: payload.dateOfBirth,
+      gender: payload.gender,
+      isMarried: payload.isMarried,
+      // có thể giữ email theo server (không cho sửa), nếu BE cho sửa thì map tiếp
+      email: values.email || info?.email,
+    };
+    setInfo(nextInfo);
+
+    try {
+      const res = await UserAPI.updateInformation(payload);
+      const data = res?.data ?? res;
+      // đồng bộ lại theo server trả về (tránh lệch)
+      setInfo(data || nextInfo);
+    } catch (e) {
+      setInfo(prev); // rollback nếu lỗi
+      alert(e.message || "Cập nhật thất bại");
+    }
+  };
   return (
     <div className="flex flex-col lg:flex-row p-3 rounded-[12px] bg-white shadow-sd-default relative gap-2 lg:gap-8 ">
       {/* Nút bút chỉnh sửa */}
@@ -260,30 +372,40 @@ export default function ProfileCard() {
           .reactEasyCrop_CropArea{color:rgba(255,255,255,.8)!important;box-shadow:0 0 0 9999em rgba(0,0,0,.4)!important}
         `}</style>
 
-        <input type="file" accept="image/jpg,image/jpeg,image/png" className="hidden" />
+        <input ref={fileInputRef} 
+              type="file" 
+              accept="image/jpg,image/jpeg,image/png" 
+              className="hidden" 
+              onChange={handleAvatarChange} 
+        />
 
         {/* Avatar */}
         <div className="flex items-center gap-6">
-          <div className="inline-block rounded-full bg-gray-200" style={{ width: 80, minWidth: 80, height: 80 }}>
+          <div className="inline-block rounded-full bg-gray-200 overflow-hidden relative" style={{ width: 80, minWidth: 80, height: 80 }}>
             {/* Nếu có ảnh thì dùng <img .../>; tạm hiển thị placeholder icon */}
-            <div className="w-full h-full rounded-full grid place-items-center">
-              <UserRound size={40} className="text-white/80" />
-            </div>
-          </div>
+            
+              {avatarUrl? (
+                <img src={avatarUrl} alt={info.firstName} className="w-full h-full object-cover rounded-full"/>
+              ):(
+                <div className="w-full h-full rounded-full grid place-items-center">
+                  <UserRound size={40} className="text-white/80" />
+                </div>
+              )}
+            
+         
 
-          {/* Nút đổi avatar đè lên */}
-          <div
-            data-test-id="user-profile__edit-avatar"
-            className="absolute w-[80px] h-[80px] top-[12px] left-[12px] z-[9] rounded-full cursor-pointer border border-[#EFEFF0] bg-[#EFEFF0]"
-            title="Đổi ảnh đại diện"
-          >
-            <div className="relative w-full h-full flex items-center justify-center">
-              <UserRound size={40} className="text-white" />
-              <span className="absolute bottom-0 right-0 z-10 flex items-center justify-center w-[24px] h-[24px] rounded-full border-[.5px] border-[#E7E7E8] bg-white">
+            {/* Nút đổi avatar đè lên */}
+            <button
+                type="button"
+                onClick={openFileDialog}
+                data-test-id="user-profile__edit-avatar"
+                className="absolute bottom-0 right-0 z-[9] rounded-full cursor-pointer border border-[#E7E7E8] bg-white w-[28px] h-[28px] grid place-items-center"
+                title="Đổi ảnh đại diện"
+                aria-label="Đổi ảnh đại diện"
+              >
                 <Camera size={14} className="text-grey-11" />
-              </span>
+              </button>
             </div>
-          </div>
         </div>
 
         {/* Trạng thái tìm việc */}
@@ -318,7 +440,7 @@ export default function ProfileCard() {
           <div className="flex gap-2 items-center">
             <Mail size={16} className="text-grey-11" />
             <span className="text-14 leading-6 break-all line-clamp-1 text-se-grey-48">
-              quangthinh06112004@gmail.com
+              {info?.email}
             </span>
           </div>
           {/* verified */}
@@ -373,10 +495,7 @@ export default function ProfileCard() {
         title="Thông tin cá nhân"
       >
         <PersonalForm
-          defaultValues={{
-            fullName: "Thịnh Lương Quang",
-            email: "Quang Thinh"
-          }}
+          defaultValues={toFormDefaults(info || {})}
           onSubmit={(values) => {
             // values === null => Hủy
             setOpenEdit(false);

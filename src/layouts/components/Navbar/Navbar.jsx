@@ -10,8 +10,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
-
+  const { isAuthenticated, user, logout, isLoading } = useAuth();
+  console.log(isAuthenticated)
   useEffect(() => {
     if (openMobileMenu) {
       document.body.classList.add("max-md:overflow-hidden");
@@ -41,6 +41,7 @@ export default function Navbar() {
     navigate("/");
   };
 
+  if(!isLoading)
   return (
     <nav
       className={`flex items-center justify-between fixed z-50 top-0 w-full px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-slate-200 bg-white/40 ${
