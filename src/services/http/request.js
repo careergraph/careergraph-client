@@ -44,21 +44,22 @@ export async function http(
       signal,
     } = {}
 ) {
-  const token = getToken();
   const isFormData =  typeof FormData !== 'undefined' && body instanceof FormData;
   const baseHeaders = isFormData ? {} : { "Content-Type": "application/json" };
-  const doFetch = ()=> 
-    fetch(`${apiConfig.baseURL}${path}`, {
-    method,
-    headers: {
-      ...baseHeaders,
-      ...(auth && token ? {Authorization: `Bearer ${getToken()}`} : {}),
-      ...headers,
-    },
-    body: isFormData ? body : (body ? JSON.stringify(body): undefined),
-    credentials: "include",
-    signal,
-  });
+  const doFetch = ()=> {
+    const latestToken = getToken();
+    return fetch(`${apiConfig.baseURL}${path}`, {
+      method,
+      headers: {
+        ...baseHeaders,
+        ...(auth && latestToken ? {Authorization: `Bearer ${latestToken}`} : {}),
+        ...headers,
+      },
+      body: isFormData ? body : (body ? JSON.stringify(body): undefined),
+      credentials: "include",
+      signal,
+    });
+  };
   
 
     const res = await doFetch();
@@ -68,15 +69,34 @@ export async function http(
 
     if(isRefreshing){
       return new Promise((resolve, reject) => {
-        waiters.push({resolve, reject, path, method, headers, body, auth});
+        waiters.push({resolve, reject, path, method, headers, body, auth, isFormData, baseHeaders});
       })
     }
     isRefreshing = true;
 
     try {
-      const newAccess = await refreshAccessToken()
+      await refreshAccessToken()
 
-      waiters.forEach(({resolve}) => resolve(newAccess))
+      waiters.forEach(async ({resolve, reject, path, method, headers, body, auth, isFormData, baseHeaders, signal }) => {
+        try {
+            const retryRes = await fetch(`${apiConfig.baseURL}${path}`, {
+            method: method,
+            headers: {
+              ...baseHeaders,
+              ...(auth && getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+              ...headers,
+            },
+            body: isFormData ? body : (body ? JSON.stringify(body) : undefined),
+            credentials: "include",
+            signal
+          });
+          const data = await parseJSON(retryRes);
+          resolve(data)
+        }
+        catch (err){
+          reject(err)
+        }
+      })
       waiters = [];
     }catch (e) {
       waiters.forEach(({ reject }) => reject(e));

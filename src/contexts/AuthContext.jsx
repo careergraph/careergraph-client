@@ -122,13 +122,11 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${apiConfig.baseURL}/auth/register`, {
+      const response = await http("/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fullName, email, password }),
-      });
+        body: { fullName, email, password },
+        auth: false,
+      })
 
       const data = await response.json();
 
@@ -153,13 +151,10 @@ export const AuthProvider = ({ children }) => {
     const token = getToken();
     if (token) {
       try {
-        await fetch(`${apiConfig.baseURL}/auth/logout`, {
+        await http("/auth/logout", {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
+            auth: true,
+        })
       }catch {
         //
       }finally {
