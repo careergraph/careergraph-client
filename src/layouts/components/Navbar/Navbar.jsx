@@ -41,7 +41,6 @@ export default function Navbar() {
     navigate("/");
   };
 
-  if(!isLoading)
   return (
     <nav
       className={`flex items-center justify-between fixed z-50 top-0 w-full px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-slate-200 bg-white/40 ${
@@ -85,7 +84,8 @@ export default function Navbar() {
             {link.name}
           </NavLink>
         ))}
-        {isAuthenticated ? (
+        { !isLoading && (
+          isAuthenticated ? (
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-3">
               {/* Nút chuông thông báo */}
@@ -150,7 +150,8 @@ export default function Navbar() {
               Đăng ký
             </button>
           </>
-        )}
+        )
+      )}
         <button
           className="aspect-square size-10 p-1 items-center justify-center bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md flex"
           onClick={() => setOpenMobileMenu(false)}
@@ -161,55 +162,57 @@ export default function Navbar() {
 
       {/* Desktop */}
       <div className="flex items-center gap-4">
-        {isAuthenticated ? (
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              {/* Nút chuông thông báo */}
-              <button className="relative p-2 rounded-full hover:bg-slate-100 transition">
-                <Bell size={22} />
-                {/* Badge số thông báo (nếu có) */}
-                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-              </button>
-
-              {/* Avatar + Tên */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
-                >
-                  {/* Avatar */}
-                  <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
-                    {user?.fullName
-                      ? user.fullName.charAt(0).toUpperCase()
-                      : "U"}
-                  </div>
-
-                  {/* Tên */}
-                  <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
-                    {user?.fullName || "Người dùng"}
-                  </span>
+        {!isLoading&& (
+          isAuthenticated ? (
+            <div className="hidden md:flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                {/* Nút chuông thông báo */}
+                <button className="relative p-2 rounded-full hover:bg-slate-100 transition">
+                  <Bell size={22} />
+                  {/* Badge số thông báo (nếu có) */}
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                 </button>
 
-                {/* Dropdown menu */}
-                {showUserMenu && <ProfileDropdown />}
+                {/* Avatar + Tên */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
+                  >
+                    {/* Avatar */}
+                    <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
+                      {user?.fullName
+                        ? user.fullName.charAt(0).toUpperCase()
+                        : "U"}
+                    </div>
+
+                    {/* Tên */}
+                    <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
+                      {user?.fullName || "Người dùng"}
+                    </span>
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {showUserMenu && <ProfileDropdown />}
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <>
-            <button
-              onClick={() => navigate("/login")}
-              className="hidden md:block h-9 hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
-            >
-              Đăng nhập
-            </button>
-            <button
-              onClick={() => navigate("/register")}
-              className="hidden md:block h-9 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
-            >
-              Đăng ký
-            </button>
-          </>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate("/login")}
+                className="hidden md:block h-9 hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
+              >
+                Đăng nhập
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="hidden md:block h-9 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
+              >
+                Đăng ký
+              </button>
+            </>
+          )
         )}
         <button
           onClick={() => setOpenMobileMenu(!openMobileMenu)}
