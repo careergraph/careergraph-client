@@ -181,14 +181,14 @@ export default function Navbar() {
                   >
                     {/* Avatar */}
                     <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
-                      {user?.fullName
-                        ? user.fullName.charAt(0).toUpperCase()
+                      {user?.firstName
+                        ? user.firstName.charAt(0).toUpperCase()
                         : "U"}
                     </div>
 
                     {/* Tên */}
                     <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
-                      {user?.fullName || "Người dùng"}
+                      {user?.firstName || "Người dùng"}
                     </span>
                   </button>
 

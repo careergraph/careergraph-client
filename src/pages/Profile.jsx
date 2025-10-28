@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import ProfileCard from "../components/ProfileDashboard/ProfileCard";
+import ProfileCard from "../components/ProfileDashboard/ProfileCard/ProfileCard";
 import CVCards from "../components/ProfileDashboard/CVCard";
 import JobCriteriaCard from "../components/ProfileDashboard/JobCriteria";
 import GeneralInfoCard from "../components/ProfileDashboard/GeneralInfoCard";
