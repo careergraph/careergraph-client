@@ -21,7 +21,6 @@ async function refreshAccessToken(){
       credentials: "include",
       headers: { "Content-Type": "application/json"},
     })
-
     const data = await parseJSON(res)
     const nextAccess = data?.data?.accessToken || data?.accessToken|| data;
     if(!nextAccess) throw new Error("Không nhận được token mới")

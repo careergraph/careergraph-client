@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { apiConfig } from "~/config";
+import { normalizeInfoFromResponse } from "~/domain/candidate/profile.mapper";
 import { http } from "~/services/http/request";
 import { getToken,removeToken, setToken } from "~/utils/storage";
 
@@ -34,8 +35,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       const data  = await http("/candidates/me", { method: "GET", auth: true});
-      const u = data?.data || data?.user;
-      setUser(u);
+      setUser(normalizeInfoFromResponse(data.data));
       setIsAuthenticated(true);
     }catch {
       setUser(null);
@@ -177,6 +177,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    setUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
