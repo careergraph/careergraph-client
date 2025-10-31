@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pencil } from "lucide-react";
 import ProfileCard from "../components/ProfileDashboard/ProfileCard/ProfileCard";
 import CVCards from "../components/ProfileDashboard/CVCard";
-import JobCriteriaCard from "../components/ProfileDashboard/JobCriteria";
+import JobCriteriaCard from "../components/ProfileDashboard/JobCriteria/JobCriteria";
 import GeneralInfoCard from "../components/ProfileDashboard/GeneralInfoCard";
 import WorkExperienceCard from "../components/ProfileDashboard/WorkExperienceCard";
 import EducationCard from "../components/ProfileDashboard/EducationCard";
@@ -21,7 +21,7 @@ export default function Profile({className}) {
   }
 
   const [criteria, setCriteria] = useState({
-    title: "",
+    title: "ssss",
     industries: [],
     locations: [],
     salaryMin: null,

@@ -12,7 +12,7 @@ export default function App() {
   return (
     
     <AuthProvider>
-      <Toaster />
+      <Toaster richColors/>
       <Router>
         <div className="App">
           <Routes>

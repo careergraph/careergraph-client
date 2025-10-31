@@ -5,6 +5,7 @@ import { navLinks } from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
 import { useAuth } from "../../../contexts/AuthContext";
 import ProfileDropdown from "~/components/ProfileMenu/ProfileDropdown";
+import AvatarUser from "~/components/DefaultData/AvatarUser";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -179,12 +180,14 @@ export default function Navbar() {
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
                   >
-                    {/* Avatar */}
-                    <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
-                      {user?.firstName
-                        ? user.firstName.charAt(0).toUpperCase()
-                        : "U"}
-                    </div>
+                    {user.avatarUrl? (
+                      <img src={user.avatarUrl} 
+                      alt={user?.firstName ?? "avatar"} className="w-9 h-9 object-cover rounded-full"/>
+                      ):(
+                        <AvatarUser size={9}/>
+                      )
+                     }
+                    
 
                     {/* Tên */}
                     <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
