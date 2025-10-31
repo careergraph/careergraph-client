@@ -1,8 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
+import { toast } from "sonner";
 import { apiConfig } from "~/config";
-import { normalizeInfoFromResponse } from "~/domain/candidate/profile.mapper";
-import { http } from "~/services/http/request";
+import { UserAPI } from "~/services/api/user";
+import { normalizeInfoFromResponse } from "~/services/domain/candidate/profile.mapper";
+import { http, refreshAccessToken } from "~/services/http/request";
 import { getToken,removeToken, setToken } from "~/utils/storage";
 
 
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
         return;
       }
-      const data  = await http("/candidates/me", { method: "GET", auth: true});
+      const data  = await UserAPI.me();
       setUser(normalizeInfoFromResponse(data.data));
       setIsAuthenticated(true);
     }catch {
@@ -45,20 +47,11 @@ export const AuthProvider = ({ children }) => {
 
    const tryRefresh = useCallback(async () => {
     try {
-      // const res = await fetch(`${apiConfig.baseURL}/auth/refresh`, {
-      //   method: "POST",
-      //   credentials: "include", // Gửi cookie HttpOnly
-      // });
-      // const data = await res.json();
-      const data = await http("/auth/refresh", {
-        method: "POST",
-        auth: false,                          // <-- QUAN TRỌNG
-      });
-      const newAccess = data?.data?.accessToken || data?.accessToken;
+      const newAccess = await refreshAccessToken();
 
       if (newAccess) {
-        setToken(newAccess);
         await fetchMe();
+        setIsAuthenticated(true);
       } else {
         removeToken();
         setIsAuthenticated(false);
@@ -122,7 +115,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
 
-      const response = await http("/auth/register", {
+      const response = await http("/auth/register/candidate", {
         method: "POST",
         body: { fullName, email, password },
         auth: false,
@@ -130,16 +123,14 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
 
-      if (response.ok) {
-        return {
-          success: true,
-          message: "Đăng ký thành công! Vui lòng đăng nhập.",
-        };
-      } else {
-        return { success: false, message: data.message || "Đăng ký thất bại!" };
-      }
+       return {
+        success: true,
+        message: "Đăng ký thành công! Vui lòng đăng nhập.",
+        data,
+      };
     } catch (error) {
-      console.error("Lỗi khi đăng ký:", error);
+      toast.error("Lỗi khi đăng ký:", error);
+      
       return { success: false, message: "Có lỗi xảy ra khi đăng ký!" };
     } finally {
       setIsLoading(false);
@@ -158,14 +149,14 @@ export const AuthProvider = ({ children }) => {
       }catch {
         //
       }finally {
-        // Xóa token sau khi đăng xuất
-        removeToken();
-        setUser(null);
-        setIsAuthenticated(false);
+        //
       }
       
     }
-    removeToken()
+    // Xóa token sau khi đăng xuất
+    removeToken();
+    setUser(null);
+    setIsAuthenticated(false);
     
   };
 

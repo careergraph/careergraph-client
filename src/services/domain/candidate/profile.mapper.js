@@ -5,9 +5,12 @@
 export function normalizeInfoFromResponse(data) {
   if (!data) return null;
 
+  console.log("data");
+  console.log(data)
   return {
+    
     candidateId: data.candidateId,
-
+    avatarUrl: data.avatarUrl,
     firstName: data.firstName || "",
     lastName: data.lastName || "",
 
@@ -24,19 +27,11 @@ export function normalizeInfoFromResponse(data) {
         ? data.primaryContact.value || ""
         : "",
 
-    province: data.primaryAddress?.province || "",
-    district: data.primaryAddress?.district || "",
+    provinceCode: data.primaryAddress?.province || "",
+    districtCode: data.primaryAddress?.district || "",
     ward: data.primaryAddress?.ward || "",
     country: data.primaryAddress?.country || "",
 
-    // tiện cho hiển thị address string
-    address:
-      [
-        data.primaryAddress?.district,
-        data.primaryAddress?.province,
-      ]
-        .filter(Boolean)
-        .join(", ") || "",
   };
 }
 
@@ -49,8 +44,8 @@ export function toFormDefaults(info) {
       lastName: "",
       email: "",
       phone: "",
-      province: "",
-      district: "",
+      provinceCode: "",
+      districtCode: "",
       birth: "",
       gender: "",
       marital: "Độc thân",
@@ -62,8 +57,8 @@ export function toFormDefaults(info) {
     lastName: info.lastName || "",
     email: info.email || "",
     phone: info.phone || "",
-    province: info.province || "",
-    district: info.district || "",
+    provinceCode: info.province || "",
+    districtCode: info.district || "",
     birth: (info.dateOfBirth || "").slice(0, 10), // "YYYY-MM-DD"
     gender:
       info.gender === "MALE"
@@ -99,8 +94,8 @@ export function toPayload(formValues) {
 
     address: {
       country: "VN",
-      province: formValues.province || "",
-      district: formValues.district || "",
+      province: formValues.provinceCode || "",
+      district: formValues.districtCode || "",
       // ward: formValues.ward || "",
       isPrimary: true,
     },

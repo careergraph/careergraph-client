@@ -21,29 +21,27 @@ export default function AvatarCropModal({
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
+  const MAX_SIZE = 512;
   // Hàm convert canvas -> blob
   const getCroppedImageBlob = async (imageSrc, cropPx) => {
     // cropPx = { x, y, width, height }
     const image = await loadImage(imageSrc);
+  
+  // Calculate scaled dimensions
+  const scale = Math.min(1, MAX_SIZE / Math.max(cropPx.width, cropPx.height));
+  const scaledWidth = cropPx.width * scale;
+  const scaledHeight = cropPx.height * scale;
 
-    // tạo canvas vuông đúng kích thước crop
-    const canvas = document.createElement("canvas");
-    canvas.width = cropPx.width;
-    canvas.height = cropPx.height;
-    const ctx = canvas.getContext("2d");
+  const canvas = document.createElement("canvas");
+  canvas.width = scaledWidth;   // Use scaled size
+  canvas.height = scaledHeight;
+  const ctx = canvas.getContext("2d");
 
-    // vẽ vùng đã crop từ ảnh gốc lên canvas (0,0)
-    ctx.drawImage(
-      image,
-      cropPx.x,
-      cropPx.y,
-      cropPx.width,
-      cropPx.height,
-      0,
-      0,
-      cropPx.width,
-      cropPx.height
-    );
+  ctx.drawImage(
+    image,
+    cropPx.x, cropPx.y, cropPx.width, cropPx.height,
+    0, 0, scaledWidth, scaledHeight  // Scale down
+  );
 
     return new Promise((resolve, reject) => {
       canvas.toBlob(
@@ -55,7 +53,7 @@ export default function AvatarCropModal({
           resolve(blob);
         },
         "image/png",
-        1
+        0.85
       );
     });
   };

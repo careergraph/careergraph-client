@@ -9,16 +9,17 @@ import {
   HeartHandshake,    // rings-wedding (gần nghĩa)
   Bolt,              // bolt-s
   ChevronDown,       // chevron-down
-  UserRound,         // user-s (avatar placeholder)
   Camera
 } from "lucide-react";
-import { UserAPI } from "~/services/user.service";
+import { UserAPI } from "~/services/api/user";
 import { useAuth } from "~/contexts/AuthContext";
 import AvatarCropModal from "../AvatarCropModal";
 import RightDrawer from "../RightDrawer";
 import PersonalForm from "./PersonForm";
 import { toast } from "sonner";
-import { normalizeInfoFromResponse } from "~/domain/candidate/profile.mapper";
+import { normalizeInfoFromResponse } from "~/services/domain/candidate/profile.mapper";
+import AvatarUser from "~/components/DefaultData/AvatarUser";
+import { useLocation } from "~/hooks/use-location";
 
 export default function ProfileCard() {
 
@@ -27,38 +28,39 @@ export default function ProfileCard() {
   const [avatarUrl, setAvatarUrl] = useState(""); // preview avatar
   const [openEdit, setOpenEdit] = useState(false);
 
+  const [addressCode, setAddressCode] = useState({ provinceCode:"", districtCode:"" })
   const [openCrop, setOpenCrop] = useState(false);
+
+  const {
+      provinceName,
+      districtName,
+    } = useLocation(addressCode?.provinceCode, addressCode?.districtCode);
 
   //dataUrl preview of picture original before crop 
   const [rawAvatarSrc, setRawAvatarSrc] = useState("")
 
   const fileInputRef = useRef(null);
 
-  console.log(user);
+  
   useEffect(()=> {
 
-    if(!user) return 
+    if(!user) return;
+    console.log("user");
+    console.log(user);
     setInfo(user);
-    
-    if(user?.candidateId){
-      UserAPI.getFileUrl({id:user.candidateId, type:"AVATAR"})
-        .then((r)=> {
-            const url = r?.data ?? r;
-            if(url && String(url).trim()) 
-              setAvatarUrl(url);
-        })
-        .catch(()=>{})
+    setAddressCode({provinceCode: user?.provinceCode, districtCode: user?.districtCode })
+    if(user?.avatarUrl){
+        setAvatarUrl(user?.avatarUrl);
       }
   },[user])
 
    // Map server info -> default form values
-  const toFormDefaults = (d) => ({
-    
+  const toFormDefaults = (d) =>({
     firstName: d?.firstName || "",
     lastName: d?.lastName || "",
     email: d?.email || "",
-    province: d?.province || "",
-    district: d?.district || "",
+    provinceCode: d?.provinceCode || "",
+    districtCode: d?.districtCode || "",
     phone: d.phone?.trim(),
     birth: (d?.dateOfBirth || "").slice(0, 10), // giữ "YYYY-MM-DD"
     gender: d?.gender === "MALE" ? "Nam" : (d?.gender === "FEMALE" ? "Nữ" : ""),
@@ -83,8 +85,8 @@ export default function ProfileCard() {
 
     address: {
       country: "VN",
-        province: f.province || "",
-        district: f.district || "",
+        province: f.provinceCode || "",
+        district: f.districtCode || "",
         // ward: f.ward || "",        // bạn có thể thêm field ward vào form sau
         isPrimary: true,
     }
@@ -98,32 +100,15 @@ export default function ProfileCard() {
     
     const payload = toPayload(values);
 
-    // optimistic update UI
-    const prev = info;
-    const nextInfo = {
-      ...info,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-      phone: payload.phone,
-      province: payload.province,
-      district: payload.district,
-      dateOfBirth: payload.dateOfBirth,
-      gender: payload.gender,
-      isMarried: payload.isMarried,
-      // có thể giữ email theo server (không cho sửa), nếu BE cho sửa thì map tiếp
-      email: values.email || info?.email,
-    };
-    setInfo(nextInfo);
-
     try {
-      const res = await UserAPI.updateInformation(payload);
+      const res = await UserAPI.updateInfo(payload);
       const data = res?.data ?? res;
-      // đồng bộ lại theo server trả về (tránh lệch)
+      data.avatarUrl = user.avatarUrl;
+
       setInfo(normalizeInfoFromResponse(data));
       setUser(normalizeInfoFromResponse(data));
     } catch (e) {
-      setInfo(prev); // rollback nếu lỗi
-      toast.success(e.message || "Cập nhật thất bại")
+      toast.error(e.message || "Cập nhật thất bại")
     }
   };
 
@@ -159,6 +144,10 @@ export default function ProfileCard() {
 
     try {
 
+      if (blob.size > 5 * 1024 * 1024) { // >5MB
+        toast.error("Ảnh quá lớn, vui lòng chọn ảnh dưới 5MB");
+        return;
+      }
       // preview tạm thời bằng blob local
       const tempUrl = URL.createObjectURL(blob);
       setAvatarUrl(tempUrl);
@@ -168,28 +157,29 @@ export default function ProfileCard() {
       formData.append("type", "AVATAR");
       formData.append("file", blob, "avatar.png");
 
-      await UserAPI.uploadFile({
+      await UserAPI.uploadCandidateFile({
         id: info.candidateId,
         body: formData,
       });
 
-      UserAPI.getFileUrl({id:user.candidateId, type:"AVATAR"})
-        .then((r)=> {
-            const url = r?.data ?? r;
-            if(url && String(url).trim()) 
-              setAvatarUrl(url);
-        })
-        .catch(()=>{})
+      const resInfo = await UserAPI.me();
+    
+      setUser(resInfo.data);
       
-
       toast.success("Cập nhật ảnh đại diện thành công");
       
     }catch(err){
       console.log(err)
-      toast.success(err.message || "Cập nhật thất bại")
+      toast.error(err.message || "Cập nhật thất bại")
     }
 
   }
+
+
+  const addressText =
+    provinceName || districtName
+      ? [districtName, provinceName].filter(Boolean).join(", ")
+      : "Thêm địa chỉ hiện tại";
   return (
     <>
       <div className="flex flex-col lg:flex-row p-3 rounded-[12px] bg-white shadow-sd-default relative gap-2 lg:gap-8 ">
@@ -223,7 +213,7 @@ export default function ProfileCard() {
   
           {/* Avatar */}
           <div className="flex items-center gap-6">
-            <div className="inline-block rounded-full bg-gray-200 overflow-hidden relative" style={{ width: 80, minWidth: 80, height: 80 }}>
+            <div className="inline-block rounded-full overflow-hidden relative" style={{ width: 80, minWidth: 80, height: 80 }}>
               {/* Nếu có ảnh thì dùng <img .../>; tạm hiển thị placeholder icon */}
               
                 {avatarUrl? (
@@ -231,8 +221,8 @@ export default function ProfileCard() {
                   alt={info?.firstName ?? "avatar"} className="w-full h-full object-cover rounded-full"/>
                 ):(
                   <div className="w-full h-full rounded-full grid place-items-center">
-                    <UserRound size={40} className="text-white/80" />
-                  </div>
+                    <AvatarUser size="20" fontSize="3xl"/>                  
+                    </div>
                 )}
               
            
@@ -266,7 +256,7 @@ export default function ProfileCard() {
               {info?.firstName ? `${info?.lastName} ${info?.firstName} `  : "Người dùng"}
             </h3>
             <p className="text-14 leading-6 font-normal text-se-accent-100 cursor-pointer">
-              {info?.address ?? "Thêm địa chỉ hiện tại"}
+              {addressText}
             </p>
           </div>
         </div>

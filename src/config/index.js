@@ -35,6 +35,13 @@ export const apiConfig = {
       popular: "/jobs/popular",
       personalized: "/jobs/personalized",
     },
+    user: {
+      me: "/candidates/me",
+      updateInfo: "/candidates/update-information",
+      empty: "/candidates",
+      updateJobFindCriteria: "/candidates/update-job-find-criteria",
+      getJobFindCriteria: "/candidates/job-find-criteria-info",
+    }
   },
 };
 

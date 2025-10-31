@@ -48,6 +48,7 @@ export default function RightDrawer({ open, onClose, title, children }) {
           to { opacity: 1; transform: scale(1); }
         }
       `}</style>
+
     </div>
   );
 }
