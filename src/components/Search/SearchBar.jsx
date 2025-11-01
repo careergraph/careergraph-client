@@ -11,7 +11,7 @@ export default function SearchBar({
   };
 
   return (
-    <div className="flex items-center border pr-3 gap-2 bg-white border-gray-500/30 h-[46px] overflow-hidden w-2/3 focus-within:border-indigo-600 transition rounded-md">
+    <div className="flex items-center border pr-3 gap-2 bg-white border-gray-500/30 h-[46px] overflow-hidden w-full focus-within:border-indigo-600 transition rounded-md">
       <input
         type="text"
         placeholder={keywordPlaceholder}

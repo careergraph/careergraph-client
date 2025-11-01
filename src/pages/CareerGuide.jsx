@@ -77,7 +77,6 @@ export default function CareerGuide() {
   ];
   return (
     <main className="bg-white">
-      {/* <HeaderNavSub/> */}
       <SubBanner />
       <FeaturedArticles featured={featured} items={listItems} />
       <NewArticles items={listItems}/>

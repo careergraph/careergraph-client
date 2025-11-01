@@ -1,4 +1,3 @@
-import Breadcrumbs from "~/components/Navigate/Breadcrumbs";
 import Container from "../../components/Containers/Container";
 import SearchBar from "~/components/Search/SearchBar";
 export default function SubBanner({
@@ -10,10 +9,9 @@ export default function SubBanner({
 }) {
   return (
     <div className="bg-white">
-      <Container className="py-4 flex items-center justify-between">
-        {/* <Breadcrumbs items={breadcrumbs} /> */}
+      <Container className="py-4 flex items-center gap-4">
         <p
-          className="text-3xl md:text-3xl font-semibold drop-shadow bg-clip-text text-transparent"
+          className="flex-1 text-3xl md:text-3xl font-semibold drop-shadow bg-clip-text text-transparent"
           style={{
             backgroundImage:
               "linear-gradient(to right, #6a5af9, #7b6cf9, #a78bfa)",
@@ -21,7 +19,9 @@ export default function SubBanner({
         >
           La bàn sự nghiệp
         </p>
-        <SearchBar />
+        <div className="flex-2 w-full">
+          <SearchBar />
+        </div>
       </Container>
 
       <Container>
