@@ -1,6 +1,6 @@
 // CVCards.jsx
-import { useRef, useState, useMemo, useEffect  } from "react";
-import { Upload, MoreHorizontal, FileText, Trash2 } from "lucide-react";
+import { useRef, useState, useMemo, useEffect } from "react";
+import { Upload, MoreHorizontal, FileText, Trash2, X } from "lucide-react";
 
 const BYTES_5MB = 5 * 1024 * 1024;
 const ACCEPTED = [
@@ -16,6 +16,7 @@ function fmtDate(d) {
   )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+/* --- Popup xác nhận xoá --- */
 function ConfirmDialog({ open, title, message, onCancel, onConfirm }) {
   useEffect(() => {
     if (!open) return;
@@ -50,20 +51,14 @@ function ConfirmDialog({ open, title, message, onCancel, onConfirm }) {
   );
 }
 
-
 /**
  * props:
  * - initialFiles: Array<{ id?, name, url, uploadedAt: Date|string }>
- * - onUpload(file) => Promise|void   // gọi API upload, bạn có thể trả URL để set vào item
+ * - onUpload(file) => Promise|void
  * - onRemove(item) => void
  * - onView(item) => void
  */
-export default function CVCards({
-  initialFiles = [],
-  onUpload,
-  onRemove,
-  onView,
-}) {
+export default function CVCards({ initialFiles = [], onUpload, onRemove, onView }) {
   const [files, setFiles] = useState(
     initialFiles.map((f, i) => ({
       id: f.id ?? `${Date.now()}_${i}`,
@@ -74,6 +69,7 @@ export default function CVCards({
   );
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(null); // <--- item chờ xoá
   const inputRef = useRef(null);
 
   const acceptAttr = useMemo(() => ".pdf,.doc,.docx", []);
@@ -89,19 +85,18 @@ export default function CVCards({
     setError("");
     const file = fileList?.[0];
     if (!file) return;
-
     const err = validate(file);
     if (err) { setError(err); return; }
 
     try {
-      const maybeUrl = await onUpload?.(file); // nếu API trả URL, dùng nó
+      const maybeUrl = await onUpload?.(file);
       const newItem = {
         id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         name: file.name,
         url: maybeUrl ?? undefined,
         uploadedAt: new Date(),
       };
-      setFiles((s) => [...s, newItem]); // <-- ADD vào mảng
+      setFiles((s) => [...s, newItem]); // ADD
     } catch (e) {
       setError(e?.message || "Không thể tải lên. Vui lòng thử lại.");
     }
@@ -111,60 +106,64 @@ export default function CVCards({
     <section className="w-full rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
       <h3 className="text-[18px] font-semibold text-neutral-900">CV của tôi</h3>
 
-      {/* Danh sách các CV (mỗi cái là 1 card giống bản gốc) */}
+      {/* Danh sách CV */}
       <div className="mt-4 space-y-3">
         {files.map((item) => (
           <div
             key={item.id}
-            className="flex items-start justify-between rounded-xl border border-[#EFEFF0] bg-white px-4 py-3"
+            className="rounded-xl border border-[#EFEFF0] bg-white px-4 py-3"
           >
-            <div className="flex min-w-0 items-start gap-3">
-              <div className="mt-0.5 grid h-8 w-8 place-items-center rounded-md bg-violet-50">
-                <FileText size={18} className="text-violet-600" />
+            {/* Hàng chính: KHÔNG dùng justify-between để tránh kéo giãn */}
+            <div className="flex items-start gap-3">
+              {/* Khối trái chiếm diện tích, cho phép truncate */}
+              <div className="flex-1 min-w-0 flex items-start gap-3">
+                <div className="mt-0.5 grid h-8 w-8 place-items-center rounded-md bg-violet-50 shrink-0">
+                  <FileText size={18} className="text-violet-600" />
+                </div>
+
+                <div className="min-w-0">
+                  {/* Tên file: truncate trong giới hạn cha */}
+                  <p className="block max-w-full truncate whitespace-nowrap text-[15px] font-medium text-neutral-800">
+                    {item.name}
+                  </p>
+                  <p className="text-[12px] text-slate-500">
+                    Đã tải lên {fmtDate(item.uploadedAt)}
+                  </p>
+                  <button
+                    type="button"
+                    className="mt-1 text-[13px] font-medium text-violet-600 hover:underline"
+                    onClick={() => onView?.(item)}
+                  >
+                    Xem hồ sơ
+                  </button>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-[15px] font-medium text-neutral-800">
-                  {item.name}
-                </p>
-                <p className="text-[12px] text-slate-500">
-                  Đã tải lên {fmtDate(item.uploadedAt)}
-                </p>
+
+              {/* Khối phải: không cho co giãn */}
+              <div className="ml-3 flex shrink-0 items-center gap-1">
                 <button
                   type="button"
-                  className="mt-1 text-[13px] font-medium text-violet-600 hover:underline"
-                  onClick={() => onView?.(item)}
+                  className="rounded-full p-2 hover:bg-slate-100"
+                  title="Tùy chọn"
+                  onClick={() => {}}
                 >
-                  Xem hồ sơ
+                  <MoreHorizontal size={18} className="text-slate-500" />
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full p-2 hover:bg-red-50"
+                  title="Xoá"
+                  onClick={() => setPendingDelete(item)} // mở confirm
+                >
+                  <Trash2 size={18} className="text-red-500" />
                 </button>
               </div>
-            </div>
-
-            <div className="relative ml-3 flex shrink-0 items-center gap-1">
-              <button
-                type="button"
-                className="rounded-full p-2 hover:bg-slate-100"
-                title="Tùy chọn"
-                onClick={() => {}}
-              >
-                <MoreHorizontal size={18} className="text-slate-500" />
-              </button>
-              <button
-                type="button"
-                className="rounded-full p-2 hover:bg-red-50"
-                title="Xóa"
-                onClick={() => {
-                  setFiles((s) => s.filter((x) => x.id !== item.id));
-                  onRemove?.(item);
-                }}
-              >
-                <Trash2 size={18} className="text-red-500" />
-              </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Khu vực tải lên (add vào list) */}
+      {/* Khu vực upload */}
       <div
         className={[
           "mt-4 rounded-xl border-2 border-dashed p-4 sm:p-5",
@@ -197,12 +196,26 @@ export default function CVCards({
           </p>
         </div>
 
-        <p className="mt-2 text-[12px] text-slate-500">
-          Kéo & thả file vào khung này để thêm vào danh sách.
-        </p>
-
         {error && <p className="mt-2 text-[13px] text-red-600">{error}</p>}
       </div>
+
+      {/* Popup xác nhận xoá */}
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Xóa CV"
+        message={
+          <>
+            Bạn có chắc muốn xoá CV khỏi hệ thống
+          </>
+        }
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          const item = pendingDelete;
+          setPendingDelete(null);
+          setFiles((s) => s.filter((x) => x.id !== item.id));
+          onRemove?.(item);
+        }}
+      />
     </section>
   );
 }
