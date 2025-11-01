@@ -20,7 +20,6 @@ export async function getJobs({ page = 0, size = 10 }) {
     return response.data;
   } catch (error) {
     console.error("Error fetching jobs:", error);
-    throw new Error("Failed to fetch jobs");
   }
 }
 
@@ -31,7 +30,6 @@ export async function getJobCategories() {
     return response.data;
   } catch (error) {
     console.error("Error fetching job categories:", error);
-    throw new Error("Failed to fetch job categories");
   }
 }
 
@@ -42,7 +40,6 @@ export async function getPopularJobs() {
     return response.data;
   } catch (error) {
     console.error("Error fetching popular jobs:", error);
-    throw new Error("Failed to fetch popular jobs");
   }
 }
 
@@ -57,6 +54,5 @@ export async function getPersonalizedJobs({ token }) {
     return response.data;
   } catch (error) {
     console.error("Error fetching personalized jobs:", error);
-    throw new Error("Failed to fetch personalized jobs");
   }
 }
