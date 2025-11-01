@@ -18,6 +18,7 @@ function processQueue(error, newAccessToken = null) {
     }
     // gắn token mới vô header Authorization rồi call lại
     if (newAccessToken) {
+       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${newAccessToken}`;
     }
     resolve(instance(config));
@@ -49,13 +50,14 @@ export async function refreshAccessToken() {
           // KHÔNG đính kèm Bearer cũ
           Authorization: undefined,
         },
+        custom: { auth: false },  
       }
     );
 
     // chuẩn hóa data trả về để lấy token
-    const data = res?.data || {};
+    const data = res|| {};
     const nextAccess =
-      data?.data?.accessToken || data?.accessToken || data.accessToken;
+      data?.data?.accessToken || data?.accessToken || data?.token;
 
     if (!nextAccess) {
       throw new Error("Không nhận được token mới");
@@ -128,7 +130,10 @@ instance.interceptors.response.use(
 
     // Nếu không phải 401 hoặc request đó không cần auth => quăng lỗi luôn
     const needsAuth = originalConfig?.custom?.auth !== false;
-    if (status !== 401 || !needsAuth) {
+
+    const isRefreshCall = (originalConfig?.url || "").includes(REFRESH_PATH);
+
+    if (status !== 401 || !needsAuth || isRefreshCall) {
       return Promise.reject(error);
     }
 
@@ -154,6 +159,8 @@ instance.interceptors.response.use(
       // Sau khi refresh xong: xử lý tất cả thằng đang chờ
       processQueue(null, newAccessToken);
 
+
+      originalConfig.headers = originalConfig.headers || {};
       // Gắn token mới vô header request ban đầu rồi gọi lại
       originalConfig.headers.Authorization = `Bearer ${newAccessToken}`;
 

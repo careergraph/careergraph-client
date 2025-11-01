@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
+import { useAuthStore } from '~/store/authStore';
 
 export default function Login() {
   // State để lưu thông tin form
@@ -16,7 +16,8 @@ export default function Login() {
   
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
-  const { login, isLoading } = useAuth();
+  const { login, authSubmitting } = useAuthStore();
+
 
   // Hàm xử lý thay đổi input
   const handleChange = (e) => {
@@ -27,6 +28,11 @@ export default function Login() {
     }));
   };
 
+  const location = useLocationR();
+  const from =
+    location.state?.from?.pathname
+      ? `${location.state.from.pathname}${location.state.from.search || ""}${location.state.from.hash || ""}`
+      : "/";
   // Hàm xử lý submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,12 +44,13 @@ export default function Login() {
       return;
     }
 
-    // Gọi hàm login từ AuthContext
     const result = await login(formData.email, formData.password);
-    
+    console.log("result")
+    console.log(result)
+   
     if (result.success) {
       // Đăng nhập thành công, chuyển về trang chủ
-      navigate('/');
+      navigate(from, { replace: true });
     } else {
       // Hiển thị lỗi
       setError(result.message);
@@ -142,10 +149,10 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={authSubmitting}
             className="mt-8 w-full h-11 rounded-full font-bold text-white bg-indigo-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Đang đăng nhập...' : 'Login'}
+            {authSubmitting ? "Đang đăng nhập..." : "Login"}
           </button>
           <p className="text-gray-500/90 text-sm mt-4">
             Don't have an account?{"  "}

@@ -3,8 +3,8 @@ import { Pencil } from "lucide-react";
 import RightDrawer from "../RightDrawer";
 import { UserAPI } from "~/services/api/user";
 import { toast } from "sonner";
-import { useAuth } from "~/contexts/AuthContext";
 import CriteriaForm from "./CriteriaForm";
+import { useUserStore } from "~/store/userStore";
 
 function classx(...arr) {
   return arr.filter(Boolean).join(" ");
@@ -12,7 +12,7 @@ function classx(...arr) {
 
 /* ---------------- JobCriteriaCard ---------------- */
 export default function JobCriteriaCard({ className }) {
-  const { user } = useAuth();
+  const { user } = useUserStore();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -31,36 +31,18 @@ export default function JobCriteriaCard({ className }) {
   // Load khi user có
   useEffect(() => {
     if (!user) return;
-
-    let isMounted = true;
-    setLoading(true);
-
-    UserAPI.getJobFindCriteria()
-      .then((res) => {
-        const serverData = res?.data?.data ?? res?.data ?? res;
-        if (!isMounted) return;
-
-        setData({
-          desiredPosition: serverData?.desiredPosition || "",
-          industries: serverData?.industries || [],
-          locations: serverData?.locations || [],
-          salaryExpectationMin:
-            serverData?.salaryExpectationMin ?? null,
-          salaryExpectationMax:
-            serverData?.salaryExpectationMax ?? null,
-          workTypes: serverData?.workTypes || [],
-        });
-      })
-      .catch(() => {
-        // nếu fail thì vẫn giữ default rỗng
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+    console.log(user)
+     setData({
+        desiredPosition: user?.desiredPosition || "",
+        industries: user?.industries || [],
+        locations: user?.locations || [],
+        salaryExpectationMin:
+          user?.salaryExpectationMin ?? null,
+        salaryExpectationMax:
+          user?.salaryExpectationMax ?? null,
+        workTypes: user?.workTypes || [],
+    });
+    setLoading(false)
   }, [user]);
 
   // map form -> payload BE
@@ -88,21 +70,8 @@ export default function JobCriteriaCard({ className }) {
 
     try {
       const res = await UserAPI.updateJobCriteria(payload);
-
-      const serverData = res?.data?.data ?? res?.data ?? res;
-
-      // Đồng bộ UI
-      setData({
-        desiredPosition: serverData?.desiredPosition || "",
-        industries: serverData?.industries || [],
-        locations: serverData?.locations || [],
-        salaryExpectationMin:
-          serverData?.salaryExpectationMin ?? null,
-        salaryExpectationMax:
-          serverData?.salaryExpectationMax ?? null,
-        workTypes: serverData?.workTypes || [],
-      });
-
+      const serverData = res?.data;
+      useUserStore.getState().updateUserPart(serverData)
       toast.success("Cập nhật tiêu chí thành công");
     } catch (e) {
       toast.error(e?.message || "Cập nhật tiêu chí thất bại");

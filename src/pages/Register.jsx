@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
+import { useAuthStore } from '~/store/authStore';
 
 export default function Register() {
   // State để lưu thông tin form
@@ -18,7 +18,7 @@ export default function Register() {
   
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
-  const { register, isLoading } = useAuth();
+  const { register, isLoading } = useAuthStore();
 
   // Hàm xử lý thay đổi input
   const handleChange = (e) => {

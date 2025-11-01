@@ -3,13 +3,9 @@ import { Pencil } from "lucide-react";
 import ProfileCard from "../components/ProfileDashboard/ProfileCard/ProfileCard";
 import CVCards from "../components/ProfileDashboard/CVCard";
 import JobCriteriaCard from "../components/ProfileDashboard/JobCriteria/JobCriteria";
-import GeneralInfoCard from "../components/ProfileDashboard/GeneralInfoCard";
 import WorkExperienceCard from "../components/ProfileDashboard/WorkExperienceCard";
 import EducationCard from "../components/ProfileDashboard/EducationCard";
 import SkillsCard from "../components/ProfileDashboard/SkillsCard";
-import ProjectsCard from "../components/ProfileDashboard/ProjectsCard";
-import CertificatesCard from "../components/ProfileDashboard/CertificatesCard";
-import LanguageCard from "../components/ProfileDashboard/LanguageCard";
 
 
 export default function Profile({className}) {
@@ -75,13 +71,6 @@ export default function Profile({className}) {
     "Java", "Spring Boot", "ReactJS", "NodeJS"
   ]);
   
-  const [projects, setProjects] = useState([
-    { id:"1", name:"SSSS", start:"2025-02", end:"2025-06", desc:"aaaa" }
-  ]);
-
-  const [certs, setCerts] = useState([]);
-
-  const [langs, setLangs] = useState([]);
 
   return (
     <div className={`flex w-full ${className} `}>
@@ -112,12 +101,6 @@ export default function Profile({className}) {
         />
 
 
-        <GeneralInfoCard
-          value={generalInfo}
-          onSave={(v) => setGeneralInfo(v)}
-          className="mt-4"
-          
-        />
 
 
         <WorkExperienceCard
@@ -135,19 +118,7 @@ export default function Profile({className}) {
           <SkillsCard value={skills} onChange={setSkills} />
         </div>
 
-        
-
-        <div className="mt-4">
-          <ProjectsCard value={projects} onChange={setProjects} />
-        </div>
-
-        <div className="mt-4">
-          <CertificatesCard value={certs} onChange={setCerts} />
-        </div>
-
-        <div className="my-4">
-          <LanguageCard value={langs} onChange={setLangs} />
-        </div>
+    
       </div>
 
     </div>

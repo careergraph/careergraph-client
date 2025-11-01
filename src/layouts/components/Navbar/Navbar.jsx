@@ -3,16 +3,19 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { navLinks } from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
-import { useAuth } from "../../../contexts/AuthContext";
 import ProfileDropdown from "~/components/ProfileMenu/ProfileDropdown";
 import AvatarUser from "~/components/DefaultData/AvatarUser";
+import { useAuthStore } from "~/store/authStore";
+import { useUserStore } from "~/store/userStore";
+
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { isAuthenticated, user, logout, isLoading } = useAuth();
-  console.log(isAuthenticated)
+
+  const {user} = useUserStore();
+  const { isAuthenticated, logout, authInitializing } = useAuthStore();
   useEffect(() => {
     if (openMobileMenu) {
       document.body.classList.add("max-md:overflow-hidden");
@@ -85,7 +88,7 @@ export default function Navbar() {
             {link.name}
           </NavLink>
         ))}
-        { !isLoading && (
+        { !authInitializing && (
           isAuthenticated ? (
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-3">
@@ -163,7 +166,7 @@ export default function Navbar() {
 
       {/* Desktop */}
       <div className="flex items-center gap-4">
-        {!isLoading&& (
+        {!authInitializing&& (
           isAuthenticated ? (
             <div className="hidden md:flex items-center gap-4">
               <div className="flex items-center gap-3">
@@ -180,7 +183,7 @@ export default function Navbar() {
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
                   >
-                    {user.avatarUrl? (
+                    {user?.avatarUrl? (
                       <img src={user.avatarUrl} 
                       alt={user?.firstName ?? "avatar"} className="w-9 h-9 object-cover rounded-full"/>
                       ):(

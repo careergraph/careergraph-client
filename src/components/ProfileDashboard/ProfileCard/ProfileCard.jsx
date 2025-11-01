@@ -12,18 +12,18 @@ import {
   Camera
 } from "lucide-react";
 import { UserAPI } from "~/services/api/user";
-import { useAuth } from "~/contexts/AuthContext";
 import AvatarCropModal from "../AvatarCropModal";
 import RightDrawer from "../RightDrawer";
 import PersonalForm from "./PersonForm";
 import { toast } from "sonner";
-import { normalizeInfoFromResponse } from "~/services/domain/candidate/profile.mapper";
+import { normalizeAddress, normalizeContact } from "~/services/domain/candidate/profile.mapper";
 import AvatarUser from "~/components/DefaultData/AvatarUser";
 import { useLocation } from "~/hooks/use-location";
+import { useUserStore } from "~/store/userStore";
 
 export default function ProfileCard() {
 
-  const {user, setUser} = useAuth();
+  const {user} = useUserStore();
   const [info, setInfo] = useState(null)
   const [avatarUrl, setAvatarUrl] = useState(""); // preview avatar
   const [openEdit, setOpenEdit] = useState(false);
@@ -45,10 +45,8 @@ export default function ProfileCard() {
   useEffect(()=> {
 
     if(!user) return;
-    console.log("user");
-    console.log(user);
     setInfo(user);
-    setAddressCode({provinceCode: user?.provinceCode, districtCode: user?.districtCode })
+    setAddressCode({provinceCode: user?.primaryAddress?.province, districtCode: user?.primaryAddress?.district })
     if(user?.avatarUrl){
         setAvatarUrl(user?.avatarUrl);
       }
@@ -59,9 +57,9 @@ export default function ProfileCard() {
     firstName: d?.firstName || "",
     lastName: d?.lastName || "",
     email: d?.email || "",
-    provinceCode: d?.provinceCode || "",
-    districtCode: d?.districtCode || "",
-    phone: d.phone?.trim(),
+    provinceCode: d?.primaryAddress?.province || "",
+    districtCode: d?.primaryAddress?.district || "",
+    phone: d.primaryContact?.value?.trim(),
     birth: (d?.dateOfBirth || "").slice(0, 10), // giữ "YYYY-MM-DD"
     gender: d?.gender === "MALE" ? "Nam" : (d?.gender === "FEMALE" ? "Nữ" : ""),
     marital: d?.isMarried ? "Đã lập gia đình" : "Độc thân",
@@ -103,10 +101,9 @@ export default function ProfileCard() {
     try {
       const res = await UserAPI.updateInfo(payload);
       const data = res?.data ?? res;
-      data.avatarUrl = user.avatarUrl;
-
-      setInfo(normalizeInfoFromResponse(data));
-      setUser(normalizeInfoFromResponse(data));
+      data.primaryAddress = normalizeAddress(data.addresses)
+      data.primaryContact = normalizeContact(data.contacts)
+      useUserStore.getState().updateUserPart(data)
     } catch (e) {
       toast.error(e.message || "Cập nhật thất bại")
     }
@@ -157,14 +154,14 @@ export default function ProfileCard() {
       formData.append("type", "AVATAR");
       formData.append("file", blob, "avatar.png");
 
-      await UserAPI.uploadCandidateFile({
+      const res = await UserAPI.uploadCandidateFile({
         id: info.candidateId,
         body: formData,
       });
+      console.log(res?.data)
 
-      const resInfo = await UserAPI.me();
+      useUserStore.getState().updateUserPart({ avatarUrl: res?.data })
     
-      setUser(resInfo.data);
       
       toast.success("Cập nhật ảnh đại diện thành công");
       
@@ -285,7 +282,7 @@ export default function ProfileCard() {
             <div className="flex gap-2 items-center">
               <Smartphone size={16} className="text-grey-11" />
               <span className="text-14 leading-6 break-all line-clamp-1 text-se-accent-100 cursor-pointer">
-                {info?.phone ?? "Thêm số điện thoại"}
+                {info?.primaryContact?.value ?? "Thêm số điện thoại"}
               </span>
             </div>
           </div>
