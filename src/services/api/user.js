@@ -11,12 +11,6 @@ export const UserAPI = {
       body: payload
     })
   },
-  getJobFindCriteria(){
-    return http(`${apiConfig.endpoints.user.getJobFindCriteria}`, {
-      method: "GET"
-    })
-  },
-  
   async me () {
     try{
       const data = await http (apiConfig.endpoints.user.me, {method:"GET",auth:true});
@@ -29,8 +23,6 @@ export const UserAPI = {
         }catch{
           toast("Lỗi lấy đại diện")
         }
-         
-
       }
       return data;
     }catch{

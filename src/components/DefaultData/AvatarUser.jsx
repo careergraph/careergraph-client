@@ -1,7 +1,8 @@
-import { useAuth } from "~/contexts/AuthContext";
+import { useAuthStore } from "~/store/authStore";
+
 
 function AvatarUser({size="40", fontSize="sm"}) {
-  const {user} = useAuth();
+  const {user} = useAuthStore();
   return (  
     <div className={`w-${size} h-${size} rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-${fontSize}`}>
         {user?.firstName

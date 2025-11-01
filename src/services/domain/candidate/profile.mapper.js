@@ -4,9 +4,6 @@
 // thành object FE dùng trong state `info`.
 export function normalizeInfoFromResponse(data) {
   if (!data) return null;
-
-  console.log("data");
-  console.log(data)
   return {
     
     candidateId: data.candidateId,
@@ -100,4 +97,12 @@ export function toPayload(formValues) {
       isPrimary: true,
     },
   };
+}
+
+export function normalizeAddress(addresses=[],type="HOME_ADDRESS", isPrimary = true ){
+  return addresses.find(a => a.addressType === type && a.isPrimary === isPrimary);
+}
+
+export function normalizeContact(contacts=[],type="PHONE", isPrimary = true ){
+  return contacts.find(a => a.contactType === type && a.isPrimary === isPrimary);
 }

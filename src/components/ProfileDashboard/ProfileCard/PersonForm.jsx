@@ -15,8 +15,8 @@ export default function PersonalForm({ defaultValues = {}, onSubmit }) {
     lastName: defaultValues.lastName || "",
     email: defaultValues.email || "",
     phone: defaultValues.phone || "",
-    provinceCode: defaultValues.provinceCode || "", // <-- code tỉnh
-    districtCode: defaultValues.districtCode || "", // <-- code huyện
+    provinceCode: defaultValues?.provinceCode || "", // <-- code tỉnh
+    districtCode: defaultValues?.districtCode || "", // <-- code huyện
     birth: defaultValues.birth || "",
     gender: defaultValues.gender || "",
     marital: defaultValues.marital || "Độc thân",

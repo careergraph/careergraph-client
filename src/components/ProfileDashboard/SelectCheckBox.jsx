@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { createPortal } from "react-dom";
 
+/* --------- utils --------- */
 function classx(...arr) {
   return arr.filter(Boolean).join(" ");
 }
@@ -40,15 +41,14 @@ export default function SelectCheckBox({
   });
 
   const rootRef = useRef(null);
-  const btnRef  = useRef(null);
+  const btnRef = useRef(null);
   const menuRef = useRef(null);
+  const prevFocusRef = useRef(null);
 
   // Chuẩn hóa options -> [{value,label}]
   const normOptions = useMemo(() => {
     const arr = Array.isArray(options) ? options : [];
-    return arr.map((op) =>
-      typeof op === "string" ? { value: op, label: op } : op
-    );
+    return arr.map((op) => (typeof op === "string" ? { value: op, label: op } : op));
   }, [options]);
 
   const selectedSet = useMemo(() => new Set(values || []), [values]);
@@ -56,17 +56,43 @@ export default function SelectCheckBox({
   const limit = Number.isFinite(maxCount) ? maxCount : Infinity;
   const isMaxed = selectedCount >= limit;
 
-  // Đóng khi click ngoài
+  // Đóng khi click ngoài (khi không dùng backdrop)
   useEffect(() => {
     const onDocClick = (e) => {
+      if (!open) return;
       if (!rootRef.current) return;
-      if (!rootRef.current.contains(e.target) && !menuRef.current?.contains(e.target)) {
-        setOpen(false);
-      }
+      const inRoot = rootRef.current.contains(e.target);
+      const inMenu = menuRef.current?.contains(e.target);
+      if (!inRoot && !inMenu) setOpen(false);
     };
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
+  }, [open]);
+
+  // A11y: quản lý focus khi mở/đóng; Esc để đóng
+  useEffect(() => {
+    if (open) {
+      prevFocusRef.current = document.activeElement;
+      // chờ portal mount xong rồi focus vào menu
+      requestAnimationFrame(() => {
+        menuRef.current?.focus();
+      });
+    } else {
+      // trả focus lại nút mở
+      if (prevFocusRef.current && typeof prevFocusRef.current.focus === "function") {
+        prevFocusRef.current.focus();
+      }
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   // Tính vị trí
   const recompute = () => {
@@ -101,16 +127,17 @@ export default function SelectCheckBox({
   const toggleValue = (v) => {
     const isSelected = selectedSet.has(v);
     if (!isSelected && isMaxed) return; // chặn chọn thêm khi đã max
-    const next = isSelected
-      ? values.filter((x) => x !== v)
-      : [...values, v];
+    const next = isSelected ? values.filter((x) => x !== v) : [...values, v];
     onChange?.(next);
   };
 
   // Text hiển thị trên nút
-  const buttonText = selectedCount > 0
-    ? `${selectedCount}/${Number.isFinite(maxCount) ? maxCount : "∞"} đã chọn`
-    : (placeholder || "Chọn");
+  const buttonText =
+    selectedCount > 0
+      ? `${selectedCount}/${Number.isFinite(maxCount) ? maxCount : "∞"} đã chọn`
+      : placeholder || "Chọn";
+
+  const popupId = "scb-popup";
 
   return (
     <div className="relative" ref={rootRef}>
@@ -119,6 +146,9 @@ export default function SelectCheckBox({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((s) => !s)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={popupId}
         className={classx(
           "flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left",
           selectedCount ? "text-slate-900" : "text-slate-500",
@@ -132,11 +162,25 @@ export default function SelectCheckBox({
 
       {open &&
         createPortal(
-          <div className="fixed inset-0 z-[1000] pointer-events-none" aria-hidden>
+          <div className="fixed inset-0 z-[1000]">
+            {/* Backdrop trong suốt: click ra ngoài để đóng */}
+            <button
+              type="button"
+              aria-label="Đóng"
+              onClick={() => setOpen(false)}
+              className="absolute inset-0 bg-transparent"
+              tabIndex={-1}
+            />
+
+            {/* Popup */}
             <div
               ref={menuRef}
+              id={popupId}
+              role="dialog"
+              aria-modal="true"
+              tabIndex={-1}
               className={classx(
-                "pointer-events-auto absolute overflow-hidden rounded-xl border bg-white shadow-lg ring-1 ring-black/5"
+                "absolute overflow-hidden rounded-xl border bg-white shadow-lg ring-1 ring-black/5"
               )}
               style={{
                 top: pos.placement === "bottom" ? pos.top : undefined,
@@ -145,7 +189,7 @@ export default function SelectCheckBox({
                 width: pos.width,
               }}
             >
-              {/* Header nhỏ */}
+              {/* Header */}
               <div className="flex items-center justify-between px-3 py-2 border-b bg-slate-50">
                 <div className="text-xs text-slate-600">
                   Đã chọn <b>{selectedCount}</b> / {Number.isFinite(maxCount) ? maxCount : "∞"}
@@ -160,12 +204,17 @@ export default function SelectCheckBox({
               </div>
 
               {/* Danh sách */}
-              <ul className="py-2" style={{ maxHeight: pos.maxHeight, overflow: "auto" }}>
+              <ul
+                role="listbox"
+                aria-multiselectable="true"
+                className="py-2"
+                style={{ maxHeight: pos.maxHeight, overflow: "auto" }}
+              >
                 {normOptions.map((op) => {
                   const checked = selectedSet.has(op.value);
                   const shouldDim = isMaxed && !checked; // đã max và mục này chưa chọn
                   return (
-                    <li key={op.value}>
+                    <li key={op.value} role="option" aria-selected={checked}>
                       <button
                         type="button"
                         onClick={() => toggleValue(op.value)}
@@ -175,12 +224,7 @@ export default function SelectCheckBox({
                         )}
                         disabled={shouldDim}
                       >
-                        <input
-                          type="checkbox"
-                          readOnly
-                          checked={checked}
-                          className="h-4 w-4"
-                        />
+                        <input type="checkbox" readOnly checked={checked} className="h-4 w-4" />
                         <span className="truncate">{op.label}</span>
                       </button>
                     </li>
