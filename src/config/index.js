@@ -10,6 +10,11 @@ export const routes = {
   register: "/register",
   jobDetail: "/job/:id",
   profile: "/profile",
+  appliedJobs: "/jobs/applied",
+  savedJobs: "/jobs/saved",
+  waitingJobs: "/jobs/waiting",
+  jobAlerts: "/jobs/alerts",
+  employersViews: "/employers/views",
 };
 
 // Cấu hình API endpoints
@@ -30,6 +35,12 @@ export const apiConfig = {
       popular: "/jobs/popular",
       personalized: "/jobs/personalized",
     },
+    user: {
+      me: "/candidates/me",
+      updateInfo: "/candidates/update-information",
+      empty: "/candidates",
+      updateJobFindCriteria: "/candidates/update-job-find-criteria",
+    }
   },
 };
 

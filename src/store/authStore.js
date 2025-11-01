@@ -1,0 +1,112 @@
+// src/store/authStore.js
+import { create } from "zustand";
+import { toast } from "sonner";
+import { http, refreshAccessToken } from "~/services/http/request";
+import { getToken, setToken, removeToken } from "~/utils/storage";
+import { UserAPI } from "~/services/api/user";
+import { useUserStore } from "./userStore";
+import { normalizeAddress, normalizeContact } from "~/services/domain/candidate/profile.mapper";
+
+export const useAuthStore = create((set, get) => ({
+  
+  isAuthenticated: false,
+  authInitializing: true,   // thay cho isLoading của init
+  authSubmitting: false,  // loading của nút Login
+
+  // Lấy thông tin người dùng hiện tại
+  fetchMe: async () => {
+    try {
+      const data = await UserAPI.me();
+      const userData = (data.data);
+      userData.primaryAddress = normalizeAddress(userData.addresses)
+      userData.primaryContact = normalizeContact(userData.contacts)
+      useUserStore.getState().setUser(userData);
+      set({ isAuthenticated: true });
+      return true;
+    } catch (e) {
+      console.warn("fetchMe failed:", e);
+      removeToken();
+      useUserStore.getState().clearUser();
+      set({ isAuthenticated: false });
+      return false;
+    }
+  },
+
+  // Refresh token khi hết hạn
+  tryRefresh: async () => {
+    try {
+      const newAccess = await refreshAccessToken();
+      if (newAccess) {
+        setToken(newAccess);
+        await useAuthStore.getState().fetchMe();
+        set({ isAuthenticated: true });
+      } else {
+        removeToken();
+        useUserStore.getState().clearUser();
+        set({ isAuthenticated: false });
+      }
+    } catch (e) {
+      console.warn("Refresh token invalid:", e);
+      removeToken();
+      useUserStore.getState().clearUser();
+      set({ isAuthenticated: false });
+    }
+  },
+
+  // Đăng nhập
+  login: async (email, password) => {
+    set({ authSubmitting: true });
+    try {
+      const data = await http("/auth/login", { method:"POST", body:{ email, password }, auth:false });
+      const access = data?.data?.accessToken || data?.accessToken || data;
+      if (!access) throw new Error("Thiếu accessToken");
+
+      setToken(access);
+      await get().fetchMe();
+      set({ isAuthenticated: true });
+      toast.success("Đăng nhập thành công!");
+      return { success: true };
+    } catch (e) {
+      console.error("Lỗi đăng nhập:", e);
+      removeToken();
+      useUserStore.getState().clearUser();
+      set({ isAuthenticated: false });
+      return { success: false, message: e?.message || "Đăng nhập thất bại" };
+    } finally {
+      set({ authSubmitting: false });
+    }
+  },
+
+  initAuth: async () => {
+  set({ authInitializing: true });
+  try {
+    const hasToken = !!getToken();
+    if (hasToken) {
+      const ok = await get().fetchMe();
+      if (!ok) await get().tryRefresh();
+    } else {
+      await get().tryRefresh();        // giống logic của Context
+    }
+  } finally {
+    set({ authInitializing: false });
+  }
+},
+
+
+  // Đăng xuất
+  logout: async () => {
+    try {
+      const token = getToken();
+      if (token) {
+        await http("/auth/logout", { method: "POST", auth: true });
+      }
+    } catch {
+      // ignore
+    } finally {
+      removeToken();
+      useUserStore.getState().clearUser();
+      set({ isAuthenticated: false });
+    }
+  },
+
+}));

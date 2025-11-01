@@ -11,7 +11,9 @@ import JobDetail from "../pages/JobDetail";
 import Jobs from "../pages/Jobs";
 import CareerGuide from "../pages/CareerGuide";
 import ProfileDashboardLayout from "~/layouts/ProfileDashboardLayout/ProfileDashboardLayout";
-import ProfileDashboard from "~/pages/ProfileDashboard";
+import Profile from "~/pages/Profile";
+import AppliedJobs from "~/pages/AppliedJobs";
+import SavedJobs from "~/pages/SavedJobs";
 
 const publicRoutes = [
   { path: routes.home, component: Home },
@@ -23,18 +25,14 @@ const publicRoutes = [
   { path: routes.login, component: Login, layout: FooterOnly },
   { path: routes.register, component: Register, layout: FooterOnly },
   { path: routes.jobDetail, component: JobDetail },
-  { path: routes.profile, component: ProfileDashboard, layout: ProfileDashboardLayout },
+  
+  { path: routes.appliedJobs, component: AppliedJobs, layout: ProfileDashboardLayout },
+  { path: routes.savedJobs, component: SavedJobs, layout: ProfileDashboardLayout },
 ];
 
+//In addition to diving private routes and public routes, you can also use the protected flag
 const privateRoutes = [
-  // { 
-  //   path: routes.profile, 
-  //   component: () => (
-  //     <ProtectedRoute>
-  //       <Profile />
-  //     </ProtectedRoute>
-  //   ) 
-  // },
+  { path: routes.profile, component: Profile, layout: ProfileDashboardLayout },
 ];
 
 export { publicRoutes, privateRoutes };

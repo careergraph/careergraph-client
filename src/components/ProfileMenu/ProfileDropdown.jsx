@@ -6,11 +6,11 @@ import {
   Heart,
   LogOut,
 } from "lucide-react";
-import { useAuth } from "~/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "~/store/authStore";
 
 export default function ProfileDropdown() {
-  const { logout } = useAuth();
+  const { logout } = useAuthStore();
   const navigate = useNavigate();
 
   const items = [
