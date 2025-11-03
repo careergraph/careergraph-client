@@ -39,7 +39,7 @@ export default function PopularJobsSection() {
     };
   }, []);
 
-  const items = jobs.slice(0, 4);
+  const items = jobs.slice(0, 6);
 
   return (
     <>
