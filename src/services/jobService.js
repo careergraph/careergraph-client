@@ -7,10 +7,45 @@ import { JobAPI } from "./api/job";
 const unwrapJobList = (payload) => {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.content)) return payload.content;
-  if (Array.isArray(payload?.items)) return payload.items;
-  if (Array.isArray(payload?.results)) return payload.results;
+
+  const guesses = [
+    payload?.data,
+    payload?.content,
+    payload?.items,
+    payload?.results,
+    payload?.data?.data,
+    payload?.data?.content,
+    payload?.data?.items,
+    payload?.data?.results,
+    payload?.data?.list,
+    payload?.data?.rows,
+  ];
+
+  for (const candidate of guesses) {
+    if (Array.isArray(candidate)) {
+      return candidate;
+    }
+  }
+
+  const visited = new Set();
+  const stack = [payload];
+
+  while (stack.length && visited.size < 50) {
+    const current = stack.pop();
+    if (!current || typeof current !== "object") continue;
+    if (visited.has(current)) continue;
+    visited.add(current);
+
+    for (const value of Object.values(current)) {
+      if (Array.isArray(value)) {
+        return value;
+      }
+      if (value && typeof value === "object" && !visited.has(value)) {
+        stack.push(value);
+      }
+    }
+  }
+
   return [];
 };
 
@@ -360,6 +395,11 @@ const fetchJobDetail = async (id, options = {}) => {
 };
 
 export const JobService = {
+  /** Lấy toàn bộ danh sách việc làm để hiển thị ở trang Jobs. */
+  fetchAllJobs(options) {
+    return fetchJobs(JobAPI.getJobs, options);
+  },
+
   /** Lấy danh sách việc làm phổ biến trên hệ thống. */
   fetchPopularJobs(options) {
     return fetchJobs(JobAPI.getPopularJobs, options);
