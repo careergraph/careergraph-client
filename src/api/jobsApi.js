@@ -24,14 +24,14 @@ export async function getJobs({ page = 0, size = 10 }) {
 }
 
 // Get all categories of job
-export async function getJobCategories() {
-  try {
-    const response = await api.get(apiConfig.endpoints.jobs.categories);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching job categories:", error);
-  }
-}
+// export async function getJobCategories() {
+//   try {
+//     const response = await api.get(apiConfig.endpoints.jobs.categories);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching job categories:", error);
+//   }
+// }
 
 // Get popular jobs
 export async function getPopularJobs() {
