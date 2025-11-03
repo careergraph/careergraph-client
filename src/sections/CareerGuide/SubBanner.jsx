@@ -19,9 +19,6 @@ export default function SubBanner({
         >
           La bàn sự nghiệp
         </p>
-        <div className="flex-2 w-full">
-          <SearchBar />
-        </div>
       </Container>
 
       <Container>

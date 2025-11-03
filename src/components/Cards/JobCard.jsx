@@ -1,4 +1,4 @@
-import { Zap, MapPin, CircleDollarSign, Clock, Sparkles } from "lucide-react";
+import { Zap, MapPin, CircleDollarSign, Sparkles } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,6 +6,17 @@ const limitTags = (input, max = 3) => {
   if (!Array.isArray(input) || !input.length) return [];
   return input.filter(Boolean).slice(0, max);
 };
+
+const TAG_COLORS = [
+  "bg-blue-50 text-blue-700 border-blue-200",
+  "bg-purple-50 text-purple-700 border-purple-200",
+  "bg-pink-50 text-pink-700 border-pink-200",
+  "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "bg-amber-50 text-amber-700 border-amber-200",
+  "bg-cyan-50 text-cyan-700 border-cyan-200",
+  "bg-rose-50 text-rose-700 border-rose-200",
+  "bg-indigo-50 text-indigo-700 border-indigo-200",
+];
 
 export default function JobCard({ job, onSave, onDetail }) {
   const navigate = useNavigate();
@@ -17,7 +28,11 @@ export default function JobCard({ job, onSave, onDetail }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const tags = useMemo(() => {
     if (job.skills?.length) return limitTags(job.skills);
-    const fallback = [job.experience?.level, job.employmentType, job.jobCategory].filter(Boolean);
+    const fallback = [
+      job.experience?.level,
+      job.employmentType,
+      job.jobCategory,
+    ].filter(Boolean);
     return limitTags(fallback);
   }, [job.employmentType, job.experience?.level, job.jobCategory, job.skills]);
 
@@ -60,7 +75,7 @@ export default function JobCard({ job, onSave, onDetail }) {
           <Sparkles className="w-4 h-4" />
         </span>
       ) : (
-        <span className="absolute -top-3 -left-3 bg-slate-100 text-yellow-500 p-1.5 rounded-full shadow">
+        <span className="absolute -top-3 -left-3 bg-green-100 text-green-500 p-1.5 rounded-full shadow">
           <Zap className="w-4 h-4" />
         </span>
       )}
@@ -87,28 +102,25 @@ export default function JobCard({ job, onSave, onDetail }) {
             </p>
 
             {/* Tags */}
-            {tags.length || job.expiryDate ? (
+            {tags.length ? (
               <div className="flex flex-wrap gap-2 mb-2">
-                {tags.map((tag) => (
+                {tags.map((tag, index) => (
                   <span
                     key={tag}
-                    className="px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-full line-clamp-1"
+                    className={`px-2.5 py-1.5 text-xs font-medium border rounded-full line-clamp-1 ${
+                      TAG_COLORS[index % TAG_COLORS.length]
+                    }`}
                   >
                     {tag}
                   </span>
                 ))}
-
-                {job.expiryDate ? (
-                  <span className="px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-full flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {job.expiryDate}
-                  </span>
-                ) : null}
               </div>
             ) : null}
 
             {job.summary ? (
-              <p className="text-sm text-slate-500 line-clamp-2">{job.summary}</p>
+              <p className="text-sm text-slate-500 line-clamp-2">
+                {job.summary}
+              </p>
             ) : null}
           </div>
 
@@ -116,11 +128,15 @@ export default function JobCard({ job, onSave, onDetail }) {
           <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="flex items-center gap-2 text-sm font-medium text-indigo-600">
               <CircleDollarSign className="w-4 h-4" />
-              <span className="max-w-[200px]">{job.salaryRange || "Thoả thuận"}</span>
+              <span className="max-w-[200px]">
+                {job.salaryRange || "Thoả thuận"}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <MapPin className="w-4 h-4" />
-              <span className="line-clamp-1 max-w-[350px]">{job.location}</span>
+              <span className="line-clamp-1 max-w-[185px]">
+                {job.location.split(",").pop()?.trim() || job.location}
+              </span>
             </div>
             <div className="flex items-center justify-center gap-3 mt-8">
               <button
