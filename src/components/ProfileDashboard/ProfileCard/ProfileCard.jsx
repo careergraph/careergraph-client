@@ -45,6 +45,7 @@ export default function ProfileCard() {
   useEffect(()=> {
 
     if(!user) return;
+    console.log(user);
     setInfo(user);
     setAddressCode({provinceCode: user?.primaryAddress?.province, districtCode: user?.primaryAddress?.district })
     if(user?.avatarUrl){

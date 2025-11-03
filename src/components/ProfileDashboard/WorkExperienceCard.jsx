@@ -1,110 +1,216 @@
-// WorkExperienceCard.jsx
-import { useId, useMemo, useState, useEffect } from "react";
-import { Plus, Pencil, X, Trash2, Calendar } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
+import RightDrawer from "./RightDrawer";
+import { useUserStore } from "~/store/userStore";
+import { UserAPI } from "~/services/api/user";
+import { CompanyAPI } from "~/services/api/company";
 
-/* ------------- utils ------------- */
+
+/* ---------------- utils ---------------- */
 const pad2 = (n) => String(n).padStart(2, "0");
 const fmtMonth = (s /* "2025-02" or "" */) => {
   if (!s) return "";
   const [y, m] = s.split("-");
   return `${pad2(+m)}/${y}`;
 };
-// đảm bảo start <= end (nếu không current)
-const validRange = ({ start, end, isCurrent }) => {
-  if (!start) return false;
+const validRange = ({ startDate, endDate, isCurrent }) => {
+  if (!startDate) return false;
   if (isCurrent) return true;
-  if (!end) return false;
-  return start <= end;
+  if (!endDate) return false;
+  return startDate <= endDate;
 };
 
-/* ------------- Modal ------------- */
-function Modal({ open, title, onClose, children, footer }) {
-  const titleId = useId();
-
-  useEffect(() => {
-    if (!open) return;
-    const onEsc = (e) => e.key === "Escape" && onClose?.();
-    window.addEventListener("keydown", onEsc);
-    return () => window.removeEventListener("keydown", onEsc);
-  }, [open, onClose]);
-
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center">
-      <button className="absolute inset-0 bg-black/40" onClick={onClose} aria-label="Close" />
-      <div className="relative w-full rounded-t-2xl bg-white shadow-xl sm:rounded-2xl sm:w-[720px]">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 id={titleId} className="text-xl font-semibold">{title}</h3>
-          <button className="rounded-full p-2 hover:bg-slate-100" onClick={onClose} aria-label="Đóng">
-            <X size={18} />
-          </button>
-        </div>
-        <div className="max-h-[70vh] overflow-auto p-6">{children}</div>
-        <div className="flex items-center justify-between gap-3 border-t px-6 py-4">
-          {footer}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ------------- Form trong popup ------------- */
+/* ---------------- Form ---------------- */
 function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
-  const [company, setCompany] = useState(initialValue?.company || "");
-  const [title, setTitle] = useState(initialValue?.title || "");
+  const [companyName, setCompanyName] = useState(initialValue?.companyName || "");
+  const [companyId, setCompanyId] = useState(initialValue?.companyId ?? null); // <== thêm
+  const [jobTitle, setJobTitle] = useState(initialValue?.jobTitle || "");
   const [isCurrent, setIsCurrent] = useState(initialValue?.isCurrent || false);
-  const [start, setStart] = useState(initialValue?.start || ""); // type="month" -> "YYYY-MM"
-  const [end, setEnd] = useState(initialValue?.end || "");
-  const [desc, setDesc] = useState(initialValue?.desc || "");
+  const [startDate, setStartDate] = useState(initialValue?.startDate || ""); // "YYYY-MM"
+  const [endDate, setEndDate] = useState(initialValue?.endDate || "");
+  const [description, setDescription] = useState(initialValue?.description || "");
   const [error, setError] = useState("");
-  
+
+  // gợi ý công ty
+  const [options, setOptions] = useState([]);        // [{id, name}]
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [highlight, setHighlight] = useState(-1);    // điều hướng bằng keyboard
+  const debounceRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const lastReqIdRef = useRef(0);
 
   useEffect(() => {
-    if (isCurrent) setEnd("");
+    if (isCurrent) setEndDate("");
   }, [isCurrent]);
+
+  // đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(e.target)) {
+        setOpen(false);
+        setHighlight(-1);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const fetchCompanies = async (q) => {
+    const query = q?.trim() || "";
+    if (!query) {
+      setOptions([]);
+      setOpen(false);
+      return;
+    }
+
+    // (tuỳ chọn) chỉ tìm khi đủ 2 ký tự:
+    if (query.length < 2) {
+      setOptions([]);
+      setOpen(false);
+      return;
+    }
+
+    const reqId = ++lastReqIdRef.current;
+    try {
+      setLoading(true);
+      const res = await CompanyAPI.getLookupCompany(query);
+      const map = res?.data ?? {};
+      // chỉ mở dropdown khi vẫn là request mới nhất và có kết quả
+      if (reqId === lastReqIdRef.current) {
+        setOptions(map);
+        setOpen(map.length > 0); 
+      }
+    } catch {
+      if (reqId === lastReqIdRef.current) {
+        setOptions([]);
+        setOpen(false);
+      }
+    } finally {
+      if (reqId === lastReqIdRef.current) setLoading(false);
+    }
+  };
+
+  const onCompanyInputChange = (value) => {
+    setCompanyName(value);
+    setCompanyId(null); // người dùng gõ => coi như đang chỉnh tên mới cho đến khi chọn lại 1 gợi ý
+    setOpen(false);
+    setHighlight(-1);
+
+    // debounce 300ms
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchCompanies(value), 1500);
+  };
+
+  const pickOption = (opt) => {
+    setCompanyName(opt?.name || "");
+    setCompanyId(opt?.id ?? null);
+    setOpen(false);
+    setHighlight(-1);
+  };
+
+  const onCompanyKeyDown = (e) => {
+    if (!open) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlight((h) => Math.min(h + 1, options.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlight((h) => Math.max(h - 1, 0));
+    } else if (e.key === "Enter") {
+      if (highlight >= 0 && options[highlight]) {
+        e.preventDefault();
+        pickOption(options[highlight]);
+      }
+    } else if (e.key === "Escape") {
+      setOpen(false);
+      setHighlight(-1);
+    }
+  };
 
   const handleSubmit = (e) => {
     e?.preventDefault?.();
-    // validate cơ bản
-    if (!company.trim() || !title.trim() || !start || (!isCurrent && !end)) {
+
+    if (!companyName.trim() || !jobTitle.trim() || !startDate || (!isCurrent && !endDate)) {
       setError("Vui lòng nhập đủ các trường bắt buộc (*)");
       return;
     }
-    if (!validRange({ start, end, isCurrent })) {
+    if (!validRange({ startDate, endDate, isCurrent })) {
       setError("Khoảng thời gian không hợp lệ (Thời gian kết thúc phải ≥ thời gian bắt đầu).");
       return;
     }
+
     setError("");
     onSubmit?.({
       ...initialValue,
-      company: company.trim(),
-      title: title.trim(),
+      // YÊU CẦU: nếu người dùng chọn từ gợi ý -> gửi id + name
+      // nếu là tên mới -> id = null, name = companyName
+      companyId: companyId ?? null,
+      companyName: companyName.trim(),
+      jobTitle: jobTitle.trim(),
       isCurrent,
-      start,
-      end: isCurrent ? "" : end,
-      desc: desc.trim(),
+      startDate,
+      endDate: isCurrent ? "" : endDate,
+      description: description.trim(),
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Tên công ty */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Tên công ty <span className="text-red-600">*</span></label>
-        <input
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-          placeholder="Nhập tên công ty"
-          className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-600"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-5" ref={containerRef}>
+      {/* Tên công ty (kèm dropdown gợi ý) */}
+      <div className="relative" ref={containerRef}>
+      <label className="mb-1 block text-sm font-medium">
+        Tên công ty <span className="text-red-600">*</span>
+      </label>
+
+      <input
+        value={companyName}
+        onChange={(e) => onCompanyInputChange(e.target.value)}
+        onKeyDown={onCompanyKeyDown}
+        placeholder="Nhập tên công ty"
+        className={
+          "w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-600 " +
+          (open ? "rounded-b-none border-b-0" : "")
+        }
+        aria-autocomplete="list"
+        aria-expanded={open}
+        autoComplete="off"
+      />
+
+      {/* CHỈ render dropdown khi có kết quả */}
+      {open && options.length > 0 && (
+        <div
+          className="absolute left-0 right-0 z-20 -mt-px max-h-64 w-full overflow-auto
+                    rounded-xl border bg-white shadow-lg mt-2"
+        >
+          {options.map((opt, idx) => (
+            <button
+              key={opt.id}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => pickOption(opt)}
+              className={
+                "block w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-violet-50 " +
+                (idx === highlight ? "bg-violet-50" : "")
+              }
+            >
+              {opt.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
 
       {/* Vị trí */}
       <div>
-        <label className="mb-1 block text-sm font-medium">Vị trí công việc <span className="text-red-600">*</span></label>
+        <label className="mb-1 block text-sm font-medium">
+          Vị trí công việc <span className="text-red-600">*</span>
+        </label>
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={jobTitle}
+          onChange={(e) => setJobTitle(e.target.value)}
           placeholder="Nhập vị trí công việc"
           className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-600"
         />
@@ -124,13 +230,18 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
       {/* Thời gian */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium">Thời gian bắt đầu <span className="text-red-600">*</span></label>
+          <label className="mb-1 block text-sm font-medium">
+            Thời gian bắt đầu <span className="text-red-600">*</span>
+          </label>
           <div className="relative">
-            <Calendar size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-60" />
+            <Calendar
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-60"
+            />
             <input
               type="month"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-violet-600"
             />
           </div>
@@ -138,24 +249,25 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
 
         <div>
           <label className="mb-1 block text-sm font-medium">
-            Thời gian kết thúc <span className="text-red-600">*</span>
+            Thời gian kết thúc {!isCurrent && <span className="text-red-600">*</span>}
           </label>
-
-          {/* Nếu đang làm việc: KHÔNG render input, chỉ render chữ "Hiện tại" */}
           {isCurrent ? (
             <div
-              className="w-full rounded-xl border px-4 py-3 bg-slate-100 text-slate-600 select-none"
+              className="w-full select-none rounded-xl border bg-slate-100 px-4 py-3 text-slate-600"
               aria-label="Thời gian kết thúc"
             >
               Hiện tại
             </div>
           ) : (
             <div className="relative">
-              <Calendar size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-60" />
+              <Calendar
+                size={16}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-60"
+              />
               <input
                 type="month"
-                value={end}
-                onChange={(e) => setEnd(e.target.value)}
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
                 placeholder="MM/YYYY"
                 className="w-full rounded-xl border px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-violet-600"
               />
@@ -166,11 +278,13 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
 
       {/* Mô tả */}
       <div>
-        <label className="mb-1 block text-sm font-medium">Mô tả trách nhiệm công việc <span className="text-red-600">*</span></label>
+        <label className="mb-1 block text-sm font-medium">
+          Mô tả trách nhiệm công việc <span className="text-red-600">*</span>
+        </label>
         <textarea
           rows={4}
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Mô tả các công việc đã thực hiện trong khi làm việc tại công ty"
           className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-600"
         />
@@ -178,53 +292,70 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {/* Footer của modal truyền từ ngoài: ở đây chỉ render nút 'Xóa' khi edit */}
-      <div className="hidden" /> {/* giữ layout */}
+      {/* Footer */}
+      <div className="mt-6 flex items-center justify-between gap-3 pt-2">
+        {mode === "edit" ? (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-red-700 hover:bg-red-100"
+          >
+            <Trash2 size={16} /> Xóa kinh nghiệm
+          </button>
+        ) : (
+          <span />
+        )}
+
+        <div className="ml-auto flex gap-3">
+          <button type="button" className="rounded-xl border px-4 py-2" onClick={onCancel}>
+            Hủy
+          </button>
+          <button
+            type="submit"
+            className="rounded-xl bg-violet-700 px-4 py-2 font-semibold text-white hover:bg-violet-800"
+          >
+            Lưu thông tin
+          </button>
+        </div>
+      </div>
     </form>
   );
 }
 
 /* ------------- Card + List + Popup ------------- */
-export default function WorkExperienceCard({ value = [], onChange, className }) {
-  // mock data mẫu; đổi sang dữ liệu thực từ props/API tùy bạn
-  const [items, setItems] = useState([
-    {
-      id: crypto.randomUUID(),
-      company: "Công ty B",
-      title: "BE",
-      isCurrent: false,
-      start: "2023-02",
-      end: "2025-01",
-      desc: "phát triển",
-    },
-  ]);
-  useEffect(() => {
-    setItems(value);
-  }, [value]);
+export default function WorkExperienceCard({className }) {
+
+
+  
+  const experiences = useUserStore((state) => state.user?.experiences);
+  
 
   const [modal, setModal] = useState({ open: false, mode: "create", editing: null });
+  const [confirm, setConfirm] = useState({ open: false, id: null });
 
   const openCreate = () => setModal({ open: true, mode: "create", editing: null });
   const openEdit = (it) => setModal({ open: true, mode: "edit", editing: it });
   const closeModal = () => setModal({ open: false, mode: "create", editing: null });
-  const [confirm, setConfirm] = useState({ open: false, id: null });
 
-  const upsert = (payload) => {
-    let next;
-    if (items.some((it) => it.id === payload.id)) {
-      next = items.map((it) => (it.id === payload.id ? payload : it));
+  const upsert = async (payload) => {
+    console.log("payload");
+    console.log(payload)
+    if (payload?.id && experiences.some((it) => it.id === payload?.id)) {
+      const res = await UserAPI.updateExperience({experienceId: payload.id, payload:payload})
+      useUserStore.getState().updateUserPart(res.data)
     } else {
-      next = [{ ...payload, id: crypto.randomUUID() }, ...items];
+      const res = await UserAPI.addExperience(payload)
+      console.log(res)
+      useUserStore.getState().updateUserPart(res.data)
     }
-    setItems(next);
-    onChange?.(next);
+    closeModal();
   };
 
-  const remove = (id) => {
-    const next = items.filter((it) => it.id !== id);
-    setItems(next);
-    onChange?.(next);
+  const remove = async (id) => {
+    const res = await UserAPI.removeExperience(id)
+    useUserStore.getState().updateUserPart(res.data)
   };
+
 
   return (
     <section className={`rounded-2xl bg-white p-4 shadow-sm sm:p-6 ${className}`}>
@@ -232,8 +363,10 @@ export default function WorkExperienceCard({ value = [], onChange, className }) 
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[18px] font-semibold text-neutral-900">Kinh nghiệm làm việc</h3>
-          {items.length === 0 && (
-            <p className="mt-2 text-sm text-slate-500">Giúp nhà tuyển dụng hiểu về kinh nghiệm làm việc của bạn</p>
+          {experiences?.length === 0 && (
+            <p className="mt-2 text-sm text-slate-500">
+              Giúp nhà tuyển dụng hiểu về kinh nghiệm làm việc của bạn
+            </p>
           )}
         </div>
         <button
@@ -245,18 +378,18 @@ export default function WorkExperienceCard({ value = [], onChange, className }) 
       </div>
 
       {/* List */}
-      {items.length > 0 && (
+      {experiences?.length > 0 && (
         <div className="mt-4 space-y-5">
-          {items.map((it) => (
+          {experiences.map((it) => (
             <article key={it.id} className="group">
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <p className="font-semibold">{it.title}</p>
-                  <p className="text-slate-600">{it.company}</p>
+                  <p className="font-semibold">{it.jobTitle}</p>
+                  <p className="text-slate-600">{it.companyName}</p>
                   <p className="mt-1 text-sm text-slate-500">
-                    {fmtMonth(it.start)} - {it.isCurrent ? "Hiện tại" : fmtMonth(it.end)}
+                    {fmtMonth(it.startDate)} - {it.isCurrent ? "Hiện tại" : fmtMonth(it.endDate)}
                   </p>
-                  {it.desc && <p className="mt-2 whitespace-pre-wrap text-[15px]">{it.desc}</p>}
+                  {it.description && <p className="mt-2 whitespace-pre-wrap text-[15px]">{it.description}</p>}
                 </div>
                 <button
                   onClick={() => openEdit(it)}
@@ -271,107 +404,51 @@ export default function WorkExperienceCard({ value = [], onChange, className }) 
         </div>
       )}
 
-      {/* Modal */}
-      <Modal
+      {/* Drawer nhập liệu (footer nằm trong form) */}
+      <RightDrawer
         open={modal.open}
-        title="Kinh nghiệm làm việc"
         onClose={closeModal}
-        footer={
-          <>
-            {/* Nút Xóa chỉ hiển thị khi chỉnh sửa */}
-            {modal.mode === "edit" ? (
-              <button
-                onClick={() => {
-                  // 1) đóng popup điền/sửa
-                  // closeModal();
-                  // 2) mở popup xác nhận & nhớ id cần xóa
-                  setConfirm({ open: true, id: modal.editing.id });
-                }}
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-red-700 hover:bg-red-100"
-              >
-                Xóa kinh nghiệm
-              </button>
-             ) : (
-                <span />
-            )}
-            <div className="ml-auto flex gap-3">
-              <button className="rounded-xl border px-4 py-2" onClick={closeModal}>
-                Hủy
-              </button>
-              <button
-                className="rounded-xl bg-violet-700 px-4 py-2 font-semibold text-white hover:bg-violet-800"
-                onClick={() => {
-                  const formEl = document.querySelector("#__workexp_form_submit");
-                  formEl?.click();
-                }}
-              >
-                Lưu thông tin
-              </button>
-            </div>
-          </>
-        }
+        title="Kinh nghiệm làm việc"
       >
-        {/* “key” để reset form khi đổi mode */}
-        <InnerFormShell
-          key={modal.mode + (modal.editing?.id || "")}
+        <WorkExpForm
           mode={modal.mode}
           initialValue={modal.editing}
           onSubmit={upsert}
+          onCancel={closeModal}
+          onDelete={() => {
+            setConfirm({ open: true, id: modal.editing?.id || null });
+          }}
         />
-      </Modal>
+      </RightDrawer>
 
-      {/* Modal xác nhận xóa */}
-      <Modal
+      {/* Drawer xác nhận xóa */}
+      <RightDrawer
         open={confirm.open}
-        title="Xác nhận xóa"
         onClose={() => setConfirm({ open: false, id: null })}
-        footer={
-          <>
-            <span />
-            <div className="ml-auto flex gap-3">
-              <button
-                className="rounded-xl border px-4 py-2"
-                onClick={() => setConfirm({ open: false, id: null })}
-              >
-                Hủy
-              </button>
-              <button
-                className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
-                onClick={() => {
-                  if (confirm.id) remove(confirm.id);
-                  setConfirm({ open: false, id: null });
-                  closeModal();
-                }}
-              >
-                Xóa
-              </button>
-            </div>
-          </>
-        }
+        title="Xác nhận xóa"
       >
-        <p className="text-[15px] text-slate-700">
+        <p className="text-[15px] text-slate-700 mb-4">
           Bạn có chắc muốn xóa mục kinh nghiệm này? Hành động này không thể hoàn tác.
         </p>
-      </Modal>
+        <div className="flex items-center justify-end gap-3">
+          <button
+            className="rounded-xl border px-4 py-2"
+            onClick={() => setConfirm({ open: false, id: null })}
+          >
+            Hủy
+          </button>
+          <button
+            className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+            onClick={() => {
+              if (confirm.id) remove(confirm.id);
+              setConfirm({ open: false, id: null });
+              closeModal();
+            }}
+          >
+            Xóa
+          </button>
+        </div>
+      </RightDrawer>
     </section>
-  );
-}
-
-/* ------------- Shell để dùng submit ẩn (điều khiển từ footer) ------------- */
-function InnerFormShell({ mode, initialValue, onSubmit }) {
-  const handleSubmit = (payload) => onSubmit(payload);
-  return (
-    <>
-      <WorkExpForm
-        mode={mode}
-        initialValue={initialValue}
-        onSubmit={handleSubmit}
-      />
-      {/* nút submit ẩn để footer “Lưu thông tin” click tới */}
-      <button id="__workexp_form_submit" type="button" className="hidden" onClick={() => {
-        const el = document.querySelector("form"); // form hiện tại trong modal
-        el?.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
-      }} />
-    </>
   );
 }

@@ -40,6 +40,10 @@ export const apiConfig = {
       updateInfo: "/candidates/update-information",
       empty: "/candidates",
       updateJobFindCriteria: "/candidates/update-job-find-criteria",
+      experience: "/candidates/experiences",
+    },
+    company: {
+      lookup:"/company/lookup"
     }
   },
 };
