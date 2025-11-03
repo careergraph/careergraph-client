@@ -1,376 +1,104 @@
 // src/services/jobService.js
 import { JobAPI } from "./api/job";
+import {
+  normalizeJob,
+  parseOptionalNumber,
+  unwrapJobDetail,
+  unwrapJobList,
+} from "~/utils/jobFormat";
 
-/**
- * Giải nén danh sách công việc từ mọi kiểu response phổ biến (array trực tiếp, data/content/items...).
- */
-const unwrapJobList = (payload) => {
-  if (!payload) return [];
-  if (Array.isArray(payload)) return payload;
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 5;
 
-  const guesses = [
-    payload?.data,
-    payload?.content,
-    payload?.items,
-    payload?.results,
-    payload?.data?.data,
-    payload?.data?.content,
-    payload?.data?.items,
-    payload?.data?.results,
-    payload?.data?.list,
-    payload?.data?.rows,
-  ];
+const toPositiveNumber = (value) => {
+  const numeric = parseOptionalNumber(value);
+  return numeric !== null && numeric > 0 ? numeric : null;
+};
 
-  for (const candidate of guesses) {
-    if (Array.isArray(candidate)) {
-      return candidate;
-    }
-  }
-
-  const visited = new Set();
-  const stack = [payload];
-
-  while (stack.length && visited.size < 50) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") continue;
-    if (visited.has(current)) continue;
-    visited.add(current);
-
-    for (const value of Object.values(current)) {
-      if (Array.isArray(value)) {
-        return value;
-      }
-      if (value && typeof value === "object" && !visited.has(value)) {
-        stack.push(value);
-      }
-    }
-  }
-
-  return [];
+const toNonNegativeNumber = (value) => {
+  const numeric = parseOptionalNumber(value);
+  return numeric !== null && numeric >= 0 ? numeric : null;
 };
 
 /**
- * Chuyển giá trị bất kỳ sang chuỗi đã được trim; trả chuỗi rỗng nếu không hợp lệ.
+ * Normalize pagination numbers and guard against invalid values.
  */
-const safeText = (value) => {
-  if (typeof value === "number" && Number.isFinite(value)) return String(value);
-  if (typeof value === "string") return value.trim();
-  return "";
-};
-
-/**
- * Ép kiểu dữ liệu bất kỳ sang số nếu hợp lệ, ngược lại trả về null.
- */
-const parseOptionalNumber = (value) => {
-  if (value === null || value === undefined || value === "") return null;
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : null;
-};
-
-/**
- * Chuẩn hoá input về mảng string, đồng thời loại bỏ giá trị rỗng.
- */
-const toCleanArray = (input) => {
-  if (!input) return [];
-  if (Array.isArray(input)) {
-    return input.map(safeText).filter(Boolean);
-  }
-
-  const single = safeText(input);
-  return single ? [single] : [];
-};
-
-/**
- * Giải nén dữ liệu chi tiết của một job (nhiều API trả về trong các field job/data/content...).
- */
-const unwrapJobDetail = (payload) => {
-  if (!payload) return null;
-
-  const candidates = [payload.job, payload.data, payload.content, payload.item, payload];
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-    if (Array.isArray(candidate)) {
-      return candidate[0] ?? null;
-    }
-    if (typeof candidate === "object") {
-      return candidate;
-    }
-  }
-
-  return null;
-};
-
-/**
- * Định dạng địa điểm hiển thị ưu tiên địa chỉ cụ thể rồi tới quận/thành phố/tỉnh.
- */
-const formatLocation = (job) => {
-  const specific = safeText(job?.specific || job?.address || job?.addressLine || job?.meta?.raw?.address);
-  if (specific) return specific;
-
-  const district = safeText(
-    job?.districtName || job?.districtLabel || job?.district || job?.meta?.raw?.district
+const ensurePagination = ({ page, size, totalItems, totalPages }) => {
+  const safeSize = Math.max(1, Math.round(size ?? DEFAULT_PAGE_SIZE));
+  const safeTotalItems = Math.max(0, Math.round(totalItems ?? 0));
+  const computedPages = Math.max(1, Math.ceil(safeTotalItems / safeSize) || 1);
+  const safeTotalPages = Math.max(1, Math.round(totalPages ?? computedPages));
+  const boundedPage = Math.min(
+    Math.max(DEFAULT_PAGE, Math.round(page ?? DEFAULT_PAGE)),
+    safeTotalPages
   );
-  const city = safeText(job?.cityName || job?.cityLabel || job?.city || job?.meta?.raw?.city);
-  const state = safeText(job?.stateName || job?.stateLabel || job?.state || job?.meta?.raw?.state);
-
-  const parts = [district, city, state].filter(Boolean);
-  if (parts.length) return parts.join(", ");
-
-  const fallback = safeText(job?.location || job?.meta?.raw?.location);
-  return fallback || "Địa điểm chưa cập nhật";
-};
-
-/**
- * Chuyển thông tin lương về chuỗi dễ đọc, hỗ trợ cả dạng object {min, max, currency}.
- */
-const formatSalary = (job) => {
-  const candidates = [
-    job?.salaryRange,
-    job?.salary,
-    job?.compensation,
-    job?.meta?.raw?.salaryRange,
-    job?.meta?.raw?.salary,
-  ];
-
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-
-    if (typeof candidate === "string" && candidate.trim()) {
-      return candidate.trim();
-    }
-
-    if (typeof candidate === "object") {
-      const minValue = parseOptionalNumber(candidate.min ?? candidate.minimum);
-      const maxValue = parseOptionalNumber(candidate.max ?? candidate.maximum);
-      const currency = candidate.currency || candidate.unit;
-
-      if (minValue !== null || maxValue !== null) {
-        const formatNumber = (value) => value.toLocaleString("vi-VN");
-
-        const unique = [minValue, maxValue]
-          .filter((value, index, arr) => value !== null && arr.indexOf(value) === index)
-          .map(formatNumber)
-          .join(" - ");
-
-        const label = unique || safeText(candidate.label);
-        if (label) {
-          return currency ? `${label} ${currency}`.trim() : label;
-        }
-      }
-
-      const label = safeText(candidate.label || candidate.text);
-      if (label) return label;
-    }
-  }
-
-  return "Thoả thuận";
-};
-
-/**
- * Tạo ảnh đại diện cho công việc (ưu tiên logo từ API, fallback avatar động theo tên công ty/công việc).
- */
-const resolvePhotoUrl = (job, fallbackLabel) => {
-  const candidates = [
-    job?.photo,
-    job?.photoUrl,
-    job?.thumbnail,
-    job?.image,
-    job?.logo,
-    job?.logoUrl,
-    job?.companyLogo,
-    job?.meta?.raw?.photo,
-    job?.meta?.raw?.logo,
-    job?.meta?.raw?.companyLogo,
-  ]
-    .map(safeText)
-    .filter(Boolean);
-
-  if (candidates.length) {
-    return candidates[0];
-  }
-
-  const label = fallbackLabel || "CareerGraph";
-  return `https://avatar.oxro.io/avatar.svg?name=${encodeURIComponent(label)}`;
-};
-
-/**
- * Đảm bảo thống kê lượt thích luôn là số nguyên không âm.
- */
-const normalizeLikes = (job) => {
-  const candidates = [
-    job?.likes,
-    job?.likesCount,
-    job?.likeCount,
-    job?.metrics?.likes,
-    job?.stats?.likes,
-    job?.meta?.raw?.likes,
-    job?.meta?.raw?.likeCount,
-  ];
-
-  for (const candidate of candidates) {
-    const numeric = Number(candidate);
-    if (Number.isFinite(numeric) && numeric > 0) {
-      return Math.round(Math.max(0, numeric));
-    }
-  }
-
-  return 0;
-};
-
-/**
- * Gom id duy nhất (backend đôi khi trả về jobId/uuid/slug).
- */
-const normalizeId = (job) => {
-  const candidates = [job?.id, job?.jobId, job?.uuid, job?.slug];
-  for (const candidate of candidates) {
-    const text = safeText(candidate);
-    if (text) return text;
-  }
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `job-${Math.random().toString(36).slice(2, 10)}`;
-};
-
-/**
- * Chuẩn hoá thông tin số năm kinh nghiệm.
- */
-const normalizeExperience = (job) => {
-  const min =
-    parseOptionalNumber(job?.minExperience) ??
-    parseOptionalNumber(job?.experience?.min) ??
-    parseOptionalNumber(job?.experienceMin) ??
-    parseOptionalNumber(job?.meta?.raw?.minExperience);
-
-  const max =
-    parseOptionalNumber(job?.maxExperience) ??
-    parseOptionalNumber(job?.experience?.max) ??
-    parseOptionalNumber(job?.experienceMax) ??
-    parseOptionalNumber(job?.meta?.raw?.maxExperience);
-
-  const level = safeText(job?.experienceLevel || job?.level || job?.experience?.label);
 
   return {
-    min,
-    max,
-    level,
+    page: boundedPage,
+    size: safeSize,
+    totalItems: safeTotalItems,
+    totalPages: safeTotalPages,
   };
 };
 
 /**
- * Tạo mô tả ngắn gọn cho job, ưu tiên description rồi tới các phần tử đầu của responsibilities/qualifications.
+ * Translate backend pagination (0-based) into UI-friendly numbers.
  */
-const buildSummary = (job) => {
-  const candidates = [
-    job?.summary,
-    job?.shortDescription,
-    job?.description,
-    job?.meta?.raw?.description,
-    job?.responsibilities?.[0],
-    job?.qualifications?.[0],
-    job?.minimumQualifications?.[0],
-  ];
+const resolvePagination = (payload, request, itemCount) => {
+  // API wraps pagination in payload.data, so unwrap it first
+  const paginationData = payload?.data ?? payload;
 
-  for (const candidate of candidates) {
-    const text = safeText(candidate);
-    if (text) {
-      return text;
-    }
-  }
+  const zeroBasedPage = toNonNegativeNumber(
+    paginationData?.number ?? paginationData?.pageable?.pageNumber
+  );
+  const sizeCandidate =
+    toPositiveNumber(
+      paginationData?.size ??
+        paginationData?.pageSize ??
+        paginationData?.pageable?.pageSize
+    ) ??
+    request.size ??
+    (itemCount || DEFAULT_PAGE_SIZE);
+  const totalItemsCandidate =
+    toNonNegativeNumber(paginationData?.totalElements) ?? itemCount ?? 0;
 
-  return "Mô tả công việc đang được cập nhật.";
+  // Read totalPages directly from payload, or calculate as fallback
+  const totalPagesFromPayload = toPositiveNumber(paginationData?.totalPages);
+  const totalPagesCandidate =
+    totalPagesFromPayload ??
+    Math.max(1, Math.ceil(totalItemsCandidate / sizeCandidate));
+
+  const result = ensurePagination({
+    page: (zeroBasedPage ?? request.page - 1) + 1,
+    size: sizeCandidate,
+    totalItems: totalItemsCandidate,
+    totalPages: totalPagesCandidate,
+  });
+
+  return result;
 };
 
 /**
- * Chọn tối đa `limit` tag súc tích để hiển thị (ưu tiên skills, fallback các thuộc tính khác).
+ * Build a minimal pagination response when the API does not return one.
  */
-const normalizeTags = (job, limit = 3) => {
-  const result = [];
+const createFallbackPagination = (request, itemCount = 0) =>
+  ensurePagination({
+    page: request.page,
+    size: request.size ?? (itemCount || DEFAULT_PAGE_SIZE),
+    totalItems: itemCount,
+  });
 
-  const addCandidate = (value) => {
-    const text = safeText(value);
-    if (text && !result.includes(text) && result.length < limit) {
-      result.push(text);
-    }
-  };
-
-  const addFrom = (values) => {
-    toCleanArray(values).forEach(addCandidate);
-  };
-
-  addFrom(job?.skills);
-  addFrom(job?.techStack);
-  addFrom(job?.keywords);
-
-  if (!result.length) {
-    [job?.experienceLevel, job?.employmentType, job?.jobCategory, job?.department].forEach(
-      addCandidate
-    );
-  }
-
-  return result.slice(0, limit);
-};
-
-/**
- * Chuẩn hoá một job về interface thống nhất cho UI (danh sách + chi tiết dùng chung).
- */
-const normalizeJob = (job = {}) => {
-  const title = safeText(job.title || job.name) || "Đang cập nhật";
-  const department = safeText(job.department || job.departmentName);
-  const company =
-    safeText(job.company || job.companyName || job.employerName) ||
-    department ||
-    safeText(job.jobCategory) ||
-    "Đang cập nhật";
-
-  return {
-    id: normalizeId(job),
-    title,
-    company,
-    department,
-    jobCategory: safeText(job.jobCategory),
-    description: safeText(job.description),
-    summary: buildSummary(job),
-    location: formatLocation(job),
-    address: safeText(job.specific || job.address || job.addressLine),
-    salaryRange: formatSalary(job),
-    photoUrl: resolvePhotoUrl(job, company || title),
-    likes: normalizeLikes(job),
-    isLiked: Boolean(job.isLiked || job.liked || job.userLiked),
-    detailUrl:
-      safeText(job.detailUrl || job.url || job.jobUrl || job.applyUrl || job.meta?.raw?.url) || "",
-    employmentType: safeText(job.employmentType || job.type),
-    remoteJob: Boolean(job.remoteJob || job.isRemote),
-    experience: normalizeExperience(job),
-    postedDate: safeText(job.postedDate || job.createdAt),
-    expiryDate: safeText(job.expiryDate || job.deadline),
-    numberOfPositions: parseOptionalNumber(
-      job?.numberOfPositions ?? job?.vacancies ?? job?.meta?.raw?.numberOfPositions
-    ),
-    contact: {
-      email: safeText(job.contactEmail || job.email || job.meta?.raw?.contactEmail),
-      phone: safeText(job.contactPhone || job.phone || job.meta?.raw?.contactPhone),
-    },
-    skills: normalizeTags(job),
-    responsibilities: toCleanArray(job.responsibilities),
-    qualifications: toCleanArray(job.qualifications),
-    minimumQualifications: toCleanArray(job.minimumQualifications),
-  };
-};
-
-/**
- * Helper chung để gọi API danh sách và trả về job đã chuẩn hoá.
- */
 const fetchJobs = async (fetcher, options = {}) => {
   try {
     const response = await fetcher(options);
-    return unwrapJobList(response).map(normalizeJob);
+    const rawItems = unwrapJobList(response);
+    const items = rawItems.map(normalizeJob);
+    return { items, response, error: null };
   } catch (error) {
-    if (error?.code === "ERR_CANCELED") {
-      return [];
+    if (error?.code !== "ERR_CANCELED") {
+      console.error("Không thể lấy danh sách việc làm:", error);
     }
-    console.error("Không thể lấy danh sách việc làm:", error);
-    return [];
+    return { items: [], response: null, error };
   }
 };
 
@@ -396,18 +124,65 @@ const fetchJobDetail = async (id, options = {}) => {
 
 export const JobService = {
   /** Lấy toàn bộ danh sách việc làm để hiển thị ở trang Jobs. */
-  fetchAllJobs(options) {
-    return fetchJobs(JobAPI.getJobs, options);
+  async fetchAllJobs(options = {}) {
+    const {
+      signal,
+      page: requestedPageValue,
+      size: requestedSizeValue,
+      ...rest
+    } = options;
+
+    const requestedPage = toPositiveNumber(requestedPageValue) ?? DEFAULT_PAGE;
+    const requestedSize = toPositiveNumber(requestedSizeValue);
+    const requestMeta = {
+      page: requestedPage,
+      size: requestedSize ?? undefined,
+    };
+
+    const apiOptions = {
+      ...rest,
+      page: Math.max(0, requestedPage - 1),
+      ...(requestedSize ? { size: requestedSize } : {}),
+      ...(signal ? { signal } : {}),
+    };
+
+    const { items, response, error } = await fetchJobs(
+      JobAPI.getJobs,
+      apiOptions
+    );
+
+    if (error?.code === "ERR_CANCELED") {
+      return {
+        jobs: [],
+        pagination: createFallbackPagination(requestMeta),
+      };
+    }
+
+    if (error) {
+      return {
+        jobs: [],
+        pagination: createFallbackPagination(requestMeta),
+      };
+    }
+
+    const pagination = resolvePagination(response, requestMeta, items.length);
+
+    return {
+      jobs: items,
+      pagination,
+    };
   },
 
   /** Lấy danh sách việc làm phổ biến trên hệ thống. */
-  fetchPopularJobs(options) {
-    return fetchJobs(JobAPI.getPopularJobs, options);
+  async fetchPopularJobs(options) {
+    const { items } = await fetchJobs(JobAPI.getPopularJobs, options);
+    return items;
   },
 
   /** Lấy danh sách việc làm cá nhân hoá cho người dùng hiện tại. */
-  fetchPersonalizedJobs(options) {
-    return fetchJobs(JobAPI.getPersonalizedJobs, options);
+  async fetchPersonalizedJobs(options) {
+    const { items } = await fetchJobs(JobAPI.getPersonalizedJobs, options);
+    return items;
   },
 
   /** Lấy chi tiết một việc làm cụ thể bằng id. */

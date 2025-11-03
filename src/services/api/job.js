@@ -7,8 +7,38 @@ export const JobAPI = {
   /**
    * Gọi API lấy toàn bộ danh sách việc làm.
    */
-  getJobs({ signal } = {}) {
-    return http(apiConfig.endpoints.jobs.list, {
+  getJobs(params = {}) {
+    const { signal, page, size, ...rest } = params || {};
+
+    const searchParams = new URLSearchParams();
+
+    const appendParam = (key, value) => {
+      if (value === undefined || value === null || value === "") {
+        return;
+      }
+      if (Array.isArray(value)) {
+        value.forEach((entry) => {
+          if (entry !== undefined && entry !== null && entry !== "") {
+            searchParams.append(key, entry);
+          }
+        });
+        return;
+      }
+      searchParams.set(key, value);
+    };
+
+    appendParam("page", page);
+    appendParam("size", size);
+
+    Object.entries(rest).forEach(([key, value]) => {
+      appendParam(key, value);
+    });
+
+    const path = searchParams.toString()
+      ? `${apiConfig.endpoints.jobs.list}?${searchParams.toString()}`
+      : apiConfig.endpoints.jobs.list;
+
+    return http(path, {
       method: "GET",
       auth: false,
       signal,
