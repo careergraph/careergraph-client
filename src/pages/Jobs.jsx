@@ -1,9 +1,9 @@
 import { useState } from "react";
 import JobsSidebar from "~/sections/Job/JobsSidebar";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
-import JobCard from "~/components/Cards/JobCard";
 import SearchBar from "~/components/Search/SearchBar";
 import BannerSlider from "~/sections/Job/BannerSlider";
+import JobsList from "~/sections/Job/JobsList";
 
 export default function Jobs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -72,15 +72,7 @@ export default function Jobs() {
             <BannerSlider />
 
             {/* Job List */}
-            <div className="flex flex-col gap-3 md:gap-4">
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-            </div>
+            <JobsList />
           </section>
         </div>
       </div>
