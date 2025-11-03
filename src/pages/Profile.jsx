@@ -100,9 +100,6 @@ export default function Profile({className}) {
           className="mt-4"
         />
 
-
-
-
         <WorkExperienceCard
           value={experiences}
           onChange={setExperiences}
