@@ -61,7 +61,7 @@ function JobsCardCommon({ job }) {
         </div>
 
         <div className="flex-1 space-y-2">
-          <h2 className="text-base font-semibold text-gray-900 line-clamp-1">
+          <h2 className="text-base font-semibold text-gray-900 line-clamp-1 cursor-pointer">
             {job.title}
           </h2>
           <p className="text-xs font-medium uppercase tracking-wide text-indigo-500 line-clamp-1">

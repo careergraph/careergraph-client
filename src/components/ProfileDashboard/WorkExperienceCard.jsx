@@ -34,6 +34,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
   // gợi ý công ty
   const [options, setOptions] = useState([]);        // [{id, name}]
   const [open, setOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
   const [highlight, setHighlight] = useState(-1);    // điều hướng bằng keyboard
   const debounceRef = useRef(null);
@@ -183,7 +184,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
       {open && options.length > 0 && (
         <div
           className="absolute left-0 right-0 z-20 -mt-px max-h-64 w-full overflow-auto
-                    rounded-xl border bg-white shadow-lg mt-2"
+                    rounded-xl border bg-white shadow-lg"
         >
           {options.map((opt, idx) => (
             <button

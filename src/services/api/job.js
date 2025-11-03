@@ -5,6 +5,17 @@ import { getToken } from "~/utils/storage";
 
 export const JobAPI = {
   /**
+   * Gọi API lấy toàn bộ danh sách việc làm.
+   */
+  getJobs({ signal } = {}) {
+    return http(apiConfig.endpoints.jobs.list, {
+      method: "GET",
+      auth: false,
+      signal,
+    });
+  },
+
+  /**
    * Gọi API lấy danh sách việc làm phổ biến (endpoint public nên không cần token).
    */
   getPopularJobs({ signal } = {}) {
