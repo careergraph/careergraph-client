@@ -14,16 +14,16 @@ export const UserAPI = {
   async me () {
     try{
       const data = await http (apiConfig.endpoints.user.me, {method:"GET",auth:true});
-      if (data?.data?.candidateId){
-        try {
-          const avatarRes = await UserAPI.getFileUrlByType({id:data.data.candidateId, type:"AVATAR"});
-          if (avatarRes?.data?.length > 0) {
-            data.data.avatarUrl = avatarRes.data || null;
-         }
-        }catch{
-          toast("Lỗi lấy đại diện")
-        }
-      }
+      // if (data?.data?.candidateId){
+      //   try {
+      //     const avatarRes = await UserAPI.getFileUrlByType({id:data.data.candidateId, type:"AVATAR"});
+      //     if (avatarRes?.data?.length > 0) {
+      //       data.data.avatarUrl = avatarRes.data || null;
+      //    }
+      //   }catch{
+      //     toast("Lỗi lấy đại diện")
+      //   }
+      // }
       return data;
     }catch{
       toast("Lỗi lấy thông tin người dùng")

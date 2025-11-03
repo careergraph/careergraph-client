@@ -23,7 +23,7 @@ export const apiConfig = {
   endpoints: {
     auth: {
       login: "/auth/login",
-      register: "/auth/register",
+      register: "/auth/register/candidate",
       verify: "/auth/verify",
       logout: "/auth/logout",
     },
