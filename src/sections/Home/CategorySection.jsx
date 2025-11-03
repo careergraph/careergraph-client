@@ -51,7 +51,7 @@ export default function CategorySection() {
         text3="Nhiều danh mục việc làm để ứng viên tìm kiếm theo kỹ năng của mình, giúp ứng viên tối ưu thời gian tìm kiếm công việc phù hợp."
       />
       <div className="flex flex-wrap items-center justify-center gap-10 mt-16">
-        {categories.map((category, index) => (
+        {categories?.map((category, index) => (
           <CategoryCard
             key={index}
             title={category.name}
