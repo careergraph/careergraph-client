@@ -73,7 +73,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
 
   const [filters, setFilters] = useState({
     jobCategory: "ALL",
-    salaryRange: [0, 3000],
     experienceLevels: [],
     employmentTypes: [],
     educationLevels: [],
@@ -108,7 +107,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
   const clearAllFilters = () => {
     const clearedFilters = {
       jobCategory: "ALL",
-      salaryRange: [0, 3000],
       experienceLevels: [],
       employmentTypes: [],
       educationLevels: [],
