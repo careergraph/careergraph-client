@@ -333,7 +333,6 @@ export default function PersonalForm({ defaultValues = {}, onSubmit }) {
         >
           Hủy
         </button>
-
         <button
           type="submit"
           className="px-4 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700"

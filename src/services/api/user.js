@@ -1,9 +1,9 @@
+//D:\DaiHoc\DoAn\careergraph-client\src\services\api\user\user.js
 import { apiConfig } from "~/config";
 import { http } from "../http/request";
 import { toast } from "sonner";
 
 export const UserAPI = {
-
 
   updateJobCriteria(payload){
     return http(`${apiConfig.endpoints.user.updateJobFindCriteria}`, {
@@ -47,5 +47,22 @@ export const UserAPI = {
       body
     })
   },
+  addExperience(payload){
+     return http(apiConfig.endpoints.user.experience, {
+      method: "POST",
+      body:payload,
+    });
+  },
+  updateExperience({experienceId, payload}){
+    return http(`${apiConfig.endpoints.user.experience}/${experienceId}`, {
+      method: "PUT",
+      body:payload,
+    });
+  },
+  removeExperience(experienceId){
+    return http(`${apiConfig.endpoints.user.experience}/${experienceId}`, {
+      method: "DELETE",
+    });
+  }
   
 };
