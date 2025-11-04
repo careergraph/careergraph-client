@@ -68,6 +68,7 @@ export default function App() {
                       <ProtectedRoute>
                         <Layout>
                           <Page />
+                          
                         </Layout>
                       </ProtectedRoute>
                     }
