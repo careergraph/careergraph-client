@@ -1,9 +1,9 @@
 // Gemini API Configuration
 export const GEMINI_CONFIG = {
-  apiKey: "AIzaSyDk44qZN6S2WJKZiXm91aBYRqa4_Upo4fU",
-  model: "gemini-2.5-pro",
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+  model: "gemini-pro",
   apiUrl:
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
 };
 
 // System prompt cho chatbot tuyển dụng
