@@ -4,6 +4,7 @@ export const routes = {
   homeDefault: "/home",
   jobs: "/jobs",
   handbook: "/handbook",
+  handbookDetail: "/handbook/:slug",
   reviews: "/reviews",
   buildCV: "/build-cv",
   templateCV: "/template-cv",
