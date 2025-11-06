@@ -1,7 +1,9 @@
 // EducationCard.jsx
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Plus, Pencil, X, Trash2, Calendar, ChevronDown } from "lucide-react";
-
+import { useUserStore } from "~/store/userStore";
+import { EducationAPI } from "~/services/api/education";
+import { UserAPI } from "~/services/api/user";
 
 /* ---------- utils ---------- */
 const pad2 = (n) => String(n).padStart(2, "0");
@@ -38,52 +40,185 @@ function Modal({ open, title, onClose, children, footer }) {
 }
 
 /* ---------- Form ---------- */
-function EducationForm({ mode, initialValue, onSubmit }) {
-  const [school, setSchool] = useState(initialValue?.school || "");
-  const [startYear, setStartYear] = useState(initialValue?.startYear || "");
-  const [endYear, setEndYear] = useState(initialValue?.endYear || "");
+function EducationForm({initialValue, onSubmit }) {
+  const [officialName, setOfficialName] = useState(initialValue?.officialName || "");
+  const [universityId, setUniversityId] = useState(initialValue?.universityId || "")
+  const [startDate, setStartDate] = useState(initialValue?.startDate || "");
+  const [endDate,setEndDate] = useState(initialValue?.endDate || "");
   const [major, setMajor] = useState(initialValue?.major || "");
-  const [degree, setDegree] = useState(initialValue?.degree || "");
-  const [desc, setDesc] = useState(initialValue?.desc || "");
-  const [error, setError] = useState("");
+  const [degreeTitle, setDegree] = useState(initialValue?.degreeTitle || "");
+  const [description, setDescription] = useState(initialValue?.description || "");
+  const [error, setError] = useState("");   
 
 
+
+
+  const [options, setOptions] = useState([]);        // [{id, name}]
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [highlight, setHighlight] = useState(-1);    // điều hướng bằng keyboard
+  const debounceRef = useRef(null);
+
+  const formRef = useRef(null);
+  const dropdownWrapRef = useRef(null);
+
+  const lastReqIdRef = useRef(0);
+
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (!dropdownWrapRef.current) return;
+      if (!dropdownWrapRef.current.contains(e.target)) {
+        setOpen(false);
+        setHighlight(-1);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+
+  const fetchUniversities = async (q) => {
+      const query = q?.trim() || "";
+      if (!query) {
+        setOptions([]);
+        setOpen(false);
+        return;
+      } 
+  
+      // (tuỳ chọn) chỉ tìm khi đủ 2 ký tự:
+      if (query.length < 2) {
+        setOptions([]);
+        setOpen(false);
+        return;
+      }
+  
+      const reqId = ++lastReqIdRef.current;
+      try {
+        setLoading(true);
+        const res = await EducationAPI.getLookupUniversities(query);
+        const map = res?.data ?? {};
+        // chỉ mở dropdown khi vẫn là request mới nhất và có kết quả
+        if (reqId === lastReqIdRef.current) {
+          setOptions(map);
+          setOpen(map.length > 0); 
+        }
+      } catch {
+        if (reqId === lastReqIdRef.current) {
+          setOptions([]);
+          setOpen(false);
+        }
+      } finally {
+        if (reqId === lastReqIdRef.current) setLoading(false);
+      }
+    };
+
+  const pickOption = (opt) => {
+    setOfficialName(opt?.name || "");
+    setUniversityId(opt?.id ?? null);
+    setOpen(false);
+    setHighlight(-1);
+  };
+
+  const onUniversityKeyDown = (e) => {
+    if (!open) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlight((h) => Math.min(h + 1, options.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlight((h) => Math.max(h - 1, 0));
+    } else if (e.key === "Enter") {
+      if (highlight >= 0 && options[highlight]) {
+        e.preventDefault();
+        pickOption(options[highlight]);
+      }
+    } else if (e.key === "Escape") {
+      setOpen(false);
+      setHighlight(-1);
+    }
+  };
 
   const submit = (e) => {
     e?.preventDefault?.();
-    if (!school.trim() || !startYear || !endYear) {
+    if (!officialName.trim() || !startDate || !endDate) {
       setError("Vui lòng nhập đủ các trường bắt buộc (*)");
       return;
     }
-    if (!validRange(startYear, endYear)) {
+    if (!validRange(startDate, endDate)) {
       setError("Năm kết thúc phải lớn hơn hoặc bằng năm bắt đầu.");
       return;
     }
+
     setError("");
     onSubmit?.({
       ...initialValue,
-      school: school.trim(),
-      startYear: String(startYear),
-      endYear: String(endYear),
+      universityId: universityId ?? null,
+      officialName: officialName.trim(),
+      startDate: String(startDate),
+      endDate: String(endDate),
       major: major.trim(),
-      degree: degree.trim(),
-      desc: desc.trim(),
+      degreeTitle: degreeTitle.trim(),
+      description: description.trim(),
     });
   };
 
+
+  const onUniversityInputChange = (value) => {
+    setOfficialName(value);
+    setUniversityId(null); // người dùng gõ => coi như đang chỉnh tên mới cho đến khi chọn lại 1 gợi ý
+    setOpen(false);
+    setHighlight(-1);
+
+    // debounce 300ms
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchUniversities(value), 1500);
+  };
+
+  useEffect(() => {
+    return () => debounceRef.current && clearTimeout(debounceRef.current);
+  }, []);
+
+
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" ref={formRef}>
       {/* Tên trường */}
-      <div>
+      <div className="relative" ref={dropdownWrapRef}>
         <label className="mb-1 block text-sm font-medium">
           Tên trường <span className="text-red-600">*</span>
         </label>
         <input
-          value={school}
-          onChange={(e) => setSchool(e.target.value)}
+          value={officialName}
+          onChange={(e) => onUniversityInputChange(e.target.value)}
+          onKeyDown={onUniversityKeyDown}
           placeholder="Nhập tên trường của bạn"
           className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-600"
+          aria-autocomplete="list"
+          aria-expanded={open}
+          autoComplete="off"
         />
+
+        {open && options.length > 0 && (
+        <div
+          className="absolute left-0 right-0 z-20 -mt-px max-h-64 w-full overflow-auto
+                    rounded-xl border bg-white shadow-lg mt-2 border-violet-500"
+        >
+          {options.map((opt, idx) => (
+            <button
+              key={opt.id}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => pickOption(opt)}
+              className={
+                "block w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-violet-50 " +
+                (idx === highlight ? "bg-violet-50" : "")
+              }
+            >
+              {opt.name}
+            </button>
+          ))}
+        </div>
+      )}
       </div>
 
       {/* Năm bắt đầu - kết thúc */}
@@ -100,8 +235,8 @@ function EducationForm({ mode, initialValue, onSubmit }) {
               min="1900"
               max="2100"
               placeholder="YYYY"
-              value={startYear}
-              onChange={(e) => setStartYear(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
               className="w-full rounded-xl border px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-violet-600"
             />
           </div>
@@ -118,8 +253,8 @@ function EducationForm({ mode, initialValue, onSubmit }) {
               min="1900"
               max="2100"
               placeholder="YYYY"
-              value={endYear}
-              onChange={(e) => setEndYear(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
               className="w-full rounded-xl border px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-violet-600"
             />
           </div>
@@ -141,7 +276,7 @@ function EducationForm({ mode, initialValue, onSubmit }) {
           <label className="mb-1 block text-sm font-medium">Bằng cấp</label>
           <div className="relative">
             <select
-              value={degree}
+              value={degreeTitle}
               onChange={(e) => setDegree(e.target.value)}
               className="w-full appearance-none rounded-xl border bg-white px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-violet-600"
             >
@@ -160,8 +295,8 @@ function EducationForm({ mode, initialValue, onSubmit }) {
         <label className="mb-1 block text-sm font-medium">Mô tả chi tiết</label>
         <textarea
           rows={4}
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Mô tả chi tiết quá trình học tập"
           className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-violet-600"
         />
@@ -176,36 +311,34 @@ function EducationForm({ mode, initialValue, onSubmit }) {
 }
 
 /* ---------- Card chính ---------- */
-export default function EducationCard({ value = [], onChange }) {
-  const [items, setItems] = useState(value);
+export default function EducationCard() {
+
+  const educations = useUserStore((state) => state?.user?.educations)
+
+  // const [items, setItems] = useState(value);
   const [modal, setModal] = useState({ open: false, mode: "create", editing: null });
   const [confirm, setConfirm] = useState({ open: false, id: null });
-
-  useEffect(() => setItems(value), [value]);
 
   const openCreate = () => setModal({ open: true, mode: "create", editing: null });
   const openEdit = (it) => setModal({ open: true, mode: "edit", editing: it });
   const closeModal = () => setModal({ open: false, mode: "create", editing: null });
 
-  const setAndEmit = (next) => {
-    setItems(next);
-    onChange?.(next);
-  };
 
-  const upsert = (payload) => {
+  const upsert = async(payload) => {
     if (modal.mode === "create") {
-      const next = [{ ...payload, id: crypto.randomUUID() }, ...items];
-      setAndEmit(next);
+      const res = await UserAPI.addEducation(payload)
+      useUserStore.getState().updateUserPart({ educations: res?.data })
     } else {
-      const next = items.map((it) => (it.id === payload.id ? payload : it));
-      setAndEmit(next);
+      const res = await UserAPI.updateEducation({educationId: payload.id, payload:payload})
+      useUserStore.getState().updateUserPart({ educations: res?.data })
+      
     }
     closeModal();
   };
 
-  const removeById = (id) => {
-    const next = items.filter((it) => it.id !== id);
-    setAndEmit(next);
+  const removeById = async (id) => {
+    const res = await UserAPI.removeEducation(id)
+    useUserStore.getState().updateUserPart({ educations: res?.data })
   };
 
   return (
@@ -214,7 +347,7 @@ export default function EducationCard({ value = [], onChange }) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[18px] font-semibold text-neutral-900">Học vấn</h3>
-          {items.length === 0 && (
+          {educations?.length === 0 && (
             <p className="mt-2 text-sm text-slate-500">Giúp nhà tuyển dụng biết được trình độ học vấn của bạn</p>
           )}
         </div>
@@ -227,18 +360,18 @@ export default function EducationCard({ value = [], onChange }) {
       </div>
 
       {/* List */}
-      {items.length > 0 && (
+      {educations?.length > 0 && (
         <div className="mt-4 space-y-5">
-          {items.map((it) => (
+          {educations?.map((it) => (
             <article key={it.id} className="group">
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <p className="text-[16px] font-semibold">{it.school}</p>
+                  <p className="text-[16px] font-semibold">{it.officialName}</p>
                   {it.major && <p className="text-slate-600">{it.major}</p>}
                   <p className="mt-1 text-sm text-slate-500">
-                    {it.degree ? `${it.degree} • ` : ""}{fmtYear(it.startYear)} - {fmtYear(it.endYear)}
+                    {it.degreeTitle ? `${it.degreeTitle} • ` : ""}{fmtYear(it.startDate)} - {fmtYear(it.endDate)}
                   </p>
-                  {it.desc && <p className="mt-2 whitespace-pre-wrap text-[15px]">{it.desc}</p>}
+                  {it.description && <p className="mt-2 whitespace-pre-wrap text-[15px]">{it.description}</p>}
                 </div>
                 <button
                   onClick={() => openEdit(it)}

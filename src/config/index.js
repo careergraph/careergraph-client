@@ -45,10 +45,18 @@ export const apiConfig = {
       empty: "/candidates",
       updateJobFindCriteria: "/candidates/update-job-find-criteria",
       experience: "/candidates/experiences",
+      education: "/candidates/educations",
+      skill: "/candidates/skills",
     },
     company: {
-      lookup:"/company/lookup"
-    }
+      lookup:"/companies/lookup"
+    },
+    education: {
+      lookup: "/educations/lookup"
+    },
+    skill: {
+      lookup: "/skills/lookup"
+    },
   },
 };
 
