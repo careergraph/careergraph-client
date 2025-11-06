@@ -1,5 +1,6 @@
 import Navbar from "../../layouts/components/Navbar/Navbar";
 import Footer from "../../layouts/components/Footer/Footer";
+import ChatBotButton from "~/components/Buttons/ChatBotButton";
 
 
 
@@ -11,6 +12,7 @@ function DefaultLayout({children}) {
                 <div>{children}</div>  
             </div>
             <Footer />
+            <ChatBotButton />
         </div>
         );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority";
@@ -19,6 +20,8 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        brand:
+          "bg-gradient-to-r from-indigo-600 via-sky-600 to-indigo-500 text-white shadow-sm transition-colors hover:from-indigo-500 hover:via-sky-500 hover:to-indigo-400 focus-visible:ring-indigo-200",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

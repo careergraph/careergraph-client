@@ -1,6 +1,8 @@
 import { ChevronRightIcon, SparklesIcon } from "lucide-react";
 import mainBanner from "../../assets/images/main-banner.png";
 import dotBanner from "../../assets/images/hero-section-dot-image.png";
+import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -22,20 +24,24 @@ export default function HeroSection() {
       </a>
       <h1 className="text-[40px]/12 md:text-[45px]/16 font-semibold max-w-3xl">
         <span className="bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
-          CareerGraph{" "}<br />
-        Kết nối nhanh chóng
+          CareerGraph <br />
+          Kết nối nhanh chóng
         </span>
       </h1>
       <p className="text-base text-slate-600 max-w-lg mt-5">
         Kết nối ứng viên và nhà tuyển dụng tại một nơi — từ đăng tin đến đề
         nghị, đơn giản và liền mạch.
       </p>
-      <div className="flex items-center gap-4 mt-6">
-        <button className="bg-indigo-600 hover:bg-indigo-700 transition px-8 py-3 rounded-md text-white">
-          <span>Tìm việc làm</span>
-        </button>
-        <button className="flex items-center justify-center gap-2 border border-indigo-400 px-5 py-3 rounded-md text-indigo-600">
-          <SparklesIcon size={16} />
+      <div className="flex items-center gap-5 mt-6">
+        <Link
+          to="/home"
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-6 py-3 text-white rounded-lg font-medium transition-all shadow-lg shadow-indigo-600/30 hover:shadow-xl hover:shadow-indigo-600/40 active:scale-95"
+        >
+          <Home size={20} />
+          Trang chủ
+        </Link>
+        <button className="flex items-center gap-2 bg-white px-6 py-3 text-indigo-600 rounded-lg font-medium transition-all shadow-lg shadow-indigo-600/30 hover:shadow-x active:scale-95">
+          <SparklesIcon size={20} />
           <span>Tính năng AI</span>
         </button>
       </div>

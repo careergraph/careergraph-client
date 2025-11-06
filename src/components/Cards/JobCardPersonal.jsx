@@ -1,77 +1,92 @@
 import React from "react";
-import cardSectionSaveIcon from "../../assets/icons/card-section-save.svg";
-import cardSectionApplyIcon from "../../assets/icons/card-section-apply.svg";
-import cardSectionShareIcon from "../../assets/icons/card-section-share.svg";
+import { DollarSign, MapPin, Sparkles } from "lucide-react";
+
 import cardSectionCompanyAccessed from "../../assets/icons/company-accessed.svg";
-import JobTag from "../Tags/JobTag";
 
-function JobCardPersonal() {
-  const [visible, setVisible] = React.useState(false);
-  const [position, setPosition] = React.useState({ x: 0, y: 0 });
-  const divRef = React.useRef(null);
+function JobCardPersonal({ job }) {
+  if (!job) return null;
 
-  const handleMouseMove = (e) => {
-    const bounds = divRef.current.getBoundingClientRect();
-    setPosition({ x: e.clientX - bounds.left, y: e.clientY - bounds.top });
+  const extractDistrictProvince = (loc) => {
+    if (!loc || typeof loc !== "string") return loc || "";
+    const parts = loc
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length >= 2) {
+      return parts.slice(-2).join(", ");
+    }
+    return loc;
   };
 
+  const companyLabel = job.company || "Đang cập nhật";
+  const summary =
+    job.summary || job.description || "Mô tả công việc đang cập nhật.";
+  const isNewJob = (() => {
+    if (job?.isNew !== undefined) return Boolean(job.isNew);
+
+    const createdAt = job?.createdAt || job?.publishedAt || job?.updatedAt;
+    if (createdAt) {
+      const date = new Date(createdAt);
+      if (!Number.isNaN(date)) {
+        const diffInDays =
+          (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+        return diffInDays <= 14;
+      }
+    }
+
+    return false;
+  })();
+
   return (
-    <div
-      ref={divRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-      className="relative w-72 h-80 rounded-xl p-px bg-gray-50 backdrop-blur-md text-gray-800 overflow-hidden shadow-lg cursor-pointer"
-    >
-      <div
-        className={`pointer-events-none blur-3xl rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-300 size-48 absolute z-0 transition-opacity duration-500 ${
-          visible ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ top: position.y - 96, left: position.x - 96 }}
-      />
+    <div className="group relative w-full max-w-[300px] rounded-2xl border border-slate-100 bg-white/90 p-5 pt-6 text-gray-900 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-lg">
+      {isNewJob ? (
+        <span className="absolute right-5 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
+          <Sparkles className="size-3.5" />
+          Mới
+        </span>
+      ) : (
+        <span className="absolute left-5 top-21 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
+          <Sparkles className="size-3.5" />
+          Mới
+        </span>
+      )}
 
-      <div className="relative z-10 bg-gray-50/90 backdrop-blur-sm p-5 h-full w-full rounded-[11px] flex flex-col items-center justify-center text-center">
-        <div className="flex justify-between items-center w-full gap-4">
+      <div className="flex items-start gap-3">
+        <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
           <img
-            src={cardSectionCompanyAccessed}
-            alt="Ảnh đại diện"
-            className="w-18 h-18 rounded-full my-3 object-contain"
+            src={job.photoUrl || cardSectionCompanyAccessed}
+            alt={`Ảnh đại diện ${companyLabel}`}
+            className="size-full object-cover cursor-pointer"
           />
+        </div>
 
-          <div className="flex flex-col items-start text-left space-y-2">
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Accessed</h2>
-            <p className="text-sm text-indigo-500 font-medium mb-3">
-              Lập trình viên phần mềm
-            </p>
+        <div className="flex-1 space-y-2">
+          <h2 className="text-base font-semibold text-gray-900 line-clamp-1 cursor-pointer">
+            {job.title}
+          </h2>
+          <p className="text-xs font-medium uppercase tracking-wide text-indigo-500 line-clamp-1">
+            {companyLabel}
+          </p>
+          <p className="text-xs text-slate-500 line-clamp-2">{summary}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-1 text-sm">
+        {job.salaryRange ? (
+          <div className="flex items-center gap-2 text-slate-700">
+            <DollarSign className="size-4 text-indigo-500" />
+            <span className="font-medium">{job.salaryRange}</span>
           </div>
-        </div>
+        ) : null}
 
-        <div className="flex justify-between items-center w-full mb-5">
-          <JobTag label="Typescript" />
-          <JobTag label="Java" />
-          <JobTag label="Golang" />
-        </div>
-
-        <p className="text-sm text-slate-500 mb-5 px-3 line-clamp-3">
-          Đam mê viết code sạch, hệ thống có thể mở rộng và giải quyết các vấn
-          đề thực tế bằng phần mềm tinh tế. Luôn háo hức học hỏi công nghệ mới
-          và đóng góp vào các dự án có tác động.
-        </p>
-        <div className="flex justify-between items-center w-full px-5 mb-3">
-          <button className="hover:-translate-y-0.5 transition text-slate-500 hover:text-indigo-500">
-            <img src={cardSectionSaveIcon} alt="Lưu" className="size-6" />
-          </button>
-          <button className="hover:-translate-y-0.5 transition text-slate-500 hover:text-indigo-500">
-            <img
-              src={cardSectionApplyIcon}
-              alt="Ứng tuyển"
-              className="size-6"
-            />
-          </button>
-          <button className="hover:-translate-y-0.5 transition text-slate-500 hover:text-indigo-500">
-            <img src={cardSectionShareIcon} alt="Chia sẻ" className="size-6" />
-          </button>
-        </div>
+        {job.location ? (
+          <div className="flex items-center gap-2 text-slate-600">
+            <MapPin className="size-4 text-indigo-500" />
+            <span className="line-clamp-1">
+              {extractDistrictProvince(job.location)}
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
-import { GithubIcon } from "lucide-react";
-import ViewJobButton from "../../components/Buttons/ViewJobButton";
+import { Button } from "~/components/ui/button";
 
 export default function BottomBanner() {
   return (
@@ -21,7 +20,9 @@ export default function BottomBanner() {
               placeholder="Nhập email của bạn"
             />
 
-            <ViewJobButton label="Gửi" />
+            <Button variant="brand" className="rounded-full px-6">
+              Gửi
+            </Button>
           </div>
         </div>
 

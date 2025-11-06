@@ -1,15 +1,38 @@
+import { useNavigate } from "react-router";
+
 function NewArticleItem({ item }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    // Generate slug from item properties
+    const slug = item.slug || 
+                 item.id || 
+                 item.title?.toLowerCase()
+                   .replace(/[^\w\s-]/g, '')
+                   .replace(/\s+/g, '-')
+                   .replace(/-+/g, '-')
+                   .trim() || 
+                 'article';
+    
+    navigate(`/handbook/${slug}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition">
+    <div 
+      onClick={handleClick}
+      className="bg-white rounded-lg overflow-hidden shadow cursor-pointer"
+    >
       {/* Ảnh */}
-      <img
-        className="w-full h-48 object-cover"
-        src={
-          item.thumb ||
-          "https://images.unsplash.com/photo-1560264418-c4445382edbc?q=80&w=400"
-        }
-        alt={item.title}
-      />
+      <div className="overflow-hidden">
+        <img
+          className="w-full h-48 object-cover"
+          src={
+            item.thumb ||
+            "https://images.unsplash.com/photo-1560264418-c4445382edbc?q=80&w=400"
+          }
+          alt={item.title}
+        />
+      </div>
 
       {/* Nội dung */}
       <div className="p-4">
@@ -20,7 +43,7 @@ function NewArticleItem({ item }) {
         <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">
           <span>
             Bởi{" "}
-            <span className="text-blue-600 hover:underline">
+            <span className="text-blue-600">
               {item.author || "admin"}
             </span>
           </span>

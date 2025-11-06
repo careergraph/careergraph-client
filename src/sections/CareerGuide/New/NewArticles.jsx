@@ -1,7 +1,5 @@
 
 import Container from "~/components/Containers/Container";
-import FeaturedCard from "../Feature/FeatureCard";
-import FeaturedArticleItem from "../Feature/FeaturedArticleItem";
 import NewArticleItem from "./NewArticleItem";
 
 export default function NewArticles({items = [], src, TOP_LIMIT=6 }) {
