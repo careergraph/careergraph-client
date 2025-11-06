@@ -7,7 +7,7 @@ export const UserAPI = {
 
   updateJobCriteria(payload){
     return http(`${apiConfig.endpoints.user.updateJobFindCriteria}`, {
-      method: "POST",
+      method: "PUT",
       body: payload
     })
   },
@@ -32,7 +32,7 @@ export const UserAPI = {
   },
   updateInfo(payload) {
     return http(apiConfig.endpoints.user.updateInfo, {
-      method: "POST",
+      method: "PUT",
       body:payload,
     });
   },
@@ -62,6 +62,30 @@ export const UserAPI = {
   removeExperience(experienceId){
     return http(`${apiConfig.endpoints.user.experience}/${experienceId}`, {
       method: "DELETE",
+    });
+  },
+  addEducation(payload){
+     return http(apiConfig.endpoints.user.education, {
+      method: "POST",
+      body:payload,
+    });
+  },
+  updateEducation({educationId, payload}){
+    return http(`${apiConfig.endpoints.user.education}/${educationId}`, {
+      method: "PUT",
+      body:payload,
+    });
+  },
+  removeEducation(educationId){
+    return http(`${apiConfig.endpoints.user.education}/${educationId}`, {
+      method: "DELETE",
+    });
+  },
+
+  replaceSkillsForUser(payload){
+    return http(`${apiConfig.endpoints.user.skill}`, {
+      method: "PUT",
+      body:payload,
     });
   }
   

@@ -18,6 +18,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const data = await UserAPI.me();
       const userData = (data.data);
+
       userData.primaryAddress = normalizeAddress(userData.addresses)
       userData.primaryContact = normalizeContact(userData.contacts)
       useUserStore.getState().setUser(userData);

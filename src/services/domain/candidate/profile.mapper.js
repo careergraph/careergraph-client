@@ -106,3 +106,9 @@ export function normalizeAddress(addresses=[],type="HOME_ADDRESS", isPrimary = t
 export function normalizeContact(contacts=[],type="PHONE", isPrimary = true ){
   return contacts.find(a => a.contactType === type && a.isPrimary === isPrimary);
 }
+
+export function convertStringSkills(skills=[]){
+  return skills.map((s) => s.skillName);
+}
+
+
