@@ -329,8 +329,6 @@ export default function EducationCard() {
       const res = await UserAPI.addEducation(payload)
       useUserStore.getState().updateUserPart({ educations: res?.data })
     } else {
-      console.log("update")
-      console.log(payload)
       const res = await UserAPI.updateEducation({educationId: payload.id, payload:payload})
       useUserStore.getState().updateUserPart({ educations: res?.data })
       
