@@ -31,7 +31,6 @@ export default function JobCriteriaCard({ className }) {
   // Load khi user có
   useEffect(() => {
     if (!user) return;
-    console.log(user)
      setData({
         desiredPosition: user?.desiredPosition || "",
         industries: user?.industries || [],
