@@ -17,7 +17,7 @@ export default function JobCriteriaCard({ className }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  
+   
   // Tiêu chí hiện tại của user
   const [data, setData] = useState({
     desiredPosition: "",
@@ -31,7 +31,6 @@ export default function JobCriteriaCard({ className }) {
   // Load khi user có
   useEffect(() => {
     if (!user) return;
-    console.log(user)
      setData({
         desiredPosition: user?.desiredPosition || "",
         industries: user?.industries || [],

@@ -4,6 +4,7 @@ import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/store/authStore';
 
 export default function Login() {
+  
   // State để lưu thông tin form
   const [formData, setFormData] = useState({
     email: '',
@@ -16,7 +17,7 @@ export default function Login() {
   
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
-  const { login, authSubmitting } = useAuthStore();
+  const { login, authSubmitting, isAuthenticated } = useAuthStore();
 
 
   // Hàm xử lý thay đổi input
@@ -29,6 +30,7 @@ export default function Login() {
   };
 
   const location = useLocationR();
+
   const from =
     location.state?.from?.pathname
       ? `${location.state.from.pathname}${location.state.from.search || ""}${location.state.from.hash || ""}`
@@ -45,8 +47,6 @@ export default function Login() {
     }
 
     const result = await login(formData.email, formData.password);
-    console.log("result")
-    console.log(result)
    
     if (result.success) {
       // Đăng nhập thành công, chuyển về trang chủ
@@ -56,6 +56,10 @@ export default function Login() {
       setError(result.message);
     }
   };
+
+  if(isAuthenticated){
+    navigate(from, { replace: true });
+  }
 
   return (
     <div className="flex h-[700px] w-full gap-30">

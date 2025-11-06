@@ -45,7 +45,6 @@ export default function ProfileCard() {
   useEffect(()=> {
 
     if(!user) return;
-    console.log(user);
     setInfo(user);
     setAddressCode({provinceCode: user?.primaryAddress?.province, districtCode: user?.primaryAddress?.district })
     if(user?.avatarUrl){
@@ -159,8 +158,6 @@ export default function ProfileCard() {
         id: info.candidateId,
         body: formData,
       });
-      console.log(res?.data)
-
       useUserStore.getState().updateUserPart({ avatarUrl: res?.data })
     
       
