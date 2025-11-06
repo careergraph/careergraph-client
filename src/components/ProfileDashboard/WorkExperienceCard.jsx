@@ -4,7 +4,7 @@ import RightDrawer from "./RightDrawer";
 import { useUserStore } from "~/store/userStore";
 import { UserAPI } from "~/services/api/user";
 import { CompanyAPI } from "~/services/api/company";
-
+import { shallow } from "zustand/shallow";
 
 /* ---------------- utils ---------------- */
 const pad2 = (n) => String(n).padStart(2, "0");
@@ -30,6 +30,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
   const [endDate, setEndDate] = useState(initialValue?.endDate || "");
   const [description, setDescription] = useState(initialValue?.description || "");
   const [error, setError] = useState("");
+  
 
   // gợi ý công ty
   const [options, setOptions] = useState([]);        // [{id, name}]
@@ -37,7 +38,8 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
   const [loading, setLoading] = useState(false);
   const [highlight, setHighlight] = useState(-1);    // điều hướng bằng keyboard
   const debounceRef = useRef(null);
-  const containerRef = useRef(null);
+  const formRef = useRef(null);
+  const dropdownWrapRef = useRef(null);
 
   const lastReqIdRef = useRef(0);
 
@@ -48,8 +50,8 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
   // đóng dropdown khi click ra ngoài
   useEffect(() => {
     const onClickOutside = (e) => {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(e.target)) {
+      if (!dropdownWrapRef.current) return;
+      if (!dropdownWrapRef.current.contains(e.target)) {
         setOpen(false);
         setHighlight(-1);
       }
@@ -103,6 +105,10 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchCompanies(value), 1500);
   };
+
+  useEffect(() => {
+    return () => debounceRef.current && clearTimeout(debounceRef.current);
+  }, []);
 
   const pickOption = (opt) => {
     setCompanyName(opt?.name || "");
@@ -158,9 +164,9 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" ref={containerRef}>
+    <form onSubmit={handleSubmit} className="space-y-5" ref={formRef}>
       {/* Tên công ty (kèm dropdown gợi ý) */}
-      <div className="relative" ref={containerRef}>
+      <div className="relative" ref={dropdownWrapRef}>
       <label className="mb-1 block text-sm font-medium">
         Tên công ty <span className="text-red-600">*</span>
       </label>
@@ -183,7 +189,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
       {open && options.length > 0 && (
         <div
           className="absolute left-0 right-0 z-20 -mt-px max-h-64 w-full overflow-auto
-                    rounded-xl border bg-white shadow-lg mt-2"
+                    rounded-xl border bg-white shadow-lg mt-2 border-violet-500"
         >
           {options.map((opt, idx) => (
             <button
@@ -201,6 +207,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
           ))}
         </div>
       )}
+      
     </div>
 
       {/* Vị trí */}
@@ -325,10 +332,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
 /* ------------- Card + List + Popup ------------- */
 export default function WorkExperienceCard({className }) {
 
-
-  
-  const experiences = useUserStore((state) => state.user?.experiences);
-  
+  const experiences = useUserStore((s) => s.user?.experiences ?? [], shallow);
 
   const [modal, setModal] = useState({ open: false, mode: "create", editing: null });
   const [confirm, setConfirm] = useState({ open: false, id: null });
@@ -338,22 +342,20 @@ export default function WorkExperienceCard({className }) {
   const closeModal = () => setModal({ open: false, mode: "create", editing: null });
 
   const upsert = async (payload) => {
-    console.log("payload");
-    console.log(payload)
     if (payload?.id && experiences.some((it) => it.id === payload?.id)) {
       const res = await UserAPI.updateExperience({experienceId: payload.id, payload:payload})
-      useUserStore.getState().updateUserPart(res.data)
+      
+      useUserStore.getState().updateUserPart({ experiences: res?.data })
     } else {
       const res = await UserAPI.addExperience(payload)
-      console.log(res)
-      useUserStore.getState().updateUserPart(res.data)
+      useUserStore.getState().updateUserPart({ experiences: res?.data })
     }
     closeModal();
   };
 
   const remove = async (id) => {
     const res = await UserAPI.removeExperience(id)
-    useUserStore.getState().updateUserPart(res.data)
+    useUserStore.getState().updateUserPart({ experiences: res?.data })
   };
 
 
