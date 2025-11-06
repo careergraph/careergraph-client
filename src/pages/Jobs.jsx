@@ -1,9 +1,9 @@
 import { useState } from "react";
 import JobsSidebar from "~/sections/Job/JobsSidebar";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
-import JobCard from "~/components/Cards/JobCard";
 import SearchBar from "~/components/Search/SearchBar";
 import BannerSlider from "~/sections/Job/BannerSlider";
+import JobsList from "~/sections/Job/JobsList";
 
 export default function Jobs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -29,15 +29,13 @@ export default function Jobs() {
           </p>
 
           {/* Search area */}
-          <div className="mt-4 sm:mt-6 flex justify-center sm:justify-end w-full">
-            <div className="w-full sm:w-2/3">
-              <SearchBar
-                onSearch={({ keyword }) => {
-                  // Xử lý tìm kiếm ở đây
-                  alert(keyword);
-                }}
-              />
-            </div>
+          <div className="mt-4 sm:mt-6 w-full">
+            <SearchBar
+              onSearch={({ keyword }) => {
+                // Xử lý tìm kiếm ở đây
+                alert(keyword);
+              }}
+            />
           </div>
         </div>
       </div>
@@ -54,10 +52,10 @@ export default function Jobs() {
             Bộ lọc
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
           {/* Sidebar */}
-          <aside className="order-2 md:order-1 col-span-12 md:col-span-4 mb-6 md:mb-0">
-            <div className="md:sticky md:top-24 md:max-h-[calc(100vh-120px)] overflow-auto md:pr-1 md:mt-[-100px]">
+          <aside className="order-2 md:order-1 col-span-12 md:col-span-4">
+            <div className="md:sticky md:top-24">
               <JobsSidebar
                 isOpen={sidebarOpen || window.innerWidth >= 768}
                 onClose={() => setSidebarOpen(false)}
@@ -72,15 +70,7 @@ export default function Jobs() {
             <BannerSlider />
 
             {/* Job List */}
-            <div className="flex flex-col gap-3 md:gap-4">
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-              <JobCard />
-            </div>
+            <JobsList />
           </section>
         </div>
       </div>

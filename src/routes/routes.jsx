@@ -10,6 +10,9 @@ import Register from "../pages/Register";
 import JobDetail from "../pages/JobDetail";
 import Jobs from "../pages/Jobs";
 import CareerGuide from "../pages/CareerGuide";
+import CareerGuideDetail from "../pages/CareerGuideDetail";
+import CVBuilder from "../pages/CVBuilder";
+import CVTemplates from "../pages/CVTemplates";
 import ProfileDashboardLayout from "~/layouts/ProfileDashboardLayout/ProfileDashboardLayout";
 import Profile from "~/pages/Profile";
 import AppliedJobs from "~/pages/AppliedJobs";
@@ -20,7 +23,10 @@ const publicRoutes = [
   { path: routes.homeDefault, component: Home },
   { path: routes.jobs, component: Jobs },
   { path: routes.handbook, component: CareerGuide },
-  { path: routes.reviews, component: NotFound },
+  { path: routes.handbookDetail, component: CareerGuideDetail },
+  { path: routes.buildCV, component: CVBuilder },
+  { path: routes.templateCV, component: CVTemplates },
+  { path: routes.personalized, component: NotFound },
   { path: routes.about, component: About },
   { path: routes.login, component: Login, layout: FooterOnly },
   { path: routes.register, component: Register, layout: FooterOnly },

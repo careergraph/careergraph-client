@@ -1,6 +1,19 @@
+import { useNavigate } from "react-router-dom";
+
 function FeaturedArticleItem({item}) {
+    const navigate = useNavigate();
+    
+    const handleClick = () => {
+      // Generate slug from title or use item.slug if available
+      const slug = item.slug || item.id || item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      navigate(`/handbook/${slug}`);
+    };
+    
     return ( 
-        <li className="flex gap-3 rounded-xl p-2 hover:bg-slate-50">
+        <li 
+          className="flex cursor-pointer gap-3 rounded-xl p-2 bg-white border border-slate-200"
+          onClick={handleClick}
+        >
           {item.thumb && (
             <img
               src={item.thumb}
@@ -13,13 +26,12 @@ function FeaturedArticleItem({item}) {
             >
               {item.category}
             </div>
-            <a
-              href={item.href || "#"}
-              className="mt-1 block text-base font-medium text-slate-900 hover:text-indigo-600"
+            <div
+              className="mt-1 block text-base font-medium text-slate-900"
               title={item.title}
             >
               <span className="line-clamp-2">{item.title}</span>
-            </a>
+            </div>
           </div>
         </li>
      );

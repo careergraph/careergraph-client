@@ -35,6 +35,7 @@ function WorkExpForm({ mode, initialValue, onSubmit, onCancel, onDelete }) {
   // gợi ý công ty
   const [options, setOptions] = useState([]);        // [{id, name}]
   const [open, setOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
   const [highlight, setHighlight] = useState(-1);    // điều hướng bằng keyboard
   const debounceRef = useRef(null);

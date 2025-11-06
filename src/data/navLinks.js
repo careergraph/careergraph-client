@@ -12,8 +12,21 @@ export const navLinks = [
     href: "/handbook",
   },
   {
-    name: "Đánh giá",
-    href: "/reviews",
+    name: "Tiện ích",
+    subLinks: [
+      {
+        name: "Xây dựng CV",
+        href: "/build-cv",
+      },
+      {
+        name: "Mẫu CV",
+        href: "/template-cv",
+      },
+      {
+        name: "Định vị nghề nghiệp",
+        href: "/personalized",
+      },
+    ],
   },
   {
     name: "Giới thiệu",

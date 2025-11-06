@@ -17,7 +17,7 @@ export default function TrustedCompanies() {
                     }
                 }
             `}</style>
-      <div className="overflow-hidden w-full relative max-w-5xl mx-auto select-none">
+      <div className="overflow-hidden w-full relative max-w-full mx-auto select-none">
         <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
 
         <div

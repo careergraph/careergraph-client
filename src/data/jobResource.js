@@ -83,24 +83,24 @@ const jobCategories = [
     image: education,
     color: "#10B981", // Green
   },
-  {
-    id: 7,
-    val: "CUSTOMER_SERVICE",
-    title: "Chăm sóc khách hàng",
-    description:
-      "Hỗ trợ khách hàng, giải quyết vấn đề và đảm bảo sự hài lòng của khách hàng.",
-    image: customer,
-    color: "#8B5CF6", // Violet
-  },
-  {
-    id: 8,
-    val: "MANUFACTURING",
-    title: "Sản xuất",
-    description:
-      "Sản xuất hàng hóa hiệu quả với kiểm soát chất lượng và đổi mới.",
-    image: manufacture,
-    color: "#EF4444", // Red
-  },
+  // {
+  //   id: 7,
+  //   val: "CUSTOMER_SERVICE",
+  //   title: "Chăm sóc khách hàng",
+  //   description:
+  //     "Hỗ trợ khách hàng, giải quyết vấn đề và đảm bảo sự hài lòng của khách hàng.",
+  //   image: customer,
+  //   color: "#8B5CF6", // Violet
+  // },
+  // {
+  //   id: 8,
+  //   val: "MANUFACTURING",
+  //   title: "Sản xuất",
+  //   description:
+  //     "Sản xuất hàng hóa hiệu quả với kiểm soát chất lượng và đổi mới.",
+  //   image: manufacture,
+  //   color: "#EF4444", // Red
+  // },
 ];
 
 export { jobResource, colorMap, jobCategories };

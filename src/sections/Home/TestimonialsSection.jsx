@@ -15,7 +15,7 @@ export default function TestimonialsSection() {
                     ))}
                 </div>
             </Marquee>
-            <Marquee className="max-w-5xl mx-auto" gradient={true} speed={25} direction="right">
+            <Marquee className="max-w-full mx-auto" gradient={true} speed={25} direction="right">
                 <div className="flex items-center justify-center py-5">
                     {[...testimonialsData, ...testimonialsData].map((testimonial, index) => (
                         <TestimonialCard key={index} testimonial={testimonial} />
