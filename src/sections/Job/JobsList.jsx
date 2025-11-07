@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import JobCard from "../../components/Cards/JobCard";
+import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
 
 const DEFAULT_PAGE_SIZE = 10;

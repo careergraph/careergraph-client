@@ -12,7 +12,7 @@ export const routes = {
   about: "/about",
   login: "/login",
   register: "/register",
-  jobDetail: "/job/:id",
+  jobDetail: "/jobs/:id",
   profile: "/profile",
   appliedJobs: "/jobs/applied",
   savedJobs: "/jobs/saved",
@@ -38,6 +38,7 @@ export const apiConfig = {
       categories: "/jobs/categories",
       popular: "/jobs/popular",
       personalized: "/jobs/personalized",
+      similar: "/jobs/:id/similar",
     },
     user: {
       me: "/candidates/me",
@@ -49,13 +50,14 @@ export const apiConfig = {
       skill: "/candidates/skills",
     },
     company: {
-      lookup:"/companies/lookup"
+      lookup: "/companies/lookup",
+      jobs: "/companies/:id/jobs",
     },
     education: {
-      lookup: "/educations/lookup"
+      lookup: "/educations/lookup",
     },
     skill: {
-      lookup: "/skills/lookup"
+      lookup: "/skills/lookup",
     },
   },
 };

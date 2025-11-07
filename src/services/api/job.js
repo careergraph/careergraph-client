@@ -89,4 +89,56 @@ export const JobAPI = {
       signal,
     });
   },
+
+  /**
+   * Gọi API lấy danh sasch job của một công ty (size parameter).
+   */
+  getJobsByCompany(id, { signal, size } = {}) {
+    if (!id) {
+      return Promise.reject(new Error("Company id is required"));
+    }
+
+    const path = apiConfig.endpoints.company.jobs.replace(":id", id);
+    const searchParams = new URLSearchParams();
+    
+    if (size) {
+      searchParams.set("size", size);
+    }
+
+    const fullPath = searchParams.toString()
+      ? `${path}?${searchParams.toString()}`
+      : path;
+
+    return http(fullPath, {
+      method: "GET",
+      auth: false,
+      signal,
+    });
+  },
+
+  /**
+   * Gọi API lấy danh sách job tương tự (size parameter).
+   */
+  getSimilarJobs(id, { signal, size } = {}) {
+    if (!id) {
+      return Promise.reject(new Error("Job id is required"));
+    }
+
+    const path = apiConfig.endpoints.jobs.similar.replace(":id", id);
+    const searchParams = new URLSearchParams();
+    
+    if (size) {
+      searchParams.set("size", size);
+    }
+
+    const fullPath = searchParams.toString()
+      ? `${path}?${searchParams.toString()}`
+      : path;
+
+    return http(fullPath, {
+      method: "GET",
+      auth: false,
+      signal,
+    });
+  },
 };
