@@ -219,6 +219,15 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true); // Trạng thái loading
   const [error, setError] = useState(null); // Lỗi nếu có
 
+  // ==================== 🔴 TODO: THÊM STATE CHO 2 DANH SÁCH ====================
+  // State cho danh sách việc làm của công ty
+  const [companyJobs, setCompanyJobs] = useState([]);
+  const [loadingCompanyJobs, setLoadingCompanyJobs] = useState(false);
+
+  // State cho danh sách việc làm tương tự
+  const [similarJobs, setSimilarJobs] = useState([]);
+  const [loadingSimilarJobs, setLoadingSimilarJobs] = useState(false);
+
   // ==================== LOAD DỮ LIỆU TỪ API ====================
   useEffect(() => {
     const fetchJobData = async () => {
@@ -226,7 +235,7 @@ export default function JobDetailPage() {
         setLoading(true);
         setError(null);
 
-        // Gọi API
+        // Gọi API lấy chi tiết job
         const data = await JobService.fetchJobDetail(id);
 
         if (!data) {
@@ -234,6 +243,18 @@ export default function JobDetailPage() {
         }
 
         setJob(data);
+
+        // ==================== 🔴 TODO: GỌI 2 API BỔ SUNG ====================
+        // Sau khi có thông tin job, gọi thêm 2 API:
+
+        // 1️⃣ API lấy các job khác của công ty (dựa vào companyId)
+        if (data.companyId) {
+          fetchCompanyJobs(data.companyId);
+        }
+
+        // 2️⃣ API lấy các job tương tự (dựa vào jobId hoặc jobCategory)
+        fetchSimilarJobs(id, data.jobCategory);
+
       } catch (err) {
         console.error("Error loading job detail:", err);
         setError(err.message || "Đã có lỗi xảy ra");
@@ -244,6 +265,51 @@ export default function JobDetailPage() {
 
     fetchJobData();
   }, [id]);
+
+  // ==================== 🔴 TODO: HÀM GỌI API LẤY JOB CỦA CÔNG TY ====================
+  const fetchCompanyJobs = async (companyId) => {
+    try {
+      setLoadingCompanyJobs(true);
+
+      // TODO: Thay thế bằng API call thực tế
+      // const response = await JobService.fetchJobsByCompany(companyId, { limit: 5 });
+      // setCompanyJobs(response.jobs);
+
+      console.log("🔴 TODO: Gọi API lấy jobs của công ty:", companyId);
+      // Tạm thời để mock data
+      setCompanyJobs(SIMILAR_JOBS_MOCK);
+
+    } catch (err) {
+      console.error("Error loading company jobs:", err);
+      setCompanyJobs([]);
+    } finally {
+      setLoadingCompanyJobs(false);
+    }
+  };
+
+  // ==================== 🔴 TODO: HÀM GỌI API LẤY JOB TƯƠNG TỰ ====================
+  const fetchSimilarJobs = async (jobId, category) => {
+    try {
+      setLoadingSimilarJobs(true);
+
+      // TODO: Thay thế bằng API call thực tế
+      // const response = await JobService.fetchSimilarJobs(jobId, { 
+      //   category, 
+      //   limit: 5 
+      // });
+      // setSimilarJobs(response.jobs);
+
+      console.log("🔴 TODO: Gọi API lấy jobs tương tự cho jobId:", jobId, "category:", category);
+      // Tạm thời để mock data
+      setSimilarJobs(SIMILAR_JOBS_MOCK);
+
+    } catch (err) {
+      console.error("Error loading similar jobs:", err);
+      setSimilarJobs([]);
+    } finally {
+      setLoadingSimilarJobs(false);
+    }
+  };
 
   // ==================== SCROLL TO TOP KHI VÀO TRANG ====================
   // Đảm bảo luôn scroll về đầu trang khi xem chi tiết job
@@ -390,13 +456,25 @@ export default function JobDetailPage() {
           {/* Việc làm công ty đang tuyển */}
           <SimilarJobsList
             title="Việc làm công ty đang tuyển"
-            items={SIMILAR_JOBS_MOCK}
+            items={loadingCompanyJobs ? [] : companyJobs}
+            icon={<Building2 size={16} />}
+            emptyMessage={
+              loadingCompanyJobs
+                ? "Đang tải..."
+                : "Công ty chưa có tin tuyển dụng khác"
+            }
           />
 
           {/* Việc làm tương tự */}
           <SimilarJobsList
-            title="Việc làm tương tự cho bạn"
-            items={SIMILAR_JOBS_MOCK}
+            title="Việc làm tương tự"
+            items={loadingSimilarJobs ? [] : similarJobs}
+            icon={<Briefcase size={16} />}
+            emptyMessage={
+              loadingSimilarJobs
+                ? "Đang tải..."
+                : "Chưa có việc làm tương tự"
+            }
           />
         </aside>
       </div>
