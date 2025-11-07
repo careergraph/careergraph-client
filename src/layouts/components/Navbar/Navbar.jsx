@@ -1,23 +1,20 @@
-import { MenuIcon, XIcon, User, LogOut, Bell, ChevronDown } from "lucide-react";
+import { MenuIcon, XIcon, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { navLinks } from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
-import ProfileDropdown from "~/components/ProfileMenu/ProfileDropdown";
-import AvatarUser from "~/components/DefaultData/AvatarUser";
 import { useAuthStore } from "~/store/authStore";
-import { useUserStore } from "~/store/userStore";
+import NotificationBell from "./NotificationBell";
+import UserAvatar from "./UserAvatar";
 
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
-  const {user} = useUserStore();
-  const { isAuthenticated, logout, authInitializing } = useAuthStore();
+  const { isAuthenticated, authInitializing } = useAuthStore();
   useEffect(() => {
     if (openMobileMenu) {
       document.body.classList.add("max-md:overflow-hidden");
@@ -25,27 +22,6 @@ export default function Navbar() {
       document.body.classList.remove("max-md:overflow-hidden");
     }
   }, [openMobileMenu]);
-
-  // Đóng dropdown khi click bên ngoài
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showUserMenu && !event.target.closest(".relative")) {
-        setShowUserMenu(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showUserMenu]);
-
-  // Hàm xử lý đăng xuất
-  const handleLogout = () => {
-    logout();
-    setShowUserMenu(false);
-    navigate("/");
-  };
 
   return (
     <nav
@@ -183,51 +159,8 @@ export default function Navbar() {
           isAuthenticated ? (
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-3">
-              {/* Nút chuông thông báo */}
-              <button className="relative p-2 rounded-full hover:bg-indigo-600 transition">
-                <Bell size={20} />
-                {/* Badge số thông báo (nếu có) */}
-                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-              </button>
-
-              {/* Avatar + tên */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
-                >
-                  <User size={20} />
-                  <span className="text-sm font-medium">
-                    {user?.fullName || user?.email}
-                  </span>
-                </button>
-
-                {/* Dropdown menu */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                    <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                      {user?.email}
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigate("/profile");
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                    >
-                      <User size={16} />
-                      Thông tin cá nhân
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                    >
-                      <LogOut size={16} />
-                      Đăng xuất
-                    </button>
-                  </div>
-                )}
-              </div>
+              <NotificationBell />
+              <UserAvatar />
             </div>
           </div>
         ) : (
@@ -261,37 +194,8 @@ export default function Navbar() {
           isAuthenticated ? (
             <div className="hidden md:flex items-center gap-4">
               <div className="flex items-center gap-3">
-                {/* Nút chuông thông báo */}
-                <button className="relative p-2 rounded-full hover:bg-slate-100 transition">
-                  <Bell size={22} />
-                  {/* Badge số thông báo (nếu có) */}
-                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-                </button>
-
-                {/* Avatar + Tên */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
-                  >
-                    {user?.avatarUrl? (
-                      <img src={user.avatarUrl} 
-                      alt={user?.firstName ?? "avatar"} className="w-9 h-9 object-cover rounded-full"/>
-                      ):(
-                        <AvatarUser size={9}/>
-                      )
-                     }
-                    
-
-                    {/* Tên */}
-                    <span className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
-                      {user?.firstName || "Người dùng"}
-                    </span>
-                  </button>
-
-                  {/* Dropdown menu */}
-                  {showUserMenu && <ProfileDropdown />}
-                </div>
+                <NotificationBell />
+                <UserAvatar />
               </div>
             </div>
           ) : (
