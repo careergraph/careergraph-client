@@ -68,12 +68,24 @@ const unwrapJobList = (payload) => {
 const unwrapJobDetail = (payload) => {
   if (!payload) return null;
 
-  const candidates = [payload.job, payload.data, payload.content, payload.item, payload];
+  // Thử các candidates khác nhau
+  const candidates = [
+    payload.job, // { job: {...} }
+    payload.data, // { data: {...} } ← API trả về format này
+    payload.content, // { content: {...} }
+    payload.item, // { item: {...} }
+    payload, // Hoặc chính nó là job object
+  ];
+
   for (const candidate of candidates) {
     if (!candidate) continue;
+
+    // Nếu là array, lấy phần tử đầu tiên
     if (Array.isArray(candidate)) {
       return candidate[0] ?? null;
     }
+
+    // Nếu là object thì return
     if (typeof candidate === "object") {
       return candidate;
     }
@@ -83,14 +95,23 @@ const unwrapJobDetail = (payload) => {
 };
 
 const formatLocation = (job) => {
-  const specific = safeText(job?.specific || job?.address || job?.addressLine || job?.meta?.raw?.address);
+  const specific = safeText(
+    job?.specific || job?.address || job?.addressLine || job?.meta?.raw?.address
+  );
   if (specific) return specific;
 
   const district = safeText(
-    job?.districtName || job?.districtLabel || job?.district || job?.meta?.raw?.district
+    job?.districtName ||
+      job?.districtLabel ||
+      job?.district ||
+      job?.meta?.raw?.district
   );
-  const city = safeText(job?.cityName || job?.cityLabel || job?.city || job?.meta?.raw?.city);
-  const state = safeText(job?.stateName || job?.stateLabel || job?.state || job?.meta?.raw?.state);
+  const city = safeText(
+    job?.cityName || job?.cityLabel || job?.city || job?.meta?.raw?.city
+  );
+  const state = safeText(
+    job?.stateName || job?.stateLabel || job?.state || job?.meta?.raw?.state
+  );
 
   const parts = [district, city, state].filter(Boolean);
   if (parts.length) return parts.join(", ");
@@ -124,7 +145,10 @@ const formatSalary = (job) => {
         const formatNumber = (value) => value.toLocaleString("vi-VN");
 
         const unique = [minValue, maxValue]
-          .filter((value, index, arr) => value !== null && arr.indexOf(value) === index)
+          .filter(
+            (value, index, arr) =>
+              value !== null && arr.indexOf(value) === index
+          )
           .map(formatNumber)
           .join(" - ");
 
@@ -193,7 +217,10 @@ const normalizeId = (job) => {
     const text = safeText(candidate);
     if (text) return text;
   }
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
   return `job-${Math.random().toString(36).slice(2, 10)}`;
@@ -212,7 +239,9 @@ const normalizeExperience = (job) => {
     parseOptionalNumber(job?.experienceMax) ??
     parseOptionalNumber(job?.meta?.raw?.maxExperience);
 
-  const level = safeText(job?.experienceLevel || job?.level || job?.experience?.label);
+  const level = safeText(
+    job?.experienceLevel || job?.level || job?.experience?.label
+  );
 
   return {
     min,
@@ -261,9 +290,12 @@ const normalizeTags = (job, limit = 3) => {
   addFrom(job?.keywords);
 
   if (!result.length) {
-    [job?.experienceLevel, job?.employmentType, job?.jobCategory, job?.department].forEach(
-      addCandidate
-    );
+    [
+      job?.experienceLevel,
+      job?.employmentType,
+      job?.jobCategory,
+      job?.department,
+    ].forEach(addCandidate);
   }
 
   return result.slice(0, limit);
@@ -272,16 +304,23 @@ const normalizeTags = (job, limit = 3) => {
 const normalizeJob = (job = {}) => {
   const title = safeText(job.title || job.name) || "Đang cập nhật";
   const department = safeText(job.department || job.departmentName);
-  const company =
-    safeText(job.company || job.companyName || job.employerName) ||
-    department ||
-    safeText(job.jobCategory) ||
-    "Đang cập nhật";
+  const companyName = safeText(job.companyName);
+
+  // Validate và normalize company avatar
+  const rawAvatar = safeText(job.companyAvatar);
+  let companyAvatar = rawAvatar;
+
+  // Nếu URL không hợp lệ hoặc là Google redirect, dùng avatar generator
+  if (!rawAvatar || rawAvatar.includes('google.com/url?') || rawAvatar.includes('redirect')) {
+    companyAvatar = `https://avatar.oxro.io/avatar.svg?name=${encodeURIComponent(companyName || title)}`;
+  }
 
   return {
     id: normalizeId(job),
     title,
-    company,
+    companyId: job.companyId,
+    companyName,
+    companyAvatar,
     department,
     jobCategory: safeText(job.jobCategory),
     description: safeText(job.description),
@@ -289,27 +328,40 @@ const normalizeJob = (job = {}) => {
     location: formatLocation(job),
     address: safeText(job.specific || job.address || job.addressLine),
     salaryRange: formatSalary(job),
-    photoUrl: resolvePhotoUrl(job, company || title),
     likes: normalizeLikes(job),
     isLiked: Boolean(job.isLiked || job.liked || job.userLiked),
     detailUrl:
-      safeText(job.detailUrl || job.url || job.jobUrl || job.applyUrl || job.meta?.raw?.url) || "",
+      safeText(
+        job.detailUrl ||
+          job.url ||
+          job.jobUrl ||
+          job.applyUrl ||
+          job.meta?.raw?.url
+      ) || "",
     employmentType: safeText(job.employmentType || job.type),
     remoteJob: Boolean(job.remoteJob || job.isRemote),
     experience: normalizeExperience(job),
     postedDate: safeText(job.postedDate || job.createdAt),
     expiryDate: safeText(job.expiryDate || job.deadline),
     numberOfPositions: parseOptionalNumber(
-      job?.numberOfPositions ?? job?.vacancies ?? job?.meta?.raw?.numberOfPositions
+      job?.numberOfPositions ??
+        job?.vacancies ??
+        job?.meta?.raw?.numberOfPositions
     ),
     contact: {
-      email: safeText(job.contactEmail || job.email || job.meta?.raw?.contactEmail),
-      phone: safeText(job.contactPhone || job.phone || job.meta?.raw?.contactPhone),
+      email: safeText(
+        job.contactEmail || job.email || job.meta?.raw?.contactEmail
+      ),
+      phone: safeText(
+        job.contactPhone || job.phone || job.meta?.raw?.contactPhone
+      ),
     },
     skills: normalizeTags(job),
     responsibilities: toCleanArray(job.responsibilities),
     qualifications: toCleanArray(job.qualifications),
     minimumQualifications: toCleanArray(job.minimumQualifications),
+    benefits: toCleanArray(job.benefits), // ← Thêm field benefits
+    education: safeText(job.education), // ← Thêm field education cho trình độ
   };
 };
 

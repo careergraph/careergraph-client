@@ -17,6 +17,7 @@ import ProfileDashboardLayout from "~/layouts/ProfileDashboardLayout/ProfileDash
 import Profile from "~/pages/Profile";
 import AppliedJobs from "~/pages/AppliedJobs";
 import SavedJobs from "~/pages/SavedJobs";
+import TestApi from "~/pages/TestApi";
 
 const publicRoutes = [
   { path: routes.home, component: Home },
@@ -31,6 +32,7 @@ const publicRoutes = [
   { path: routes.login, component: Login, layout: FooterOnly },
   { path: routes.register, component: Register, layout: FooterOnly },
   { path: routes.jobDetail, component: JobDetail },
+  { path: "/test-api", component: TestApi }, // ← Test page
   
   { path: routes.appliedJobs, component: AppliedJobs, layout: ProfileDashboardLayout },
   { path: routes.savedJobs, component: SavedJobs, layout: ProfileDashboardLayout },
