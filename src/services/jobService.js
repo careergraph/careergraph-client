@@ -111,13 +111,14 @@ const fetchJobDetail = async (id, options = {}) => {
   try {
     const response = await JobAPI.getJobDetail(id, options);
     const rawJob = unwrapJobDetail(response);
-    if (!rawJob) return null;
-    return normalizeJob(rawJob);
-  } catch (error) {
-    if (error?.code === "ERR_CANCELED") {
+    
+    if (!rawJob) {
       return null;
     }
-    console.error(`Không thể lấy chi tiết việc làm (${id}):`, error);
+
+    return normalizeJob(rawJob);;
+  } catch (error) {
+    console.error(`Lỗi khi lấy chi tiết việc làm (${id}):`, error);
     return null;
   }
 };

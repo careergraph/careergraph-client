@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import UserInfoLoading from "~/components/Feedback/UserInfoLoading";
+import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { useAuthStore } from "~/store/authStore";
 
 export function AppInitializer({ children }) {
@@ -10,7 +10,15 @@ export function AppInitializer({ children }) {
   }, [initAuth]);
 
   if (authInitializing) {
-    return <UserInfoLoading />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <LoadingSpinner 
+          message="Loading..." 
+          variant="inline" 
+          size="lg" 
+        />
+      </div>
+    );
   }
 
   return children;

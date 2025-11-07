@@ -1,5 +1,5 @@
 import { Zap, MapPin, CircleDollarSign, Sparkles } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const limitTags = (input, max = 3) => {
@@ -20,6 +20,7 @@ const TAG_COLORS = [
 
 export default function JobCard({ job, onSave, onDetail }) {
   const navigate = useNavigate();
+  const [imgError, setImgError] = useState(false);
 
   if (!job) {
     return null;
@@ -64,6 +65,16 @@ export default function JobCard({ job, onSave, onDetail }) {
     handleNavigate();
   };
 
+  const handleImageError = (e) => {
+    setImgError(true);
+    // Fallback to generated avatar
+    e.target.src = `https://avatar.oxro.io/avatar.svg?name=${encodeURIComponent(job.companyName || job.title || "Company")}`;
+  };
+
+  const avatarSrc = imgError
+    ? `https://avatar.oxro.io/avatar.svg?name=${encodeURIComponent(job.companyName || job.title || "Company")}`
+    : job.companyAvatar || "/dist/assets/ai-feature-DH8aVC4K.svg";
+
   return (
     <div
       className="relative flex gap-4 border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition bg-white cursor-pointer"
@@ -83,9 +94,10 @@ export default function JobCard({ job, onSave, onDetail }) {
       {/* Logo công ty */}
       <div className="flex-shrink-0">
         <img
-          src={job.photoUrl || "/logo-company.png"}
-          alt={job.company || job.title}
+          src={avatarSrc}
+          alt={job.companyName || "Company Logo"}
           className="w-16 h-16 rounded-lg border border-slate-200 object-cover"
+          onError={handleImageError}
         />
       </div>
 
@@ -98,7 +110,7 @@ export default function JobCard({ job, onSave, onDetail }) {
               {job.title}
             </h3>
             <p className="text-sm text-slate-600 mb-2 truncate">
-              {job.company || "Đang cập nhật"}
+              {job.companyName || "Đang cập nhật"}
             </p>
 
             {/* Tags */}

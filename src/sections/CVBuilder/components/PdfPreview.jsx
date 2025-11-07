@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { BlobProvider, PDFViewer } from "@react-pdf/renderer";
 import { Download, Upload, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 
 const PdfPreview = ({ TemplateComponent, data, fileName }) => {
   const [debouncedData, setDebouncedData] = useState(data);
@@ -157,29 +158,7 @@ const PdfPreview = ({ TemplateComponent, data, fileName }) => {
 
       <div className="relative flex-1 bg-slate-100">
         {isGenerating && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/95 backdrop-blur-sm">
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                ></div>
-                <div
-                  className="w-3 h-3 bg-purple-600 rounded-full animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                ></div>
-                <div
-                  className="w-3 h-3 bg-pink-600 rounded-full animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                ></div>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-slate-700 font-semibold">
-                  Đang cập nhật CV...
-                </p>
-              </div>
-            </div>
-          </div>
+          <LoadingSpinner message="Đang cập nhật CV..." variant="overlay" />
         )}
 
         {documentNode ? (

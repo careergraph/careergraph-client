@@ -1,18 +1,24 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import JobCard from "../../components/Cards/JobCard";
 import { JobService } from "../../services/jobService";
 
 const DEFAULT_PAGE_SIZE = 10;
+const JOBS_PAGE_KEY = "jobs_current_page"; // Key để lưu page hiện tại
 
 const JobsList = () => {
-  const [jobs, setJobs] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
-  const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE);
-  const [meta, setMeta] = React.useState({ totalItems: 0, totalPages: 1 });
-  const [isPageTransitioning, setIsPageTransitioning] = React.useState(false);
-  const [transitionTarget, setTransitionTarget] = React.useState(null);
+  // Khởi tạo page từ sessionStorage (nếu có) hoặc mặc định là 1
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(() => {
+    // Restore page từ sessionStorage khi quay lại trang
+    const savedPage = sessionStorage.getItem(JOBS_PAGE_KEY);
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  });
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [meta, setMeta] = useState({ totalItems: 0, totalPages: 1 });
+  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
+  const [transitionTarget, setTransitionTarget] = useState(null);
 
   const totalPages = meta.totalPages ?? 1;
   const canGoPrev = page > 1;
@@ -26,10 +32,12 @@ const JobsList = () => {
     setTransitionTarget({ from: page, to: nextPage });
     setIsPageTransitioning(true);
     setPage(nextPage);
+    // Lưu page mới vào sessionStorage
+    sessionStorage.setItem(JOBS_PAGE_KEY, nextPage.toString());
   };
 
   // Fetch jobs whenever the requested page or page size changes.
-  React.useEffect(() => {
+  useEffect(() => {
     const controller = new AbortController();
     let isMounted = true;
 
@@ -37,6 +45,14 @@ const JobsList = () => {
       try {
         setLoading(true);
         setError("");
+
+        // Scroll về đầu danh sách khi chuyển trang (nhưng không scroll khi lần đầu load)
+        const savedPage = sessionStorage.getItem(JOBS_PAGE_KEY);
+        const isFirstLoad = savedPage && parseInt(savedPage, 10) === page;
+        if (!isFirstLoad && page > 1) {
+          // Scroll smooth về vị trí danh sách job
+          window.scrollTo({ top: 300, behavior: "smooth" });
+        }
 
         const { jobs: data, pagination } = await JobService.fetchAllJobs({
           signal: controller.signal,
@@ -94,7 +110,7 @@ const JobsList = () => {
   }, [page, pageSize]);
 
   // Hide the overlay once the new page has finished loading.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isPageTransitioning) return undefined;
     if (loading) return undefined;
 
