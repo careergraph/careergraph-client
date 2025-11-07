@@ -14,37 +14,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "~/services/jobService";
 
-// ==================== MOCK DATA ====================
-const SIMILAR_JOBS_MOCK = [
-  {
-    id: "1",
-    title: "Nhân Viên Kế Toán - Nam",
-    company: "Công Ty CP Nha Khoa Bình An",
-    salary: "8 - 12 triệu",
-    location: "TP.HCM",
-    days: "Còn 7 ngày",
-    logo: "https://placehold.co/40x40?text=BA",
-  },
-  {
-    id: "2",
-    title: "Nhân Viên Nữ Kế Toán Nội Bộ (Quận Gò Vấp)",
-    company: "Công Ty TNHH Nội Thất Tân Á",
-    salary: "12 - 15 triệu",
-    location: "TP.HCM",
-    days: "Còn 10 ngày",
-    logo: "https://placehold.co/40x40?text=TA",
-  },
-  {
-    id: "3",
-    title: "Nhân Viên Kế Toán - Gò Vấp Đi Làm Ngay",
-    company: "Công Ty TNHH Thương Mại Dịch Vụ X",
-    salary: "9 - 12 triệu",
-    location: "TP.HCM",
-    days: "Còn 33 ngày",
-    logo: "https://placehold.co/40x40?text=X",
-  },
-];
-
 // ==================== HELPER FUNCTIONS ====================
 
 /**
@@ -219,7 +188,7 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true); // Trạng thái loading
   const [error, setError] = useState(null); // Lỗi nếu có
 
-  // ==================== 🔴 TODO: THÊM STATE CHO 2 DANH SÁCH ====================
+  // ==================== STATE MANAGEMENT ====================
   // State cho danh sách việc làm của công ty
   const [companyJobs, setCompanyJobs] = useState([]);
   const [loadingCompanyJobs, setLoadingCompanyJobs] = useState(false);
@@ -230,6 +199,45 @@ export default function JobDetailPage() {
 
   // ==================== LOAD DỮ LIỆU TỪ API ====================
   useEffect(() => {
+    let isMounted = true;
+
+    // Hàm gọi API lấy jobs của công ty
+    const fetchCompanyJobs = async (companyId) => {
+      try {
+        setLoadingCompanyJobs(true);
+        const response = await JobService.fetchJobsByCompany(companyId, { size: 5 });
+        if (!isMounted) return;
+        setCompanyJobs(response.jobs);
+      } catch (err) {
+        console.error("Error loading company jobs:", err);
+        if (!isMounted) return;
+        setCompanyJobs([]);
+      } finally {
+        if (isMounted) {
+          setLoadingCompanyJobs(false);
+        }
+      }
+    };
+
+    // Hàm gọi API lấy jobs tương tự
+    const fetchSimilarJobs = async (jobId) => {
+      try {
+        setLoadingSimilarJobs(true);
+        const response = await JobService.fetchSimilarJobs(jobId, { size: 5 });
+        if (!isMounted) return;
+        setSimilarJobs(response.jobs);
+      } catch (err) {
+        console.error("Error loading similar jobs:", err);
+        if (!isMounted) return;
+        setSimilarJobs([]);
+      } finally {
+        if (isMounted) {
+          setLoadingSimilarJobs(false);
+        }
+      }
+    };
+
+    // Hàm chính load job detail
     const fetchJobData = async () => {
       try {
         setLoading(true);
@@ -238,13 +246,15 @@ export default function JobDetailPage() {
         // Gọi API lấy chi tiết job
         const data = await JobService.fetchJobDetail(id);
 
+        if (!isMounted) return; // Don't update if unmounted
+
         if (!data) {
           throw new Error("Không tìm thấy thông tin công việc");
         }
 
         setJob(data);
 
-        // ==================== 🔴 TODO: GỌI 2 API BỔ SUNG ====================
+        // ==================== GỌI 2 API BỔ SUNG ====================
         // Sau khi có thông tin job, gọi thêm 2 API:
 
         // 1️⃣ API lấy các job khác của công ty (dựa vào companyId)
@@ -252,64 +262,27 @@ export default function JobDetailPage() {
           fetchCompanyJobs(data.companyId);
         }
 
-        // 2️⃣ API lấy các job tương tự (dựa vào jobId hoặc jobCategory)
-        fetchSimilarJobs(id, data.jobCategory);
+        // 2️⃣ API lấy các job tương tự (dựa vào jobId)
+        fetchSimilarJobs(id);
 
       } catch (err) {
+        if (!isMounted) return;
         console.error("Error loading job detail:", err);
         setError(err.message || "Đã có lỗi xảy ra");
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchJobData();
-  }, [id]);
 
-  // ==================== 🔴 TODO: HÀM GỌI API LẤY JOB CỦA CÔNG TY ====================
-  const fetchCompanyJobs = async (companyId) => {
-    try {
-      setLoadingCompanyJobs(true);
-
-      // TODO: Thay thế bằng API call thực tế
-      // const response = await JobService.fetchJobsByCompany(companyId, { limit: 5 });
-      // setCompanyJobs(response.jobs);
-
-      console.log("🔴 TODO: Gọi API lấy jobs của công ty:", companyId);
-      // Tạm thời để mock data
-      setCompanyJobs(SIMILAR_JOBS_MOCK);
-
-    } catch (err) {
-      console.error("Error loading company jobs:", err);
-      setCompanyJobs([]);
-    } finally {
-      setLoadingCompanyJobs(false);
-    }
-  };
-
-  // ==================== 🔴 TODO: HÀM GỌI API LẤY JOB TƯƠNG TỰ ====================
-  const fetchSimilarJobs = async (jobId, category) => {
-    try {
-      setLoadingSimilarJobs(true);
-
-      // TODO: Thay thế bằng API call thực tế
-      // const response = await JobService.fetchSimilarJobs(jobId, { 
-      //   category, 
-      //   limit: 5 
-      // });
-      // setSimilarJobs(response.jobs);
-
-      console.log("🔴 TODO: Gọi API lấy jobs tương tự cho jobId:", jobId, "category:", category);
-      // Tạm thời để mock data
-      setSimilarJobs(SIMILAR_JOBS_MOCK);
-
-    } catch (err) {
-      console.error("Error loading similar jobs:", err);
-      setSimilarJobs([]);
-    } finally {
-      setLoadingSimilarJobs(false);
-    }
-  };
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [id]); // Chỉ depend vào id, không cần functions!
 
   // ==================== SCROLL TO TOP KHI VÀO TRANG ====================
   // Đảm bảo luôn scroll về đầu trang khi xem chi tiết job

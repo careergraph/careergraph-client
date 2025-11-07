@@ -123,6 +123,52 @@ const fetchJobDetail = async (id, options = {}) => {
   }
 };
 
+const fetchJobsByCompany = async (companyId, options = { size: 5 }) => {
+  if (!companyId) return { jobs: [], total: 0 };
+
+  try {
+    const response = await JobAPI.getJobsByCompany(companyId, options);
+    const rawJobs = unwrapJobList(response);
+
+    if (!rawJobs || !Array.isArray(rawJobs)) {
+      return { jobs: [], total: 0 };
+    }
+
+    const jobs = rawJobs.map(normalizeJob);
+
+    return {
+      jobs,
+      total: response?.data?.totalElements ?? jobs.length,
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách job của công ty:", error);
+    return { jobs: [], total: 0 };
+  }
+};
+
+const fetchSimilarJobs = async (jobId, options = { size: 5 }) => {
+  if (!jobId) return { jobs: [], total: 0 };
+
+  try {
+    const response = await JobAPI.getSimilarJobs(jobId, options);
+    const rawJobs = unwrapJobList(response);
+
+    if (!rawJobs || !Array.isArray(rawJobs)) {
+      return { jobs: [], total: 0 };
+    }
+
+    const jobs = rawJobs.map(normalizeJob);
+
+    return {
+      jobs,
+      total: response?.data?.totalElements ?? jobs.length,
+    };
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách job tương tự:", error);
+    return { jobs: [], total: 0 };
+  }
+};
+
 export const JobService = {
   /** Lấy toàn bộ danh sách việc làm để hiển thị ở trang Jobs. */
   async fetchAllJobs(options = {}) {
@@ -189,5 +235,15 @@ export const JobService = {
   /** Lấy chi tiết một việc làm cụ thể bằng id. */
   fetchJobDetail(id, options) {
     return fetchJobDetail(id, options);
+  },
+
+  /** Lấy danh sách job của một công ty (limit 5). */
+  fetchJobsByCompany(companyId, options) {
+    return fetchJobsByCompany(companyId, options);
+  },
+
+  /** Lấy danh sách job tương tự (limit 5). */
+  fetchSimilarJobs(jobId, options) {
+    return fetchSimilarJobs(jobId, options);
   },
 };

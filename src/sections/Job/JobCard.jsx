@@ -49,7 +49,7 @@ export default function JobCard({ job, onSave, onDetail }) {
     }
 
     if (job.id) {
-      navigate(`/job/${job.id}`);
+      navigate(`/jobs/${job.id}`);
     }
   };
 
