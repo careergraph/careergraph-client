@@ -1,7 +1,15 @@
 import ApplyBar from "./ApplyBar";
 import { Clock, Eye, Users, Calendar, Tag } from "lucide-react";
 
-export default function JobHeader({ title, highlights = [], extra, stats = {}, tags = [] }) {
+export default function JobHeader({
+  title,
+  highlights = [],
+  extra,
+  stats = {},
+  tags = [],
+  onApply,
+  applyDisabled,
+}) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       {/* Header chính */}
@@ -76,7 +84,7 @@ export default function JobHeader({ title, highlights = [], extra, stats = {}, t
       )}
 
       {/* Apply bar */}
-      <ApplyBar />
+      <ApplyBar onApply={onApply} disabled={applyDisabled} />
     </div>
   );
 }
