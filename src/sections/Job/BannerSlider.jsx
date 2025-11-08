@@ -6,11 +6,10 @@ export default function BannerSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-    "https://images.unsplash.com/photo-1669023414166-a4cc7c0fe1f5?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1669023414180-4dcf35d943e1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDF8fHxlbnwwfHx8fHw%3D",
-    "https://images.unsplash.com/photo-1669023414171-56f0740e34cd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDJ8fHxlbnwwfHx8fHw%3D",
-    "https://plus.unsplash.com/premium_photo-1720287601920-ee8c503af775?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDh8fHxlbnwwfHx8fHw%3D",
-    "https://plus.unsplash.com/premium_photo-1721080251127-76315300cc5c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE2fHx8ZW58MHx8fHx8",
+    "https://media-blog.jobsgo.vn/blog/wp-content/uploads/2025/10/VNR-Group.png",
+    "https://media-blog.jobsgo.vn/blog/wp-content/uploads/2025/10/MAZDA-LANG-HA.png",
+    "https://jobsgo.vn/uploads/banner/concentrix_banner.png",
+    "https://jobsgo.vn/uploads/banner/banner_home_sacombank.jpg",
   ];
 
   const totalSlides = slides.length;

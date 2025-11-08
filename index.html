@@ -9,6 +9,15 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Career Graph</title>
+
+    <!-- Suppress PDF.js warnings - must be before any scripts -->
+    <script>
+      // Configure PDF.js verbosity
+      window.pdfjsLib = window.pdfjsLib || {};
+      window.pdfjsLib.GlobalWorkerOptions =
+        window.pdfjsLib.GlobalWorkerOptions || {};
+      window.pdfjsLib.GlobalWorkerOptions.verbosity = 0; // 0 = errors only
+    </script>
   </head>
 
   <body>
