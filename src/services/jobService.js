@@ -383,4 +383,9 @@ export const JobService = {
   fetchSimilarJobs(jobId, options) {
     return fetchSimilarJobs(jobId, options);
   },
+
+  /** Gửi đơn ứng tuyển cho job. */
+  async applyToJob(jobId, payload) {
+    return JobAPI.applyToJob(jobId, payload);
+  },
 };

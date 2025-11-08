@@ -175,4 +175,22 @@ export const JobAPI = {
       signal,
     });
   },
+
+  /**
+   * Gửi đơn ứng tuyển cho một job cụ thể.
+   * Lưu ý: cập nhật `apiConfig.endpoints.jobs.apply` nếu BE dùng đường dẫn khác.
+   */
+  applyToJob(id, payload = {}) {
+    if (!id) {
+      return Promise.reject(new Error("Job id is required"));
+    }
+
+    const path = apiConfig.endpoints.jobs.apply.replace(":id", id);
+
+    return http(path, {
+      method: "POST",
+      body: payload,
+      auth: true,
+    });
+  },
 };
