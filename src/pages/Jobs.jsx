@@ -7,6 +7,20 @@ import JobsList from "~/sections/Job/JobsList";
 
 export default function Jobs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    jobCategory: "ALL",
+    experienceLevels: [],
+    employmentTypes: [],
+    educationLevels: [],
+  });
+  const [searchState, setSearchState] = useState({
+    keyword: "",
+    location: "",
+    locationCode: "",
+  });
+
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
+  const computedSidebarOpen = sidebarOpen || isDesktop;
   return (
     <div className="min-h-screen">
       {/* Hero background with title */}
@@ -47,32 +61,57 @@ export default function Jobs() {
             Bộ lọc
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-12">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-5 lg:gap-6">
           {/* Sidebar */}
-          <aside className="col-span-12 md:col-span-4">
+          <aside className="col-span-12 md:col-auto">
             <div className="md:sticky md:top-24"> 
               <JobsSidebar
-                isOpen={sidebarOpen || window.innerWidth >= 768}
+                isOpen={computedSidebarOpen}
                 onClose={() => setSidebarOpen(false)}
-                onFilterChange={() => {}}
+                onFilterChange={(next) =>
+                  setFilters((prev) => {
+                    if (prev === next) {
+                      return prev;
+                    }
+                    return next ?? prev;
+                  })
+                }
               />
             </div>
           </aside>
 
           {/* Search + Job List */}
-          <section className="col-span-12 md:col-span-8 space-y-4 md:space-y-6">
+          <section className="col-span-12 md:col-auto space-y-4 md:space-y-6">
             {/* Search Bar */}
             <div className="bg-white rounded-lg shadow-sm p-4">
               <SearchBar
-                onSearch={({ keyword, location }) => {
-                  // Xử lý tìm kiếm ở đây
-                  console.log("Search:", keyword, "Location:", location);
-                }}
+                onSearch={({ keyword = "", location = "", locationCode = "" }) =>
+                  setSearchState((prev) => {
+                    if (
+                      prev.keyword === keyword &&
+                      prev.location === location &&
+                      prev.locationCode === locationCode
+                    ) {
+                      return prev;
+                    }
+
+                    return {
+                      keyword,
+                      location,
+                      locationCode,
+                    };
+                  })
+                }
               />
             </div>
 
             {/* Job List */}
-            <JobsList />
+            <JobsList
+              filters={filters}
+              searchQuery={searchState.keyword}
+              city={searchState.location}
+              locationCode={searchState.locationCode}
+            />
           </section>
         </div>
       </div>
