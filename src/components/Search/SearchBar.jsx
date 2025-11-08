@@ -38,11 +38,23 @@ export default function SearchBar({
   // Tự động search khi keyword hoặc location thay đổi (với debounce)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (onSearch) onSearch({ keyword, location });
+      if (!onSearch) {
+        return;
+      }
+
+      const selectedProvince = provinces.find(
+        (province) => province.code === location
+      );
+
+      onSearch({
+        keyword,
+        location: selectedProvince?.shortName || "",
+        locationCode: location || "",
+      });
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [keyword, location, onSearch]);
+  }, [keyword, location, onSearch, provinces]);
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">

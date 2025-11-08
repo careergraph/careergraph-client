@@ -20,6 +20,80 @@ const toNonNegativeNumber = (value) => {
   return numeric !== null && numeric >= 0 ? numeric : null;
 };
 
+const trimText = (value) => (typeof value === "string" ? value.trim() : "");
+
+const toUpperSnake = (value) => {
+  const input = trimText(value);
+  if (!input) {
+    return undefined;
+  }
+
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’'`]/g, "")
+    .replace(/[-\s]+/g, "_")
+    .toUpperCase();
+};
+
+const normalizeFilterArray = (values) => {
+  if (!values) {
+    return [];
+  }
+
+  const entries = Array.isArray(values) ? values : [values];
+  const result = [];
+
+  for (const entry of entries) {
+    const normalized = toUpperSnake(entry);
+    if (normalized && !result.includes(normalized)) {
+      result.push(normalized);
+    }
+  }
+
+  return result;
+};
+
+const mapClientFilters = (filters = {}, city) => {
+  const jobCategory =
+    filters.jobCategory && filters.jobCategory !== "ALL"
+      ? normalizeFilterArray(filters.jobCategory)
+      : [];
+
+  const payload = {
+    city: trimText(city) || "",
+    jobCategories: jobCategory,
+    employmentTypes: normalizeFilterArray(filters.employmentTypes),
+    experienceLevels: normalizeFilterArray(filters.experienceLevels),
+    educationTypes: normalizeFilterArray(filters.educationLevels),
+    statuses: normalizeFilterArray(filters.statuses),
+  };
+
+  return Object.keys(payload).reduce((result, key) => {
+    const value = payload[key];
+    if (Array.isArray(value)) {
+      result[key] = value;
+    } else {
+      result[key] = value ?? null;
+    }
+    return result;
+  }, {});
+};
+
+const mapSearchRequest = (options = {}) => {
+  const page = toPositiveNumber(options.page) ?? DEFAULT_PAGE;
+  const size = toPositiveNumber(options.size) ?? DEFAULT_PAGE_SIZE;
+  const query = trimText(options.keyword ?? options.query ?? "");
+  const filter = mapClientFilters(options.filters, options.city ?? options.location);
+
+  return {
+    page,
+    size,
+    query: query || null,
+    filter,
+  };
+};
+
 /**
  * Normalize pagination numbers and guard against invalid values.
  */
@@ -195,6 +269,69 @@ export const JobService = {
 
     const { items, response, error } = await fetchJobs(
       JobAPI.getJobs,
+      apiOptions
+    );
+
+    if (error?.code === "ERR_CANCELED") {
+      return {
+        jobs: [],
+        pagination: createFallbackPagination(requestMeta),
+      };
+    }
+
+    if (error) {
+      return {
+        jobs: [],
+        pagination: createFallbackPagination(requestMeta),
+      };
+    }
+
+    const pagination = resolvePagination(response, requestMeta, items.length);
+
+    return {
+      jobs: items,
+      pagination,
+    };
+  },
+
+  /** Tìm kiếm việc làm theo từ khoá, địa điểm và bộ lọc. */
+  async searchJobs(options = {}) {
+    const {
+      signal,
+      filters,
+      keyword,
+      query,
+      city,
+      location,
+      page: requestedPageValue,
+      size: requestedSizeValue,
+      ...rest
+    } = options;
+
+    const mapped = mapSearchRequest({
+      filters,
+      keyword: keyword ?? query,
+      city: city ?? location,
+      page: requestedPageValue,
+      size: requestedSizeValue,
+    });
+
+    const requestMeta = {
+      page: mapped.page,
+      size: mapped.size,
+    };
+
+    const apiOptions = {
+      ...rest,
+      signal,
+      page: Math.max(0, mapped.page - 1),
+      size: mapped.size,
+      query: mapped.query,
+      filter: mapped.filter,
+    };
+
+    const { items, response, error } = await fetchJobs(
+      JobAPI.searchJobs,
       apiOptions
     );
 
