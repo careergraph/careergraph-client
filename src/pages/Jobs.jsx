@@ -9,7 +9,7 @@ export default function Jobs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <div className="min-h-screen">
-      {/* Hero background with title and search */}
+      {/* Hero background with title */}
       <div
         className="relative -mt-24 bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${dotBanner})` }}
@@ -27,23 +27,18 @@ export default function Jobs() {
           <p className="mt-2 sm:mt-3 text-base sm:text-lg text-slate-400">
             Hơn 1,000+ tin tuyển dụng được cập nhật hàng ngày
           </p>
-
-          {/* Search area */}
-          <div className="mt-4 sm:mt-6 w-full">
-            <SearchBar
-              onSearch={({ keyword }) => {
-                // Xử lý tìm kiếm ở đây
-                alert(keyword);
-              }}
-            />
-          </div>
         </div>
       </div>
 
+      {/* Banner quảng cáo - Full width */}
+      <div className="w-full mb-6">
+        <BannerSlider />
+      </div>
+
       {/* Row: sidebar (4) + content (8) */}
-      <div className="mx-auto max-w-7xl px-2 sm:px-4 md:px-6 lg:px-8 mt-4 mb-10">
+      <div className="mx-auto max-w-7xl mb-10">
         {/* Nút mở sidebar trên mobile */}
-        <div className="md:hidden flex justify-end mb-4">
+        <div className="md:hidden flex justify-end mb-4 px-4">
           <button
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition"
             onClick={() => setSidebarOpen(true)}
@@ -52,10 +47,10 @@ export default function Jobs() {
             Bộ lọc
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-12">
           {/* Sidebar */}
-          <aside className="order-2 md:order-1 col-span-12 md:col-span-4">
-            <div className="md:sticky md:top-24">
+          <aside className="col-span-12 md:col-span-4">
+            <div className="md:sticky md:top-24"> 
               <JobsSidebar
                 isOpen={sidebarOpen || window.innerWidth >= 768}
                 onClose={() => setSidebarOpen(false)}
@@ -64,10 +59,17 @@ export default function Jobs() {
             </div>
           </aside>
 
-          {/* Banner + Job List */}
-          <section className="order-1 md:order-2 col-span-12 md:col-span-8 space-y-4 md:space-y-6">
-            {/* Banner */}
-            <BannerSlider />
+          {/* Search + Job List */}
+          <section className="col-span-12 md:col-span-8 space-y-4 md:space-y-6">
+            {/* Search Bar */}
+            <div className="bg-white rounded-lg shadow-sm p-4">
+              <SearchBar
+                onSearch={({ keyword, location }) => {
+                  // Xử lý tìm kiếm ở đây
+                  console.log("Search:", keyword, "Location:", location);
+                }}
+              />
+            </div>
 
             {/* Job List */}
             <JobsList />
