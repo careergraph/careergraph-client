@@ -1,98 +1,123 @@
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { Pencil } from "lucide-react";
+import ProfileCard from "../components/ProfileDashboard/ProfileCard/ProfileCard";
+import CVCards from "../components/ProfileDashboard/CVCard";
+import JobCriteriaCard from "../components/ProfileDashboard/JobCriteria/JobCriteria";
+import WorkExperienceCard from "../components/ProfileDashboard/WorkExperienceCard";
+import EducationCard from "../components/ProfileDashboard/EducationCard";
+import SkillsCard from "../components/ProfileDashboard/SkillsCard";
 
-export default function Profile() {
-  const { user, isAuthenticated } = useAuth();
+
+export default function Profile({className}) {
+
+  async function uploadToServer(file) {
+    // TODO: gọi API, lấy URL… (ví dụ)
+    // const url = await api.upload(file)
+    // return url
+  }
+
+  const [criteria, setCriteria] = useState({
+    title: "ssss",
+    industries: [],
+    locations: [],
+    salaryMin: null,
+    salaryMax: null,
+    workTypes: [],
+  });
+
+  const [generalInfo, setGeneralInfo] = useState({
+    hasExp: false,   // false -> “Chưa có kinh nghiệm”
+    years: null,     // string, vd: "1 năm"
+    level: "",       // string, vd: "Nhân viên"
+    education: "",   // string, vd: "Đại học"
+  });
+
+
+  const [experiences, setExperiences] = useState([
+    {
+      id: "1",
+      company: "Công ty B",
+      title: "BE",
+      start: "2023-02",
+      end: "2025-01",
+      isCurrent: false,
+      desc: "phát triển",
+    },
+  ]);
+
+   const [educationList, setEducationList] = useState([
+    {
+      id: "1",
+      school: "Trường Đại học Sư phạm Kỹ thuật TP. HCM",
+      major: "IT phần mềm",
+      degree: "Đại học",
+      startYear: "2019",
+      endYear: "2020",
+      desc: "ssssss"
+    },
+    {
+      id: "2",
+      school: "Trường Đại học Sư phạm Kỹ thuật TP. HCM",
+      major: "IT phần mềm",
+      degree: "Đại học",
+      startYear: "2019",
+      endYear: "2020",
+      desc: "ssssss"
+    },
+  ]);
+
+
+  const [skills, setSkills] = useState([
+    "Java", "Spring Boot", "ReactJS", "NodeJS"
+  ]);
+  
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            Thông tin cá nhân
-          </h1>
-          
-          {isAuthenticated && user ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Họ và tên
-                  </label>
-                  <div className="p-3 bg-gray-50 rounded-md border">
-                    {user.fullName || 'Chưa cập nhật'}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <div className="p-3 bg-gray-50 rounded-md border">
-                    {user.email}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ID người dùng
-                  </label>
-                  <div className="p-3 bg-gray-50 rounded-md border">
-                    {user.id || 'N/A'}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Trạng thái tài khoản
-                  </label>
-                  <div className="p-3 bg-green-50 text-green-700 rounded-md border border-green-200">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                      Đã xác thực
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Thông tin bổ sung
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ngày tạo tài khoản
-                    </label>
-                    <div className="p-3 bg-gray-50 rounded-md border">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cập nhật lần cuối
-                    </label>
-                    <div className="p-3 bg-gray-50 rounded-md border">
-                      {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString('vi-VN') : 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">
-                  Chỉnh sửa thông tin
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Không thể tải thông tin người dùng</p>
-            </div>
-          )}
+    <div className={`flex w-full ${className} `}>
+      <div className="flex-1 px-6">
+        {/* Hồ sơ */}
+        <div className="text-lg font-bold text-slate-900 mb-3"> Hồ sơ của tôi</div>
+        <div className=" mx-auto mb-4">
+          <ProfileCard />
         </div>
+
+        <CVCards
+          initialFiles={[
+            {
+              name: "InternJava_LuongQuangThinh_1_1759043935740.pdf",
+              url: "#",
+              uploadedAt: "2025-09-28T14:18:48+07:00",
+            },
+          ]}
+          onUpload={uploadToServer}
+          onRemove={(item) => console.log("Removed:", item)}
+          onView={(item) => window.open(item.url || "#", "_blank")}
+        />
+
+        <JobCriteriaCard
+          value={criteria}
+          onSave={(v) => setCriteria(v)}
+          className="mt-4"
+        />
+
+        <WorkExperienceCard
+          value={experiences}
+          onChange={setExperiences}
+          className="mt-4"
+        />
+
+
+        <div className="mt-4">
+          <EducationCard value={educationList} onChange={setEducationList} />
+        </div>
+
+        <div className="mt-4">
+          <SkillsCard value={skills} onChange={setSkills} />
+        </div>
+
+    
       </div>
+
     </div>
   );
 }

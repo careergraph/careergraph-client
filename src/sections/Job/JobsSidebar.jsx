@@ -1,42 +1,82 @@
 import React, { useState } from "react";
-import { Search, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+
+const EXPERIENCE_LEVELS = [
+  { value: "ENTRY", label: "Mới vào nghề" },
+  { value: "INTERN", label: "Thực tập sinh" },
+  { value: "MIDDLE", label: "Chuyên viên" },
+  { value: "FRESHER", label: "Mới tốt nghiệp" },
+  { value: "JUNIOR", label: "Nhân viên Junior" },
+  { value: "SENIOR", label: "Nhân viên Senior" },
+  { value: "LEADER", label: "Trưởng nhóm" },
+  { value: "CTO", label: "Giám đốc công nghệ" },
+  { value: "CFO", label: "Giám đốc tài chính" },
+];
+
+const EMPLOYMENT_TYPES = [
+  { value: "FULL_TIME", label: "Toàn thời gian" },
+  { value: "PART_TIME", label: "Bán thời gian" },
+  { value: "CONTRACT", label: "Hợp đồng" },
+  { value: "INTERNSHIP", label: "Thực tập" },
+  { value: "FREELANCE", label: "Làm tự do" },
+  { value: "TEMPORARY", label: "Tạm thời" },
+];
+
+const JOB_CATEGORIES = [
+  {
+    value: "ALL",
+    label: "Tất cả ngành nghề",
+  },
+  {
+    value: "ENGINEER",
+    label: "Kỹ thuật",
+  },
+  {
+    value: "BUSINESS",
+    label: "Kinh doanh",
+  },
+  {
+    value: "ART_MUSIC",
+    label: "Nghệ thuật & Âm nhạc",
+  },
+  {
+    value: "ADMINISTRATION",
+    label: "Hành chính",
+  },
+  {
+    value: "SALES",
+    label: "Bán hàng",
+  },
+  {
+    value: "EDUCATION",
+    label: "Giáo dục",
+  },
+];
+
+const EDUCATION_LEVELS = [
+  { value: "HIGH_SCHOOL", label: "Trung học phổ thông" },
+  { value: "ASSOCIATE_DEGREE", label: "Cao đẳng" },
+  { value: "BACHELORS_DEGREE", label: "Đại học" },
+  { value: "MASTERS_DEGREE", label: "Thạc sĩ" },
+  { value: "DOCTORATE", label: "Tiến sĩ" },
+  { value: "OTHER", label: "Khác" },
+];
 
 const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
   const [expandedSections, setExpandedSections] = useState({
-    search: true,
     category: true,
-    price: true,
-    rating: true,
-    brand: true,
+    salary: true,
+    experience: true,
+    employment: true,
+    education: true,
   });
 
   const [filters, setFilters] = useState({
-    search: "",
-    category: "All",
-    priceRange: [0, 3000],
-    rating: [],
-    brand: [],
+    jobCategory: "ALL",
+    experienceLevels: [],
+    employmentTypes: [],
+    educationLevels: [],
   });
-
-  const categories = [
-    "Tất cả",
-    "Công nghệ thông tin",
-    "Marketing/PR",
-    "Kinh doanh/Bán hàng",
-    "Chăm sóc khách hàng",
-    "Tài chính/Kế toán",
-    "Nhân sự/Hành chính",
-    "Giáo dục/Đào tạo",
-  ];
-  const brands = [
-    "Full-time",
-    "Remote",
-    "Part-time",
-    "On-site",
-    "Internship",
-    "Hybrid",
-  ];
-  const ratings = ["Fresher", "1-3 năm", "3-5 năm", "Trên 5 năm"];
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -45,59 +85,53 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
     }));
   };
 
-  const handleFilterChange = (key, value) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  const updateFilters = (next) => {
+    setFilters(next);
+    if (onFilterChange) {
+      onFilterChange(next);
+    }
   };
 
-  const handlePriceChange = (index, value) => {
-    const newPriceRange = [...filters.priceRange];
-    newPriceRange[index] = parseInt(value);
-    handleFilterChange("priceRange", newPriceRange);
+  const toggleMultiValue = (key, value) => {
+    const existing = filters[key] || [];
+    const next = existing.includes(value)
+      ? existing.filter((item) => item !== value)
+      : [...existing, value];
+    updateFilters({ ...filters, [key]: next });
   };
 
-  const handleRatingChange = (rating) => {
-    const newRatings = filters.rating.includes(rating)
-      ? filters.rating.filter((r) => r !== rating)
-      : [...filters.rating, rating];
-    handleFilterChange("rating", newRatings);
-  };
-
-  const handleBrandChange = (brand) => {
-    const newBrands = filters.brand.includes(brand)
-      ? filters.brand.filter((b) => b !== brand)
-      : [...filters.brand, brand];
-    handleFilterChange("brand", newBrands);
+  const handleSelectCategory = (value) => {
+    updateFilters({ ...filters, jobCategory: value });
   };
 
   const clearAllFilters = () => {
     const clearedFilters = {
-      search: "",
-      category: "All",
-      priceRange: [0, 3000],
-      rating: [],
-      brand: [],
+      jobCategory: "ALL",
+      experienceLevels: [],
+      employmentTypes: [],
+      educationLevels: [],
     };
-    setFilters(clearedFilters);
-    onFilterChange(clearedFilters);
+    updateFilters(clearedFilters);
   };
 
   const FilterSection = ({ title, sectionKey, children }) => (
-    <div className="bg-slate-50 rounded-xl p-4 mb-5 shadow-sm border border-slate-100">
+    <div className="pb-5 mb-5 border-b border-slate-200 last:border-0">
       <button
         onClick={() => toggleSection(sectionKey)}
-        className="flex items-center justify-between w-full text-left font-semibold text-indigo-700 mb-3 transition hover:text-indigo-900"
+        className="flex items-center justify-between w-full text-left font-semibold text-slate-800 mb-4 hover:text-indigo-600 transition-colors group"
       >
-        <span>{title}</span>
+        <span className="flex items-center gap-2">
+          {title}
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+        </span>
         {expandedSections[sectionKey] ? (
-          <ChevronUp size={18} className="text-indigo-400 transition" />
+          <ChevronUp size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
         ) : (
-          <ChevronDown size={18} className="text-indigo-400 transition" />
+          <ChevronDown size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
         )}
       </button>
       <div
-        className={`transition-all duration-300 ${
+        className={`transition-all duration-200 ${
           expandedSections[sectionKey]
             ? "max-h-[500px] opacity-100"
             : "max-h-0 opacity-0 overflow-hidden"
@@ -123,157 +157,143 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
         className={`
           fixed lg:relative lg:translate-x-0 z-50 lg:z-auto
           top-0 left-0 h-full w-80 max-w-[95vw]
-          bg-gradient-to-br from-white via-indigo-50 to-white shadow-2xl lg:shadow-md
-          lg:rounded-2xl lg:border lg:border-slate-200
+          bg-white
+          lg:border-r-2 lg:border-slate-100
+          shadow-xl lg:shadow-none
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="p-7 h-full overflow-y-auto">
+        <div className="p-6 h-full overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-7">
-            <div className="flex items-center gap-3">
-              <span className="bg-indigo-100 p-2 rounded-full shadow">
-                <Filter size={22} className="text-indigo-600" />
-              </span>
-              <h3 className="font-bold text-xl text-indigo-700 tracking-tight">
-                Bộ lọc
+          <div className="flex items-center justify-between mb-6 pb-5 border-b-2 border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 bg-indigo-50 rounded-lg">
+                <Filter size={18} className="text-indigo-600" />
+              </div>
+              <h3 className="font-bold text-lg text-slate-800">
+                Bộ lọc tìm kiếm
               </h3>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={clearAllFilters}
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors px-3 py-1 rounded-lg bg-indigo-50"
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
               >
                 Xoá tất cả
               </button>
               <button
                 onClick={onClose}
-                className="lg:hidden p-2 hover:bg-slate-100 rounded-full"
+                className="lg:hidden p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
               >
-                <X size={20} />
+                <X size={18} className="text-slate-600" />
               </button>
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Job categories */}
           <FilterSection title="Ngành nghề" sectionKey="category">
-            <div className="space-y-2">
-              {categories.map((category) => (
+            <div className="space-y-2.5">
+              {JOB_CATEGORIES.map(({ value, label }) => (
                 <label
-                  key={category}
-                  className="flex items-center cursor-pointer px-2 py-1 rounded-lg hover:bg-indigo-50 transition"
+                  key={value}
+                  className="flex items-center cursor-pointer group"
                 >
-                  <input
-                    type="radio"
-                    name="category"
-                    value={category}
-                    checked={filters.category === category}
-                    onChange={(e) =>
-                      handleFilterChange("category", e.target.value)
-                    }
-                    className="mr-3 text-indigo-600 focus:ring-indigo-500 accent-indigo-500"
-                  />
-                  <span
-                    className={`text-sm ${
-                      filters.category === category
-                        ? "text-indigo-700 font-semibold"
-                        : "text-slate-700"
-                    }`}
-                  >
-                    {category}
-                  </span>
+                  <div className="flex items-center gap-2.5 w-full py-1">
+                    <input
+                      type="radio"
+                      name="jobCategory"
+                      value={value}
+                      checked={filters.jobCategory === value}
+                      onChange={() => handleSelectCategory(value)}
+                      className="w-4 h-4 text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
+                    />
+                    <span className={`text-sm transition-colors ${
+                      filters.jobCategory === value 
+                        ? "text-indigo-600 font-medium" 
+                        : "text-slate-700 group-hover:text-slate-900"
+                    }`}>
+                      {label}
+                    </span>
+                  </div>
                 </label>
               ))}
             </div>
           </FilterSection>
 
-          {/* Price Range */}
-          <FilterSection title="Mức lương (triệu/tháng)" sectionKey="price">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder="Tối thiểu"
-                  value={filters.priceRange[0]}
-                  onChange={(e) => handlePriceChange(0, e.target.value)}
-                  className="w-full px-3 py-2 border border-indigo-100 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
-                />
-                <span className="text-slate-400">-</span>
-                <input
-                  type="number"
-                  placeholder="Tối đa"
-                  value={filters.priceRange[1]}
-                  onChange={(e) => handlePriceChange(1, e.target.value)}
-                  className="w-full px-3 py-2 border border-indigo-100 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
-                />
-              </div>
-              <div className="relative">
-                <input
-                  type="range"
-                  min="0"
-                  max="3000"
-                  step="50"
-                  value={filters.priceRange[1]}
-                  onChange={(e) => handlePriceChange(1, e.target.value)}
-                  className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer"
-                />
-                <div className="flex justify-between text-xs text-indigo-400 mt-1">
-                  <span>0</span>
-                  <span>{filters.priceRange[1]}+</span>
-                </div>
-              </div>
-            </div>
-          </FilterSection>
-
-          {/* Rating */}
-          <FilterSection title="Kinh nghiệm" sectionKey="rating">
-            <div className="space-y-2">
-              {ratings.map((exp) => (
+          {/* Experience levels */}
+          <FilterSection title="Kinh nghiệm làm việc" sectionKey="experience">
+            <div className="space-y-2.5">
+              {EXPERIENCE_LEVELS.map(({ value, label }) => (
                 <label
-                  key={exp}
-                  className="flex items-center cursor-pointer px-2 py-1 rounded-lg hover:bg-indigo-50 transition"
+                  key={value}
+                  className="flex items-center cursor-pointer group"
                 >
-                  <input
-                    type="checkbox"
-                    checked={filters.rating.includes(exp)}
-                    onChange={() => handleRatingChange(exp)}
-                    className="mr-3 text-indigo-600 focus:ring-indigo-500 accent-indigo-500"
-                  />
-                  <span
-                    className={`text-sm ${
-                      filters.rating.includes(exp)
-                        ? "text-indigo-700 font-semibold"
-                        : "text-slate-700"
-                    }`}
-                  >
-                    {exp}
-                  </span>
+                  <div className="flex items-center gap-2.5 w-full py-1">
+                    <input
+                      type="checkbox"
+                      checked={filters.experienceLevels.includes(value)}
+                      onChange={() => toggleMultiValue("experienceLevels", value)}
+                      className="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
+                    />
+                    <span className={`text-sm transition-colors ${
+                      filters.experienceLevels.includes(value)
+                        ? "text-indigo-600 font-medium"
+                        : "text-slate-700 group-hover:text-slate-900"
+                    }`}>
+                      {label}
+                    </span>
+                  </div>
                 </label>
               ))}
             </div>
           </FilterSection>
 
-          {/* Brands */}
-          <FilterSection title="Hình thức làm việc" sectionKey="brand">
+          {/* Employment types */}
+          <FilterSection title="Hình thức làm việc" sectionKey="employment">
             <div className="flex flex-wrap gap-2">
-              {brands.map((brand) => (
+              {EMPLOYMENT_TYPES.map(({ value, label }) => (
                 <button
-                  key={brand}
-                  onClick={() => handleBrandChange(brand)}
-                  className={`px-4 py-1.5 text-sm rounded-full border font-medium shadow-sm transition flex items-center gap-1
+                  key={value}
+                  onClick={() => toggleMultiValue("employmentTypes", value)}
+                  className={`px-3.5 py-2 text-sm rounded-lg border-2 font-medium transition-all
                     ${
-                      filters.brand.includes(brand)
-                        ? "bg-indigo-100 text-indigo-700 border-indigo-300 scale-105"
-                        : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50"
+                      filters.employmentTypes.includes(value)
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                        : "bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:text-indigo-600"
                     }
                   `}
                 >
-                  {filters.brand.includes(brand) && (
-                    <span className="w-2 h-2 bg-indigo-400 rounded-full mr-1"></span>
-                  )}
-                  {brand}
+                  {label}
                 </button>
+              ))}
+            </div>
+          </FilterSection>
+
+          {/* Education levels */}
+          <FilterSection title="Trình độ học vấn" sectionKey="education">
+            <div className="space-y-2.5">
+              {EDUCATION_LEVELS.map(({ value, label }) => (
+                <label
+                  key={value}
+                  className="flex items-center cursor-pointer group"
+                >
+                  <div className="flex items-center gap-2.5 w-full py-1">
+                    <input
+                      type="checkbox"
+                      checked={filters.educationLevels.includes(value)}
+                      onChange={() => toggleMultiValue("educationLevels", value)}
+                      className="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0"
+                    />
+                    <span className={`text-sm transition-colors ${
+                      filters.educationLevels.includes(value)
+                        ? "text-indigo-600 font-medium"
+                        : "text-slate-700 group-hover:text-slate-900"
+                    }`}>
+                      {label}
+                    </span>
+                  </div>
+                </label>
               ))}
             </div>
           </FilterSection>
