@@ -8,6 +8,7 @@ import {
 import JobHeader from "~/sections/JobDetail/JobHeader";
 import CompanyCard from "~/sections/JobDetail/CompanyCard";
 import SimilarJobsList from "~/sections/JobDetail/SimilarJobsList";
+import CtaBanner from "~/sections/JobDetail/CtaBanner";
 import JobSections from "~/sections/JobDetail/JobSections";
 import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { useState, useEffect } from "react";
@@ -455,6 +456,9 @@ export default function JobDetailPage() {
           />
         </aside>
       </div>
+
+      {/* ---------- Promotional CTA (full width, above footer) ---------- */}
+      <CtaBanner job={job} />
 
       <ApplyDialog
         open={isApplyDialogOpen}
