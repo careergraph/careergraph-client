@@ -1,9 +1,10 @@
-import React from "react";
 import { DollarSign, MapPin, Sparkles } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 import cardSectionCompanyAccessed from "../../assets/icons/company-accessed.svg";
 
 function JobCardPersonal({ job }) {
+  const navigate = useNavigate();
+
   if (!job) return null;
 
   const extractDistrictProvince = (loc) => {
@@ -37,6 +38,9 @@ function JobCardPersonal({ job }) {
     return false;
   })();
 
+  // View job details handler
+  const handleViewJob = () => navigate(`/jobs/${job.id}`);
+
   return (
     <div className="group relative w-full max-w-[300px] rounded-2xl border border-slate-100 bg-white/90 p-5 pt-6 text-gray-900 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-lg">
       {isNewJob ? (
@@ -51,7 +55,7 @@ function JobCardPersonal({ job }) {
         </span>
       )}
 
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3" onClick={handleViewJob}>
         <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
           <img
             src={job.photoUrl || cardSectionCompanyAccessed}

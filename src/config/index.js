@@ -39,7 +39,7 @@ export const apiConfig = {
       popular: "/jobs/popular",
       personalized: "/jobs/personalized",
       similar: "/jobs/:id/similar",
-      apply: "/jobs/:id/applications",
+      apply: "/jobs/:id/application",
     },
     user: {
       me: "/candidates/me",
@@ -64,6 +64,11 @@ export const apiConfig = {
       upload: "/media/file",
       list: "/media",
     },
+    applications: {
+      list: "/applications",
+      detail: "/applications/:id",
+      updateStatus: "/applications/:id/status",
+    }
   },
 };
 
