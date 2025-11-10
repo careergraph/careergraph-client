@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
 
 const DEFAULT_PAGE_SIZE = 10;
 const JOBS_PAGE_KEY = "jobs_current_page"; // Key để lưu page hiện tại
 
-const JobsList = () => {
+const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = "" }) => {
   // Khởi tạo page từ sessionStorage (nếu có) hoặc mặc định là 1
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,6 +23,17 @@ const JobsList = () => {
   const totalPages = meta.totalPages ?? 1;
   const canGoPrev = page > 1;
   const canGoNext = page < totalPages;
+  const initialFiltersSyncRef = useRef(true);
+
+  useEffect(() => {
+    if (initialFiltersSyncRef.current) {
+      initialFiltersSyncRef.current = false;
+      return;
+    }
+
+    setPage(1);
+    sessionStorage.setItem(JOBS_PAGE_KEY, "1");
+  }, [filters, searchQuery, city, locationCode]);
 
   // Trigger a page change while recording the transition target for UI feedback.
   const handlePageChange = (nextPage) => {
@@ -54,8 +65,12 @@ const JobsList = () => {
           window.scrollTo({ top: 300, behavior: "smooth" });
         }
 
-        const { jobs: data, pagination } = await JobService.fetchAllJobs({
+        const { jobs: data, pagination } = await JobService.searchJobs({
           signal: controller.signal,
+          filters,
+          keyword: searchQuery,
+          city,
+          location: locationCode,
           page,
           size: pageSize,
         });
@@ -107,7 +122,7 @@ const JobsList = () => {
       isMounted = false;
       controller.abort();
     };
-  }, [page, pageSize]);
+  }, [page, pageSize, filters, searchQuery, city, locationCode]);
 
   // Hide the overlay once the new page has finished loading.
   useEffect(() => {

@@ -8,11 +8,13 @@ import {
 import JobHeader from "~/sections/JobDetail/JobHeader";
 import CompanyCard from "~/sections/JobDetail/CompanyCard";
 import SimilarJobsList from "~/sections/JobDetail/SimilarJobsList";
+import CtaBanner from "~/sections/JobDetail/CtaBanner";
 import JobSections from "~/sections/JobDetail/JobSections";
 import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "~/services/jobService";
+import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -196,6 +198,8 @@ export default function JobDetailPage() {
   // State cho danh sách việc làm tương tự
   const [similarJobs, setSimilarJobs] = useState([]);
   const [loadingSimilarJobs, setLoadingSimilarJobs] = useState(false);
+
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
 
   // ==================== LOAD DỮ LIỆU TỪ API ====================
   useEffect(() => {
@@ -408,6 +412,7 @@ export default function JobDetailPage() {
             highlights={highlights}
             stats={stats}
             tags={tags}
+            onApply={() => setIsApplyDialogOpen(true)}
           />
 
           {/* Sections: Mô tả, yêu cầu, quyền lợi */}
@@ -451,6 +456,17 @@ export default function JobDetailPage() {
           />
         </aside>
       </div>
+
+      {/* ---------- Promotional CTA (full width, above footer) ---------- */}
+      <CtaBanner job={job} />
+
+      <ApplyDialog
+        open={isApplyDialogOpen}
+        onClose={() => setIsApplyDialogOpen(false)}
+        jobId={id}
+        jobTitle={job.title}
+        coverLetterRequired={Boolean(job.applicationRequirements?.coverLetter)}
+      />
     </div>
   );
 }

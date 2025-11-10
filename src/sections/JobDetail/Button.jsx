@@ -1,10 +1,18 @@
-import { Heart } from "lucide-react";
-
-export function PrimaryButton({ text = "Ứng tuyển ngay", onClick , className}) {
+export function PrimaryButton({
+  text = "Ứng tuyển ngay",
+  onClick,
+  className,
+  disabled = false,
+}) {
   return (
     <button
       onClick={onClick}
-      className={` ${className} inline-flex items-center justify-center rounded-xl bg-indigo-600 text-white px-5 py-3 font-semibold hover:bg-indigo-700 transition shadow-sm`}
+      disabled={disabled}
+      className={`${className ?? ""} inline-flex items-center justify-center rounded-xl px-5 py-3 font-semibold shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${
+        disabled
+          ? "cursor-not-allowed bg-slate-300 text-white"
+          : "bg-indigo-600 text-white hover:bg-indigo-700"
+      }`}
     >
       {text}
     </button>
