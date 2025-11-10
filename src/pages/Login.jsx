@@ -56,7 +56,6 @@ export default function Login() {
     }
 
     const result = await login(formData.email, formData.password);
-    console.log(result)
     if (result.success) {
       // Đăng nhập thành công, chuyển về trang chủ
       navigate(from, { replace: true });

@@ -33,7 +33,6 @@ export default function VerifyOtp() {
     try {
       const fetchOtpTtl  = async () => {
         const res = await AuthAPI.getTtlOtp({email: email})
-        console.log(res)
         setTimeLeft(res?.data)
         }
       fetchOtpTtl();
@@ -97,7 +96,6 @@ export default function VerifyOtp() {
 
   const submit = async (e) => {
     e?.preventDefault?.();
-    console.log(otpValue)
     setError("");
     if (otpValue.length !== 6) {
       setError("Vui lòng nhập đầy đủ 6 chữ số!");
@@ -115,13 +113,11 @@ export default function VerifyOtp() {
       if (res?.status === "OK") {
         toast.success("Xác thực thành công")
         // Xác thực thành công → điều hướng
-        console.log(redirectTo)
         navigate(redirectTo, { replace: true, state: { email } });
       } else {
         setError(res?.message || "OTP không hợp lệ!");
       }
     } catch (err) {
-      console.log(err)
       setError(err?.response?.data?.message ? "OTP không hợp lệ!" : "Có lỗi xảy ra. Vui lòng thử lại!");
     } finally {
       setSubmitting(false);

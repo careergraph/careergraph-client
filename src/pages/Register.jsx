@@ -58,7 +58,6 @@ export default function Register() {
     // Gọi hàm register từ AuthContext
     const result = await register(formData.fullName, formData.email, formData.password);
     
-    console.log(result)
     if (result.success) {
       toast.success("Đăng ký thành công")
       setEmailVerifyCurrent(formData.email)

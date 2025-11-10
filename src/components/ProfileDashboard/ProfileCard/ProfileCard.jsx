@@ -164,7 +164,6 @@ export default function ProfileCard() {
       toast.success("Cập nhật ảnh đại diện thành công");
       
     }catch(err){
-      console.log(err)
       toast.error(err.message || "Cập nhật thất bại")
     }
 
