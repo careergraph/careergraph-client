@@ -46,6 +46,40 @@ export const JobAPI = {
   },
 
   /**
+   * Gọi API tìm kiếm việc làm với bộ lọc nâng cao.
+   */
+  searchJobs({ signal, page, size, query, filter } = {}) {
+    const searchParams = new URLSearchParams();
+
+    const appendParam = (key, value) => {
+      if (value === undefined) {
+        return;
+      }
+      searchParams.set(key, value ?? "");
+    };
+
+    appendParam("page", page);
+    appendParam("size", size);
+    appendParam("query", query);
+
+    const path = searchParams.toString()
+      ? `${apiConfig.endpoints.jobs.search}?${searchParams.toString()}`
+      : apiConfig.endpoints.jobs.search;
+
+    const payload =
+      filter && typeof filter === "object" && !Array.isArray(filter)
+        ? filter
+        : {};
+
+    return http(path, {
+      method: "POST",
+      auth: false,
+      body: payload,
+      signal,
+    });
+  },
+
+  /**
    * Gọi API lấy danh sách việc làm phổ biến (endpoint public nên không cần token).
    */
   getPopularJobs({ signal } = {}) {
@@ -139,6 +173,24 @@ export const JobAPI = {
       method: "GET",
       auth: false,
       signal,
+    });
+  },
+
+  /**
+   * Gửi đơn ứng tuyển cho một job cụ thể.
+   * Lưu ý: cập nhật `apiConfig.endpoints.jobs.apply` nếu BE dùng đường dẫn khác.
+   */
+  applyToJob(id, payload = {}) {
+    if (!id) {
+      return Promise.reject(new Error("Job id is required"));
+    }
+
+    const path = apiConfig.endpoints.jobs.apply.replace(":id", id);
+
+    return http(path, {
+      method: "POST",
+      body: payload,
+      auth: true,
     });
   },
 };
