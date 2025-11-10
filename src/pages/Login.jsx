@@ -2,9 +2,18 @@ import { useState } from 'react';
 import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/store/authStore';
+import { toast } from 'sonner';
+import { setEmailVerifyCurrent } from '~/utils/storage';
 
 export default function Login() {
   
+
+  const errorMap = {
+    "Invalid password": "Sai mật khẩu.",
+    "Account not found": "Tài khoản không tồn tại. Vui lòng đăng ký mới.",
+    "Account locked": "Tài khoản đã bị khóa.",
+    "Email not verified": "Email chưa xác thực. Vui lòng xác thực",
+  };
   // State để lưu thông tin form
   const [formData, setFormData] = useState({
     email: '',
@@ -47,13 +56,31 @@ export default function Login() {
     }
 
     const result = await login(formData.email, formData.password);
-   
+    console.log(result)
     if (result.success) {
       // Đăng nhập thành công, chuyển về trang chủ
       navigate(from, { replace: true });
     } else {
-      // Hiển thị lỗi
-      setError(result.message);
+      const message = result?.error.response?.data?.message;
+      const statusCode =  result?.error.response?.status;
+      if(statusCode === 505 || message === "Email not verified" ){
+        //OTPExpiredIn: 300s
+        setEmailVerifyCurrent(formData.email)
+        toast.error(errorMap[message])
+        navigate("/verify-otp", {
+          replace: true,
+          state: {
+            purpose: "verify_email",
+            redirectTo: "/login",
+            // expiresIn: res?.data ?? 120,
+          }
+        })
+      }
+      else{
+        // Hiển thị lỗi
+        setError(errorMap[message] || "Đã xảy ra lỗi, vui lòng thử lại.");
+      }
+      
     }
   };
 
