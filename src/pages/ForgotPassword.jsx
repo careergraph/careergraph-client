@@ -25,11 +25,9 @@ export default function ForgotPassword() {
       setSubmitting(true);
       // const res = await requestOtpApi({ email, purpose: "reset_password" });
       const res = await AuthAPI.forgotPassword({ email, purpose: "reset_password" });
-      console.log(res)
       if (res?.status === "OK") {
         toast.success("Đã gửi mã OTP thành công")
         setEmailVerifyCurrent(email)
-        console.log(res)
         navigate("/verify-otp", {
           replace: true,
           state: {
