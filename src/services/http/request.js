@@ -60,7 +60,7 @@ export async function refreshAccessToken() {
       data?.data?.accessToken || data?.accessToken || data?.token;
 
     if (!nextAccess) {
-      throw new Error("Không nhận được token mới");
+      // throw new Error("Không nhận được token mới");
     }
 
     // lưu token mới
