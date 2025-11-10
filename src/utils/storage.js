@@ -15,3 +15,16 @@ export function removeToken() {
   memoryAccessToken = null;
   // localStorage.removeItem("authToken");
 }
+
+export function setEmailVerifyCurrent(email){
+  localStorage.setItem("emailVerifyCurrent", email)
+}
+export function getEmailVerifyCurrent(){
+  return {
+    email: localStorage.getItem("emailVerifyCurrent"),
+  }
+  
+}
+export function removeEmailVerifyCurrent(){
+  localStorage.removeItem("emailVerifyCurrent")
+}

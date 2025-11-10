@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/store/authStore';
+import { toast } from 'sonner';
+import { setEmailVerifyCurrent } from '~/utils/storage';
 
 export default function Register() {
   // State để lưu thông tin form
@@ -57,11 +59,16 @@ export default function Register() {
     const result = await register(formData.fullName, formData.email, formData.password);
     
     if (result.success) {
-      setSuccess(result.message);
-      // Sau 2 giây chuyển về trang login
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      toast.success("Đăng ký thành công")
+      setEmailVerifyCurrent(formData.email)
+      navigate('/verify-otp', {
+        replace: true,
+        state: {
+          purpose: "verify_email_register",
+          redirectTo: "/login",
+          // expiresIn: res?.data ?? 120,
+        }
+      })
     } else {
       setError(result.message);
     }
