@@ -19,6 +19,9 @@ export const routes = {
   waitingJobs: "/jobs/waiting",
   jobAlerts: "/jobs/alerts",
   employersViews: "/employers/views",
+  forgotPassword: "/forgot-password",
+  verifyOtp: "/verify-otp",
+  resetPassword: "/reset-password",
 };
 
 // Cấu hình API endpoints
@@ -30,6 +33,12 @@ export const apiConfig = {
       register: "/auth/register/candidate",
       verify: "/auth/verify",
       logout: "/auth/logout",
+      forgotPassword: "/auth/forgot-password",
+      verifyOtpRegister: "/auth/confirm-otp-register",
+      verifyOtpResetPassword: "/auth/confirm-otp-reset-password",
+      resetPassword: "auth/reset-password",
+      resendOTP: "auth/resend-otp",
+      getTtlOtp: "auth/ttl-otp",
     },
     jobs: {
       list: "/jobs",
@@ -49,6 +58,7 @@ export const apiConfig = {
       experience: "/candidates/experiences",
       education: "/candidates/educations",
       skill: "/candidates/skills",
+      
     },
     company: {
       lookup: "/companies/lookup",

@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 export const UserAPI = {
 
+  
+
   updateJobCriteria(payload){
     return http(`${apiConfig.endpoints.user.updateJobFindCriteria}`, {
       method: "PUT",
@@ -87,6 +89,10 @@ export const UserAPI = {
       method: "PUT",
       body:payload,
     });
-  }
+  },
+  
+  
+
+
   
 };

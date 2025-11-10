@@ -28,7 +28,6 @@ export const useAuthStore = create((set, get) => ({
       set({ isAuthenticated: true });
       return true;
     } catch (e) {
-      console.warn("fetchMe failed:", e);
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
@@ -75,11 +74,10 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Đăng nhập thành công!");
       return { success: true };
     } catch (e) {
-      console.error("Lỗi đăng nhập:", e);
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
-      return { success: false, message: e?.message || "Đăng nhập thất bại" };
+      return { success: false, message: e?.message, error: e || "Đăng nhập thất bại" };
     } finally {
       set({ authSubmitting: false });
     }
