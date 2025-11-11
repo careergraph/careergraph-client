@@ -52,9 +52,9 @@ export const apiConfig = {
     },
     user: {
       me: "/candidates/me",
-      updateInfo: "/candidates/update-information",
+      updateInfo: "/candidates/information",
       empty: "/candidates",
-      updateJobFindCriteria: "/candidates/update-job-find-criteria",
+      updateJobFindCriteria: "/candidates/job-find-criteria",
       experience: "/candidates/experiences",
       education: "/candidates/educations",
       skill: "/candidates/skills",

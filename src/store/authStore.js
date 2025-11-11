@@ -27,7 +27,7 @@ export const useAuthStore = create((set, get) => ({
       useUserStore.getState().setUser(userData);
       set({ isAuthenticated: true });
       return true;
-    } catch (e) {
+    } catch  {
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
@@ -84,10 +84,10 @@ export const useAuthStore = create((set, get) => ({
   },
 
   // Đăng ký
-  register: async (fullName, email, password) => {
+  register: async (firstName, lastName, email, password) => {
     set({ registerSubmitting: true, isLoading: true });
     try {
-      const payload = { fullName, email, password };
+      const payload = { firstName, lastName, email, password };
       const data = await http("/auth/register/candidate", {
         method: "POST",
         body: payload,
