@@ -319,11 +319,9 @@ export default function SkillsCard() {
     setOpen(false);
     try {
       const saved = await UserAPI.replaceSkillsForUser({skills:convertStringSkills(next)});
-      console.log(saved); 
       useUserStore.getState().updateUserPart({ skills: saved?.data })
     } catch (e) {
       setSkills(prev);
-      console.error(e);
     }
   };
 

@@ -6,7 +6,7 @@ export function AppInitializer({ children }) {
   const { initAuth, authInitializing } = useAuthStore();
 
   useEffect(() => {
-    initAuth();
+      initAuth();
   }, [initAuth]);
 
   if (authInitializing) {

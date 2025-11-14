@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { AuthAPI } from "~/services/api/auth";
 import { toast } from "sonner";
-import { getEmailVerifyCurrent, removeEmailVerifyCurrent } from "~/utils/storage";
+import { getVerifyCurrent, removeVerifyCurrent } from "~/utils/storage";
 
 
 export default function VerifyOtp() {
@@ -11,11 +11,13 @@ export default function VerifyOtp() {
   const location = useLocation();
   const state = location.state || {};
 
-  const { email } = getEmailVerifyCurrent();
+  const data  = getVerifyCurrent();
+  const email = data?.email || "";
+
   const purpose = state.purpose || "reset_password"; 
   // const initialExpiresIn = typeof state.expiresIn === "number" ? state?.expiresIn : 120;
   // const initialExpiresIn = Math.max(0, Math.floor((expiredIn - Date.now()) / 1000));
-  const redirectTo = state.redirectTo || "/";
+  const redirectTo = data?.redirectTo || "/";
 
   // Nếu không có email truyền sang, đưa về Forgot Password (hoặc trang phù hợp)
   useEffect(() => {
@@ -35,7 +37,8 @@ export default function VerifyOtp() {
         const res = await AuthAPI.getTtlOtp({email: email})
         setTimeLeft(res?.data)
         }
-      fetchOtpTtl();
+      if(email)
+        fetchOtpTtl();
     }
     catch(err){
       console.error("Lỗi khi lấy TTL OTP:", err);
@@ -45,7 +48,7 @@ export default function VerifyOtp() {
 
   useEffect(() => {
     return () => {
-      removeEmailVerifyCurrent();
+      removeVerifyCurrent();
     };
   }, []);
 

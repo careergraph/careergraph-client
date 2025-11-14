@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/store/authStore';
 import { toast } from 'sonner';
-import { setEmailVerifyCurrent } from '~/utils/storage';
+import { setVerifyCurrent } from '~/utils/storage';
 
 export default function Register() {
   // State để lưu thông tin form
@@ -61,14 +61,12 @@ export default function Register() {
     
     if (result.success) {
       toast.success("Đăng ký thành công")
-      setEmailVerifyCurrent(formData.email)
+      setVerifyCurrent({
+        email: formData.email, 
+        purpose: "verify_email_register",
+        redirectTo: "/login",})
       navigate('/verify-otp', {
         replace: true,
-        state: {
-          purpose: "verify_email_register",
-          redirectTo: "/login",
-          // expiresIn: res?.data ?? 120,
-        }
       })
     } else {
       setError(result.message);

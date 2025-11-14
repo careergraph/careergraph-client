@@ -343,9 +343,8 @@ export default function WorkExperienceCard({className }) {
   const closeModal = () => setModal({ open: false, mode: "create", editing: null });
 
   const upsert = async (payload) => {
-    if (payload?.id && experiences.some((it) => it.id === payload?.id)) {
+    if (payload?.id && experiences?.some((it) => it.id === payload?.id)) {
       const res = await UserAPI.updateExperience({experienceId: payload.id, payload:payload})
-      
       useUserStore.getState().updateUserPart({ experiences: res?.data })
     } else {
       const res = await UserAPI.addExperience(payload)

@@ -8,7 +8,7 @@ export const AuthAPI = {
     return http(`${apiConfig.endpoints.auth.forgotPassword}`, {
       method: "POST",
       body: payload
-    })
+    }) 
   },
   verifyOTPResetPassword(payload){
     
