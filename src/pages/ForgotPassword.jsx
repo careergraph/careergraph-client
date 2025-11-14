@@ -5,7 +5,7 @@ import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 // import { useAuthStore } from "~/store/authStore";
 import {AuthAPI} from "~/services/api/auth";
 import { toast } from "sonner";
-import { setEmailVerifyCurrent } from "~/utils/storage";
+import { setVerifyCurrent } from "~/utils/storage";
 
 
 export default function ForgotPassword() {
@@ -27,14 +27,9 @@ export default function ForgotPassword() {
       const res = await AuthAPI.forgotPassword({ email, purpose: "reset_password" });
       if (res?.status === "OK") {
         toast.success("Đã gửi mã OTP thành công")
-        setEmailVerifyCurrent(email)
+        setVerifyCurrent({email: email, purpose:"reset_password", redirectTo: "/reset-password"})
         navigate("/verify-otp", {
           replace: true,
-          state: {
-            purpose: "reset_password",
-            // nơi bạn muốn đưa user đến sau khi verify xong
-            redirectTo: "/reset-password", 
-          },
         });
       } else {
         setError(res?.message || "Không thể gửi OTP. Vui lòng thử lại!");

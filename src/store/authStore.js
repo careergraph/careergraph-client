@@ -10,6 +10,7 @@ import {
   normalizeContact,
 } from "~/services/domain/candidate/profile.mapper";
 
+
 export const useAuthStore = create((set, get) => ({
   isAuthenticated: false,
   authInitializing: true, // thay cho isLoading của init
@@ -41,7 +42,11 @@ export const useAuthStore = create((set, get) => ({
       const newAccess = await refreshAccessToken();
       if (newAccess) {
         setToken(newAccess);
-        await useAuthStore.getState().fetchMe();
+        if(!await useAuthStore.getState().fetchMe()){
+          set({ isAuthenticated: false });
+          removeToken();
+          return;
+        }
         set({ isAuthenticated: true });
       } else {
         removeToken();
@@ -62,18 +67,19 @@ export const useAuthStore = create((set, get) => ({
     try {
       const data = await http("/auth/login", {
         method: "POST",
-        body: { email, password },
+        body: { email, password, role: "user" },
         auth: false,
       });
       const access = data?.data?.accessToken || data?.accessToken || data;
       if (!access) throw new Error("Thiếu accessToken");
-
+      
       setToken(access);
       await get().fetchMe();
       set({ isAuthenticated: true });
       toast.success("Đăng nhập thành công!");
       return { success: true };
     } catch (e) {
+      console.log(e);
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
@@ -115,7 +121,7 @@ export const useAuthStore = create((set, get) => ({
         const ok = await get().fetchMe();
         if (!ok) await get().tryRefresh();
       } else {
-        await get().tryRefresh(); // giống logic của Context
+        await get().tryRefresh(); 
       }
     } finally {
       set({ authInitializing: false });
