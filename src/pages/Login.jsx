@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
-import { useAuthStore } from '~/store/authStore';
+import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
 

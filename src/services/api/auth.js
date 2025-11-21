@@ -1,6 +1,5 @@
 import { apiConfig } from "~/config";
 import { http } from "../http/request";
-import { toast } from "sonner";
 
 export const AuthAPI = {
 

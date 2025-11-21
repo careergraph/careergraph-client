@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AvatarUser from "~/components/DefaultData/AvatarUser";
 import ProfileDropdown from "~/components/ProfileMenu/ProfileDropdown";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 
 export default function UserAvatar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
