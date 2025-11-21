@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Crown, Sparkles } from "lucide-react";
+import { FileText, Crown } from "lucide-react";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
 import { cvTemplates } from "../data/templatesConfig";
+import TemplateCard from "../sections/CVBuilder/components/TemplateCard";
 
 export default function CVTemplates() {
   const navigate = useNavigate();
@@ -100,64 +101,14 @@ export default function CVTemplates() {
           </div>
         </div>
 
-        {/* Templates Grid - 5 columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {/* Templates Grid - 3 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTemplates.map((template) => (
-            <div
+            <TemplateCard
               key={template.id}
-              className="group bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-xl transition-all overflow-hidden cursor-pointer"
-              onClick={() => handleSelectTemplate(template.id)}
-            >
-              {/* Template Preview */}
-              <div className="relative aspect-[3/4] bg-slate-50 overflow-hidden">
-                {/* Placeholder for template preview image */}
-                <div
-                  className="w-full h-full flex items-center justify-center text-white text-6xl font-bold"
-                  style={{ backgroundColor: template.accent }}
-                >
-                  {template.name[0]}
-                </div>
-
-                {/* Premium Badge */}
-                {template.tier === "premium" && (
-                  <div className="absolute top-3 right-3">
-                    <span className="px-2 py-1 bg-yellow-400 text-slate-900 text-xs font-semibold rounded flex items-center gap-1">
-                      <Crown size={12} />
-                      Premium
-                    </span>
-                  </div>
-                )}
-
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <button className="px-4 py-2 bg-white text-slate-900 text-sm font-medium rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center gap-2">
-                    <Sparkles size={16} />
-                    Sử dụng mẫu này
-                  </button>
-                </div>
-              </div>
-
-              {/* Template Info */}
-              <div className="p-4">
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  {template.name}
-                </h3>
-                <p className="text-xs text-slate-500 line-clamp-2 mb-2">
-                  {template.description}
-                </p>
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1">
-                  {template.tags?.slice(0, 2).map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+              template={template}
+              onSelect={() => handleSelectTemplate(template.id)}
+            />
           ))}
         </div>
 

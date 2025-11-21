@@ -8,7 +8,7 @@ export default function TestimonialsSection() {
         <>
             <SectionTitle text1="Đánh giá" text2="Phản hồi từ người dùng" text3="Những chia sẻ chân thực từ người dùng về trải nghiệm tìm việc làm trên Career Graph." />
 
-            <Marquee className="max-w-5xl mx-auto mt-11" gradient={true} speed={25}>
+            <Marquee className="max-w-full mx-auto mt-11" gradient={true} speed={25}>
                 <div className="flex items-center justify-center py-5">
                     {[...testimonialsData, ...testimonialsData].map((testimonial, index) => (
                         <TestimonialCard key={index} testimonial={testimonial} />

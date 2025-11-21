@@ -45,9 +45,7 @@ export default function Jobs() {
       </div>
 
       {/* Banner quảng cáo - Full width */}
-      <div className="w-full mb-6">
-        <BannerSlider />
-      </div>
+      <BannerSlider />
 
       {/* Row: sidebar (4) + content (8) */}
       <div className="mx-auto max-w-7xl mb-10">
