@@ -40,22 +40,6 @@ function StatusBadge({ value }) {
   );
 }
 
-const applicationStatus = {
-    "APPLIED":"Application submitted",
-    "SCREENING":"Profile screening",
-    "INTERVIEW":"Interview",
-    "HR_CONTACTED":"HR contacted",
-    "INTERVIEW_SCHEDULED":"Interview scheduled",
-    "INTERVIEW_COMPLETED":"Interview completed",
-    "TRIAL":"Trial period",
-    "OFFER_EXTENDED":"Offer extended",
-    "OFFER_ACCEPTED":"Offer accepted",
-    "OFFER_DECLINED":"Offer declined",
-    "HIRED":"Officially hired",
-    "REJECTED":"Application rejected",
-    "WITHDRAWN":"Application withdrawn"
-}
-
 export function Select({ value, onChange, placeholder, options, className }) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState(null);
