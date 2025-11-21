@@ -6,7 +6,6 @@ import { EducationAPI } from "~/services/api/education";
 import { UserAPI } from "~/services/api/user";
 
 /* ---------- utils ---------- */
-const pad2 = (n) => String(n).padStart(2, "0");
 const fmtYear = (y) => (y ? String(y) : "");
 const validRange = (s, e) => !!s && !!e && Number(s) <= Number(e);
 const DEGREE_OPTIONS = ["Trung cấp", "Cao đẳng", "Đại học", "Sau đại học", "Khác"];
@@ -201,7 +200,7 @@ function EducationForm({initialValue, onSubmit }) {
         {open && options.length > 0 && (
         <div
           className="absolute left-0 right-0 z-20 -mt-px max-h-64 w-full overflow-auto
-                    rounded-xl border bg-white shadow-lg mt-2 border-violet-500"
+                    rounded-xl border bg-white shadow-lg border-violet-500"
         >
           {options.map((opt, idx) => (
             <button
