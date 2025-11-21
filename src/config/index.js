@@ -58,6 +58,7 @@ export const apiConfig = {
       experience: "/candidates/experiences",
       education: "/candidates/educations",
       skill: "/candidates/skills",
+      appliedJobs: "/candidates/applied-jobs",
       
     },
     company: {

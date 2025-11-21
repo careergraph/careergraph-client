@@ -11,6 +11,7 @@ import {
   FileBadge2,
   Bell
 } from "lucide-react";
+import { useUserStore } from "~/store/userStore";
 
 function Toggle({ checked, onChange }) {
   return (
@@ -18,7 +19,7 @@ function Toggle({ checked, onChange }) {
       type="button"
       onClick={() => onChange(!checked)}
       aria-pressed={checked}
-      className={`relative inline-flex h-7 w-[52px] items-center rounded-full transition ${
+      className={`relative inline-flex h-7 w-[47px] items-center rounded-full transition ${
         checked ? "bg-indigo-600" : "bg-slate-300"
       }`}
     >
@@ -37,6 +38,7 @@ export default function SideBar({
 }) {
   const { pathname } = useLocation();
 
+  const {user} = useUserStore();
   // Nhóm mặc định đóng. Sẽ mở nếu đang đứng trong route con của nhóm.
   const [openQLVL, setOpenQLVL] = useState(false);
   const [openNTD, setOpenNTD] = useState(false);
@@ -69,7 +71,7 @@ export default function SideBar({
   const baseItemCls =
     "w-full flex items-center justify-between rounded-xl px-3 py-3 text-left text-slate-700 hover:bg-slate-100";
 
-  const LinkItem = ({ to, icon: Icon, label }) => (
+  const LinkItem = ({ to, icon: Icon, label, has = true }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
@@ -82,7 +84,7 @@ export default function SideBar({
             <Icon size={20} className={isActive ? "text-indigo-600" : "text-slate-600"} />
             <span className="text-[15px] font-medium">{label}</span>
           </span>
-          <ChevronRight size={18} className="text-slate-400" />
+          {has&&<ChevronRight size={18} className="text-slate-400" />}
         </>
       )}
     </NavLink>
@@ -101,11 +103,14 @@ export default function SideBar({
     </NavLink>
   );
 
+ 
   return (
     <aside className={`pl-2 ${classNames}`}>
       <div className="rounded-2xl bg-white shadow-sm p-4">
         {/* Header tên */}
-        <h2 className="text-lg font-extrabold text-slate-900 mb-3">{name}</h2>
+        <h2 className="text-lg font-extrabold text-slate-900 mb-3">
+          {user?.firstName ? `${user?.lastName} ${user?.firstName} `  : "Người dùng"}
+        </h2>
 
         {/* Toggle cho phép NTD tìm */}
         <div className="mb-5 rounded-lg bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1),0_0_20px_rgba(0,0,0,0.1)] p-3 flex items-center justify-between gap-2">
@@ -117,8 +122,8 @@ export default function SideBar({
 
         {/* Menu */}
         <nav className="space-y-1">
-          <LinkItem to="/profile" icon={FileBadge2} label="Hồ sơ của tôi" />
-          <LinkItem to="/cv/decorate" icon={Palette} label="Trang trí CV" />
+          <LinkItem to="/profile" icon={FileBadge2} label="Hồ sơ của tôi" has={false} />
+          <LinkItem to="/cv/decorate" icon={Palette} label="Trang trí CV" has={false} />
 
           {/* Quản lý việc làm */}
           <button
@@ -196,7 +201,7 @@ export default function SideBar({
             </div>
           )}
 
-          <LinkItem to="/account" icon={UserRound} label="Quản lý tài khoản" />
+          <LinkItem to="/account" icon={UserRound} label="Quản lý tài khoản" has={false} />
         </nav>
       </div>
     </aside>

@@ -82,6 +82,13 @@ export const UserAPI = {
       body:payload,
     });
   },
+
+  getAppliedJobs(status=""){
+     return http(`${apiConfig.endpoints.user.appliedJobs}?status=${status}`, {
+      method: "GET",
+      auth: true,
+    });
+  }
   
   
 
