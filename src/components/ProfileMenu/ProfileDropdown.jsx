@@ -7,7 +7,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "~/store/authStore";
+import { useAuthStore } from "~/stores/authStore";
 
 export default function ProfileDropdown() {
   const { logout } = useAuthStore();

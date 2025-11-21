@@ -8,7 +8,7 @@ import { useUserStore } from "./userStore";
 import {
   normalizeAddress,
   normalizeContact,
-} from "~/services/domain/candidate/profile.mapper";
+} from "~/services/mapper/profileMapper";
 
 
 export const useAuthStore = create((set, get) => ({

@@ -4,7 +4,7 @@ import RightDrawer from "../RightDrawer";
 import { UserAPI } from "~/services/api/user";
 import { toast } from "sonner";
 import CriteriaForm from "./CriteriaForm";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 
 function classx(...arr) {
   return arr.filter(Boolean).join(" ");

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { navLinks } from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
-import { useAuthStore } from "~/store/authStore";
+import { useAuthStore } from "~/stores/authStore";
 import NotificationBell from "./NotificationBell";
 import UserAvatar from "./UserAvatar";
 

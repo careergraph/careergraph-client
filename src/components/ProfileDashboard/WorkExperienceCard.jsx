@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
 import RightDrawer from "./RightDrawer";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 import { UserAPI } from "~/services/api/user";
 import { CompanyAPI } from "~/services/api/company";
 import { shallow } from "zustand/shallow";

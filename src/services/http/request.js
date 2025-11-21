@@ -216,5 +216,4 @@ export async function http(
   });
 }
 
-// Nếu bạn muốn export sẵn instance để xài ở chỗ đặc biệt (upload raw, v.v.)
 export { instance };

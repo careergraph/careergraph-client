@@ -16,10 +16,10 @@ import AvatarCropModal from "../AvatarCropModal";
 import RightDrawer from "../RightDrawer";
 import PersonalForm from "./PersonForm";
 import { toast } from "sonner";
-import { normalizeAddress, normalizeContact } from "~/services/domain/candidate/profile.mapper";
+import { normalizeAddress, normalizeContact } from "~/services/mapper/profileMapper";
 import AvatarUser from "~/components/DefaultData/AvatarUser";
 import { useLocation } from "~/hooks/use-location";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 
 export default function ProfileCard() {
 

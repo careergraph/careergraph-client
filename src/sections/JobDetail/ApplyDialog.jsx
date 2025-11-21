@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { MediaService } from "~/services/mediaService";
 import { JobService } from "~/services/jobService";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 import { toast } from "sonner";
 import { X } from "lucide-react";
 

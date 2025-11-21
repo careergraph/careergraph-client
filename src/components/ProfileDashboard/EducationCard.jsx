@@ -1,7 +1,7 @@
 // EducationCard.jsx
 import { useEffect, useId, useRef, useState } from "react";
 import { Plus, Pencil, X, Trash2, Calendar, ChevronDown } from "lucide-react";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 import { EducationAPI } from "~/services/api/education";
 import { UserAPI } from "~/services/api/user";
 
