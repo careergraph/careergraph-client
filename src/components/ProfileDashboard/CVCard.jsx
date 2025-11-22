@@ -2,11 +2,11 @@
 import { useRef, useState, useMemo, useEffect } from "react";
 import { Upload, MoreHorizontal, FileText, Trash2, X, Share2, Loader } from "lucide-react";
 import { toast } from "sonner";
-import { useUserStore } from "~/store/userStore";
 import { MediaService } from "~/services/mediaService";
 import resolveResumeLabel from "~/utils/formatName";
 import LoadingSpinner from "../Feedback/LoadingSpinner";
 import { UserAPI } from "~/services/api/user";
+import { useUserStore } from "~/stores/userStore";
 
 const BYTES_5MB = 5 * 1024 * 1024;
 const ACCEPTED = [
@@ -164,7 +164,7 @@ export default function CVCards() {
   const inputRef = useRef(null);
 
   const acceptAttr = useMemo(() => ".pdf,.doc,.docx", []);
-  const user = useUserStore((state) => state.user);
+  const user = useUserStore((state) => state?.user);
   const candidateId = user?.candidateId;
   const [uploading, setUploading] = useState(false);
   const [existingResumes, setExistingResumes] = useState([]);
