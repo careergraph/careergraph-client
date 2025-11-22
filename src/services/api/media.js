@@ -21,7 +21,7 @@ export const MediaAPI = {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("ownerType", ownerType ?? "candidates");
+    formData.append("ownerType", ownerType ?? "candidate");
     if (idd) formData.append("idd", idd);
     if (fileType) formData.append("fileType", fileType);
 
@@ -35,6 +35,16 @@ export const MediaAPI = {
     const query = buildQuery({ ownerType, idd, fileType });
     return http(`${apiConfig.endpoints.media.list}${query}`, {
       method: "GET",
+    });
+  },
+
+  delete({ publicId }) {
+    const url = `${apiConfig.endpoints.media.base}?publicId=${encodeURIComponent(
+      publicId
+    )}`;
+
+    return http(url, {
+      method: "DELETE",
     });
   },
 };

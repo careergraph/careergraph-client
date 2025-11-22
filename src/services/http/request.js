@@ -206,7 +206,7 @@ export async function http(
     url: path,
     method,
     headers,
-    data: {...body},
+    data: body,
     signal,
     // custom metadata cho interceptor request
     custom: {

@@ -59,6 +59,7 @@ export const apiConfig = {
       education: "/candidates/educations",
       skill: "/candidates/skills",
       appliedJobs: "/candidates/applied-jobs",
+      media: "/candidates/media",
       
     },
     company: {
@@ -74,6 +75,7 @@ export const apiConfig = {
     media: {
       upload: "/media/file",
       list: "/media",
+      base: "/media"
     },
     applications: {
       list: "/applications",
