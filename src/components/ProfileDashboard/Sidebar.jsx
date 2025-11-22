@@ -11,7 +11,7 @@ import {
   FileBadge2,
   Bell
 } from "lucide-react";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 
 function Toggle({ checked, onChange }) {
   return (
