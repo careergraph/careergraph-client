@@ -81,7 +81,14 @@ export const apiConfig = {
       list: "/applications",
       detail: "/applications/:id",
       updateStatus: "/applications/:id/status",
-    }
+    },
+    chat: {
+      sendMessage: "/chat/chat",
+      conversations: "/chat/conversations",
+      lasted: "/chat/lasted",
+      history: "/chat/history",
+      clear: "/chat/clear",
+    },
   },
 };
 

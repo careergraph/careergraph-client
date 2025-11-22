@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { X, Send, Headset, Trash2, Loader2 } from "lucide-react";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import chatBotAIIcon from "~/assets/logo.svg";
+import * as chatService from "~/services/chatService";
 import {
-  sendMessageToGemini,
+  // sendMessageToGemini,  // OLD: Direct Gemini API call
   saveChatHistory,
-  getChatHistory,
   clearChatHistory,
   formatMessage,
 } from "~/services/geminiService";
@@ -15,7 +15,13 @@ export default function ChatPanel({ isOpen, onClose }) {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState(null);
   const messagesEndRef = useRef(null);
+
+  // Reset conversationId khi component mount (refresh trang)
+  useEffect(() => {
+    setConversationId(null);
+  }, []);
 
   // Auto scroll to bottom khi có tin nhắn mới
   const scrollToBottom = () => {
@@ -26,26 +32,30 @@ export default function ChatPanel({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages]);
 
-  // Load chat history khi mở panel
+  // Khi mở chat panel, hiển thị welcome message nếu chưa có messages (không gọi API)
   useEffect(() => {
-    if (isOpen) {
-      const history = getChatHistory();
-      if (history.length > 0) {
-        setMessages(history);
-      } else {
-        // Tin nhắn chào mừng mặc định
-        const welcomeMessage = formatMessage(
-          "Xin chào! 👋 Tôi là Hyra, trợ lý tìm việc của CareerGraph. Tôi có thể giúp bạn:\n\n💼 Tìm việc làm phù hợp\n📝 Tư vấn CV\n💡 Hướng dẫn phỏng vấn\n🎯 Tư vấn nghề nghiệp\n\nBạn cần giúp gì hôm nay?",
-          "bot"
-        );
-        setMessages([welcomeMessage]);
-        saveChatHistory([welcomeMessage]);
-      }
+    if (!isOpen) return;
+
+    // Nếu đã có messages, không làm gì (tiếp tục cuộc trò chuyện trong cùng session)
+    if (messages.length > 0) {
+      return;
     }
+
+    // Nếu chưa có messages (lần đầu mở trong session này sau khi refresh), hiển thị welcome message
+    const welcomeMessage = formatMessage(
+      "Xin chào! 👋 Tôi là Hyra, trợ lý tìm việc của CareerGraph. Tôi có thể giúp bạn:\n\n💼 Tìm việc làm phù hợp\n📝 Tư vấn CV\n💡 Hướng dẫn phỏng vấn\n🎯 Tư vấn nghề nghiệp\n\nBạn cần giúp gì hôm nay?",
+      "bot"
+    );
+
+    setMessages([welcomeMessage]);
+    saveChatHistory([welcomeMessage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
+
+    const userId = localStorage.getItem("userId") || null;
 
     const userMessage = formatMessage(inputValue.trim(), "user");
     const updatedMessages = [...messages, userMessage];
@@ -54,28 +64,71 @@ export default function ChatPanel({ isOpen, onClose }) {
     setInputValue("");
     setIsLoading(true);
 
-    // Lưu tin nhắn user
+    // Lưu tin nhắn user vào localStorage (cache)
     saveChatHistory(updatedMessages);
 
     try {
-      // Gọi Gemini API
-      const response = await sendMessageToGemini(
-        userMessage.content,
-        messages.slice(-10) // Chỉ gửi 10 tin nhắn gần nhất để tiết kiệm token
-      );
+      // Gọi chatService gửi message đến backend
+      // userId có thể là null nếu chưa đăng nhập
+      // conversationId: null lần đầu, sau đó dùng giá trị từ response
+      const response = await chatService.sendMessage({
+        userId,
+        message: userMessage.content,
+        conversationId: conversationId || null,
+      });
 
-      const botMessage = formatMessage(response.message, "bot");
+      const {
+        message: botMsg,
+        conversationId: newConvId,
+        relatedJobs,
+      } = response;
 
+      // Lưu conversationId từ response để dùng cho lần gửi tiếp theo
+      if (newConvId) {
+        setConversationId(newConvId);
+      }
+
+      // Tạo tin nhắn bot với nội dung phản hồi
+      let botMessageContent =
+        botMsg || "Xin lỗi, tôi không thể phản hồi lúc này.";
+
+      // Nếu có việc làm liên quan, thêm vào cuối tin nhắn
+      if (relatedJobs && relatedJobs.length > 0) {
+        botMessageContent += "\n\n💼 **Việc làm liên quan:**\n";
+        relatedJobs.slice(0, 3).forEach((job, index) => {
+          botMessageContent += `${index + 1}. ${job.title} tại ${
+            job.company
+          }\n`;
+          if (job.location) botMessageContent += `   📍 ${job.location}\n`;
+          if (job.salary) botMessageContent += `   💰 ${job.salary}\n`;
+        });
+      }
+
+      const botMessage = formatMessage(botMessageContent, "bot");
       const finalMessages = [...updatedMessages, botMessage];
       setMessages(finalMessages);
       saveChatHistory(finalMessages);
     } catch (error) {
       console.error("Error sending message:", error);
-      const errorMessage = formatMessage(
-        "Xin lỗi, tôi đang gặp sự cố kết nối. Vui lòng thử lại sau! 🙏",
-        "bot"
-      );
-      const finalMessages = [...updatedMessages, errorMessage];
+
+      // Xử lý lỗi chi tiết hơn
+      let errorMessage =
+        "Xin lỗi, tôi đang gặp sự cố kết nối. Vui lòng thử lại sau! 🙏";
+
+      if (error.response?.status === 401) {
+        errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+      } else if (error.response?.status >= 500) {
+        errorMessage = "Máy chủ đang gặp sự cố. Vui lòng thử lại sau!";
+      } else if (
+        error.message?.includes("Network") ||
+        error.code === "ERR_NETWORK"
+      ) {
+        errorMessage =
+          "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.";
+      }
+
+      const errorMsg = formatMessage(errorMessage, "bot");
+      const finalMessages = [...updatedMessages, errorMsg];
       setMessages(finalMessages);
       saveChatHistory(finalMessages);
     } finally {
@@ -101,7 +154,13 @@ export default function ChatPanel({ isOpen, onClose }) {
 
   const handleClearHistory = () => {
     if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử chat?")) {
+      // Xóa cache local
       clearChatHistory();
+      // Reset conversationId để tạo conversation mới khi gửi tin nhắn tiếp theo
+      setConversationId(null);
+      localStorage.removeItem("conversationId");
+
+      // Hiển thị tin nhắn chào mừng
       const welcomeMessage = formatMessage(
         "Lịch sử đã được xóa. Bạn cần giúp gì hôm nay? 😊",
         "bot"
@@ -121,8 +180,8 @@ export default function ChatPanel({ isOpen, onClose }) {
         onClick={onClose}
       />
 
-      {/* Chat Panel */}
-      <div className="fixed bottom-0 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-8rem)] bg-white rounded-t-2xl shadow-2xl border-2 border-slate-200 flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+      {/* Chat Panel - Increased size */}
+      <div className="fixed bottom-0 right-6 z-50 w-[480px] max-w-[calc(100vw-3rem)] h-[700px] max-h-[calc(100vh-6rem)] bg-white rounded-t-2xl shadow-2xl border-2 border-slate-200 flex flex-col animate-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t-xl px-5 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -139,7 +198,9 @@ export default function ChatPanel({ isOpen, onClose }) {
           </div>
           <div className="flex items-center align-baseline gap-1">
             <button
-              onClick={() => toast.info("CareerGraph sẽ liên hệ với bạn sớm nhất có thể!")}
+              onClick={() =>
+                toast.info("CareerGraph sẽ liên hệ với bạn sớm nhất có thể!")
+              }
               className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
               title="Liên hệ hỗ trợ"
             >
@@ -198,9 +259,18 @@ export default function ChatPanel({ isOpen, onClose }) {
                 <div className="flex justify-start">
                   <div className="bg-slate-100 rounded-2xl px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-1.5 h-1.5 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div
+                        className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      ></div>
+                      <div
+                        className="w-1.5 h-1.5 bg-purple-600 rounded-full animate-bounce"
+                        style={{ animationDelay: "150ms" }}
+                      ></div>
+                      <div
+                        className="w-1.5 h-1.5 bg-pink-600 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      ></div>
                     </div>
                   </div>
                 </div>
