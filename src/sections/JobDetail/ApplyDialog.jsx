@@ -5,6 +5,7 @@ import { JobService } from "~/services/jobService";
 import { useUserStore } from "~/stores/userStore";
 import { toast } from "sonner";
 import { X } from "lucide-react";
+import resolveResumeLabel from "~/utils/formatName";
 
 // Giới hạn dung lượng file theo yêu cầu BE (5MB, giống vùng quản lý CV trong dashboard).
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -76,6 +77,7 @@ export default function ApplyDialog({
       try {
         setLoadingResumes(true);
         const resumes = await MediaService.listResumes({ candidateId });
+        console.log(resumes)
         setExistingResumes(resumes);
         if (resumes.length > 0) {
           setSelectedResume(resumes[0]);
@@ -126,14 +128,9 @@ export default function ApplyDialog({
 
     try {
       setUploading(true);
-      const { url, name } = await MediaService.uploadResume({ file, candidateId });
-      const resume = {
-        id: `${Date.now()}-${name}`,
-        url,
-        name,
-      };
-      setExistingResumes((prev) => [resume, ...prev]);
-      setSelectedResume(resume);
+      const data = await MediaService.uploadResume({ file, candidateId });
+      setExistingResumes((prev) => [data, ...prev]);
+      setSelectedResume(data);
       toast.success("Đã tải CV thành công.");
     } catch (error) {
       console.error("Upload CV thất bại:", error);
@@ -148,13 +145,8 @@ export default function ApplyDialog({
   };
 
   // Tiện ích giúp rút gọn tên hiển thị nhưng vẫn giữ tooltip đầy đủ.
-  const resolveResumeLabel = (resume) => {
-    const raw = resume?.name || resume?.url;
-    if (!raw) return "CV";
+  
 
-    const cleaned = raw.split("/").pop()?.split("_").pop() || raw;
-    return cleaned.length > 40 ? `${cleaned.slice(0, 37)}...` : cleaned;
-  };
 
   const coverLetterError =
     coverLetterRequired && coverLetterTouched && !coverLetter.trim()

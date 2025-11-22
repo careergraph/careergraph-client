@@ -12,21 +12,23 @@ export const MediaService = {
 
     const response = await MediaAPI.upload({
       file,
-      ownerType: "candidates",
+      ownerType: "candidate",
       idd: candidateId,
       fileType: "RESUME",
     });
 
     const data = response?.data ?? response;
-    const url = data?.url || data?.secureUrl;
+    // const url = data?.url || data?.secureUrl;
 
-    if (!url) {
-      throw new Error("Không nhận được đường dẫn CV từ máy chủ");
-    }
+    // if (!url) {
+    //   throw new Error("Không nhận được đường dẫn CV từ máy chủ");
+    // }
 
     return {
-      url,
-      name: file.name,
+      id: data?.id,
+      url: data?.filePath || data?.url,
+      name: data?.publicId?.split("/")?.pop() || data?.fileName || data?.url?.split("/")?.pop() || "CV",
+      uploadedAt: data?.createdAt, 
     };
   },
 
@@ -34,7 +36,7 @@ export const MediaService = {
     if (!candidateId) return [];
 
     const response = await MediaAPI.list({
-      ownerType: "candidates",
+      ownerType: "candidate",
       idd: candidateId,
       fileType: "RESUME",
     });
@@ -42,9 +44,21 @@ export const MediaService = {
     const records = Array.isArray(response?.data) ? response.data : Array.isArray(response) ? response : [];
 
     return records.map((record, index) => ({
-      id: record?.publicId || `${record?.url || "resume"}-${index}`,
-      url: record?.secureUrl || record?.url,
-      name: record?.publicId?.split("/")?.pop() || record?.fileName || record?.url?.split("/")?.pop() || "CV"
+      id: record?.id || `${record?.url || "resume"}-${index}`,
+      url: record?.filePath || record?.url,
+      name: record?.publicId?.split("/")?.pop() || record?.fileName || record?.url?.split("/")?.pop() || "CV",
+      uploadedAt: record?.createdAt, 
     })).filter((item) => Boolean(item.url));
   },
+
+   async deleteResume({ publicId }) {
+    if (!publicId) throw new Error("Missing publicId to delete");
+
+    const resp = await MediaAPI.delete({ publicId });
+    const data = resp?.data ?? resp;
+
+    return data; // { publicId: "...", deleted: true/false }
+  },
+
+  
 };
