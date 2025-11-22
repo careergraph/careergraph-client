@@ -88,6 +88,12 @@ export const UserAPI = {
       method: "GET",
       auth: true,
     });
+  },
+  deleteFile(fileId=""){
+    return http(`${apiConfig.endpoints.user.media}?fileId=${encodeURIComponent(fileId)}`, {
+      method: "DELETE",
+      auth: true,
+    });
   }
   
   
