@@ -1,6 +1,6 @@
 "use client";
 import { Pencil, Plus, X as XIcon } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import useDebounce from "~/hooks/useDebounce";
 import useDirty from "~/hooks/useDirty";
 import { SkillAPI } from "~/services/api/skill";
@@ -95,11 +95,12 @@ function SkillsForm({
   const toObj = (s) => ({ skillName: toLabel(s) });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const normalizeInit = (arr) =>
-    (arr || [])
+  const normalizeInit = useCallback((arr) => {
+    return (arr || [])
       .map(toObj)
       .map((o) => ({ skillName: String(o.skillName || "").trim() }))
       .filter((o) => !!o.skillName);
+  }, []);
 
   // so trùng (case-insensitive)
   const exists = (name) =>
