@@ -33,6 +33,7 @@ function Toggle({ checked, onChange }) {
 }
 
 export default function SideBar({
+  name = "Thịnh Lương Quang",
   classNames = "",
 }) {
   const { pathname } = useLocation();
@@ -70,7 +71,7 @@ export default function SideBar({
   const baseItemCls =
     "w-full flex items-center justify-between rounded-xl px-3 py-3 text-left text-slate-700 hover:bg-slate-100";
 
-  const LinkItem = ({ to, label, has = true }) => (
+  const LinkItem = ({ to, icon: Icon, label, has = true }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
