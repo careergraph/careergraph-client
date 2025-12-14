@@ -200,7 +200,6 @@ export default function JobDetailPage() {
   const [loadingSimilarJobs, setLoadingSimilarJobs] = useState(false);
 
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
-
   // ==================== LOAD DỮ LIỆU TỪ API ====================
   useEffect(() => {
     let isMounted = true;
@@ -240,7 +239,6 @@ export default function JobDetailPage() {
         }
       }
     };
-
     // Hàm chính load job detail
     const fetchJobData = async () => {
       try {
@@ -409,10 +407,14 @@ export default function JobDetailPage() {
           {/* Header: Tiêu đề + highlights + stats + tags */}
           <JobHeader
             title={job.title}
+            jobId={job.id}
             highlights={highlights}
             stats={stats}
             tags={tags}
             onApply={() => setIsApplyDialogOpen(true)}
+
+            applyDisabled={job.isApplied}
+            isSaved={job.isSaved}
           />
 
           {/* Sections: Mô tả, yêu cầu, quyền lợi */}
@@ -466,6 +468,9 @@ export default function JobDetailPage() {
         jobId={id}
         jobTitle={job.title}
         coverLetterRequired={Boolean(job.applicationRequirements?.coverLetter)}
+        onAppliedSuccess={() => {
+          setJob(prev => ({ ...prev, isApplied: true })); // 🔥 cập nhật ngay
+        }}
       />
     </div>
   );

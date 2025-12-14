@@ -341,7 +341,8 @@ const normalizeJob = (job = {}) => {
     address: safeText(job.specific || job.address || job.addressLine),
     salaryRange: formatSalary(job),
     likes: normalizeLikes(job),
-    isLiked: Boolean(job.isLiked || job.liked || job.userLiked),
+    isSaved: Boolean(job.isLiked || job.liked || job.isSaved),
+    isApplied: Boolean(job.isApplied),
     detailUrl:
       safeText(
         job.detailUrl ||
