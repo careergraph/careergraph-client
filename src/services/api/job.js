@@ -74,7 +74,7 @@ export const JobAPI = {
 
     return http(path, {
       method: "POST",
-      auth: false,
+      auth: true,
       body: payload,
       signal,
     });

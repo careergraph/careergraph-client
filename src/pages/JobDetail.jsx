@@ -244,6 +244,8 @@ export default function JobDetailPage() {
       try {
         setLoading(true);
         setError(null);
+        
+
 
         // Gọi API lấy chi tiết job
         const data = await JobService.fetchJobDetail(id);
