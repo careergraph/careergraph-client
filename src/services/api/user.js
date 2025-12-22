@@ -94,6 +94,31 @@ export const UserAPI = {
       method: "DELETE",
       auth: true,
     });
+  },
+  savedJobs(candidateId, jobId){
+    return http(`${apiConfig.endpoints.jobs.list}/${encodeURIComponent(candidateId)}/${encodeURIComponent(jobId)}`, {
+      method: "POST",
+      auth: true,
+    });
+  },
+  unSavedJobs(candidateId, jobId){
+    return http(`${apiConfig.endpoints.jobs.list}/${encodeURIComponent(candidateId)}/${encodeURIComponent(jobId)}`, {
+      method: "DELETE",
+      auth: true,
+    });
+  },
+
+  getAllSavedJobs(){
+    return http(`${apiConfig.endpoints.user.savedJobs}`, {
+      method: "GET",
+      auth: true,
+    });
+  },
+  setJobSearchStatus(){
+    return http(`${apiConfig.endpoints.user.openWork}`, {
+      method: "PUT",
+      auth: true,
+    });
   }
   
   
