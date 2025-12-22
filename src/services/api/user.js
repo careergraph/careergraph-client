@@ -113,6 +113,12 @@ export const UserAPI = {
       method: "GET",
       auth: true,
     });
+  },
+  setJobSearchStatus(){
+    return http(`${apiConfig.endpoints.user.openWork}`, {
+      method: "PUT",
+      auth: true,
+    });
   }
   
   
