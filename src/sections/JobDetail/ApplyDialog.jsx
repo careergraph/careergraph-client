@@ -36,6 +36,7 @@ export default function ApplyDialog({
   jobId,
   jobTitle,
   coverLetterRequired = false,
+  onAppliedSuccess,
 }) {
   const user = useUserStore((state) => state.user);
   const candidateId = user?.candidateId;
@@ -183,6 +184,9 @@ export default function ApplyDialog({
       setIsSubmitting(true);
       await JobService.applyToJob(jobId, payload);
       toast.success("Đã gửi đơn ứng tuyển. Chúc bạn may mắn!");
+      if (typeof onAppliedSuccess === "function") {
+        onAppliedSuccess();
+      }
       onClose?.();
     } catch (error) {
       console.error("Gửi đơn ứng tuyển thất bại:", error);

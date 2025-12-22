@@ -12,6 +12,8 @@ import {
   Bell
 } from "lucide-react";
 import { useUserStore } from "~/stores/userStore";
+import { UserAPI } from "~/services/api/user";
+import { toast } from "sonner";
 
 function Toggle({ checked, onChange }) {
   return (
@@ -60,12 +62,20 @@ export default function SideBar({
     }),
     []
   );
+  const clickTogleAllowSearch = async () => {
 
+      const res = await UserAPI.setJobSearchStatus();
+      setAllowSearch(res.data);
+      toast.success("Cập nhật thành công");
+
+
+  } 
   useEffect(() => {
     setOpenQLVL(groupRoutes.qlvl.some((p) => pathname.startsWith(p)));
     setOpenNTD(groupRoutes.ntd.some((p) => pathname.startsWith(p)));
     setOpenSupport(groupRoutes.support.some((p) => pathname.startsWith(p)));
-  }, [pathname, groupRoutes]);
+    setAllowSearch(user.isOpenToWork)
+  }, [pathname, groupRoutes,user]);
 
   const activeItemCls = "bg-indigo-50 text-indigo-700";
   const baseItemCls =
@@ -117,13 +127,13 @@ export default function SideBar({
           <span className="text-sm text-slate-700 leading-snug">
             Cho phép Nhà tuyển dụng tìm bạn
           </span>
-          <Toggle checked={allowSearch} onChange={setAllowSearch} />
+          <Toggle checked={allowSearch} onChange={clickTogleAllowSearch} />
         </div>
 
         {/* Menu */}
         <nav className="space-y-1">
           <LinkItem to="/profile" icon={FileBadge2} label="Hồ sơ của tôi" has={false} />
-          <LinkItem to="/cv/decorate" icon={Palette} label="Trang trí CV" has={false} />
+          <LinkItem to="/template-cv" icon={Palette} label="Trang trí CV" has={false} />
 
           {/* Quản lý việc làm */}
           <button

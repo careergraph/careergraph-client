@@ -42,6 +42,7 @@ export const apiConfig = {
     },
     jobs: {
       list: "/jobs",
+      candidate: "/jobs/candidates",
       detail: "/jobs/:id",
       search: "/jobs/search",
       categories: "/jobs/categories",
@@ -59,7 +60,9 @@ export const apiConfig = {
       education: "/candidates/educations",
       skill: "/candidates/skills",
       appliedJobs: "/candidates/applied-jobs",
+      savedJobs: "/candidates/saved-jobs",
       media: "/candidates/media",
+      openWork: "/candidates/job-search-status",
       
     },
     company: {

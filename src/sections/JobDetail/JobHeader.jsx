@@ -8,7 +8,9 @@ export default function JobHeader({
   stats = {},
   tags = [],
   onApply,
+  jobId,
   applyDisabled,
+  isSaved,
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -84,7 +86,7 @@ export default function JobHeader({
       )}
 
       {/* Apply bar */}
-      <ApplyBar onApply={onApply} disabled={applyDisabled} />
+      <ApplyBar onApply={onApply} jobId={jobId} disabled={applyDisabled} isSaved = {isSaved}/>
     </div>
   );
 }

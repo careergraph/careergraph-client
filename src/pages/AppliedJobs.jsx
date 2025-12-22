@@ -145,7 +145,7 @@ export default function AppliedJobs() {
       setIsLoading(false)
     }
     fetchAppliedJob();
-},[])
+  },[])
 
 const [filter, setFilters] = useState("")
 const handleViewJobDetail = async (jobId) => {
