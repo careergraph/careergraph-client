@@ -33,8 +33,8 @@ function JobCard({ job }) {
       if(!isSaved){
         try {
               setIsCallAPI(true);
-              if(user?.candidateId == null || job.id == null  ){
-                toast.info("Tính năng ứng tuyển sẽ sẵn sàng trong thời gian tới.");
+              if(user?.candidateId == null ){
+                toast.info("Vui lòng đăng nhập để thực hiện chức năng này");
                 return;
               }
               // Gọi API lấy chi tiết job
@@ -57,8 +57,8 @@ function JobCard({ job }) {
       }else {
           try {
               setIsCallAPI(true);
-              if(user?.candidateId == null || job.id == null  ){
-                toast.info("Tính năng ứng tuyển sẽ sẵn sàng trong thời gian tới.");
+              if(user?.candidateId == null ){
+                toast.info("Vui lòng đăng nhập để thực hiện chức năng này");
                 return;
               }
               // Gọi API lấy chi tiết job
