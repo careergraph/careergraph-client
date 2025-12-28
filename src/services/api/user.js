@@ -119,6 +119,12 @@ export const UserAPI = {
       method: "PUT",
       auth: true,
     });
+  },
+  toggleJobMail(){
+    return http(`${apiConfig.endpoints.user.jobMail}`, {
+      method: "PUT",
+      auth: true,
+    });
   }
   
   

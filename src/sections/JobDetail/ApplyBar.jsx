@@ -22,8 +22,8 @@ export default function ApplyBar({ onApply, jobId, disabled = false, isSaved = f
       if(!savedStatus){
         try {
               setIsCallAPI(true);
-              if(user?.candidateId == null || jobId == null  ){
-                toast.info("Tính năng ứng tuyển sẽ sẵn sàng trong thời gian tới.");
+              if(user?.candidateId == null  ){
+                toast.info("Vui lòng đăng nhập để thực hiện chức năng này");
                 return;
               }
               // Gọi API lấy chi tiết job
@@ -46,8 +46,8 @@ export default function ApplyBar({ onApply, jobId, disabled = false, isSaved = f
       }else {
           try {
               setIsCallAPI(true);
-              if(user?.candidateId == null || jobId == null  ){
-                toast.info("Tính năng ứng tuyển sẽ sẵn sàng trong thời gian tới.");
+              if(user?.candidateId == null){
+                toast.info("Vui lòng đăng nhập để thực hiện chức năng này");
                 return;
               }
               // Gọi API lấy chi tiết job
