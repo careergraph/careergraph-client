@@ -47,6 +47,7 @@ export default function SideBar({
   const [openSupport, setOpenSupport] = useState(false);
 
   const [allowSearch, setAllowSearch] = useState(false);
+  const [allowJobMail, setJobMail] = useState(false);
 
   // Map route con của từng nhóm để auto mở nhóm tương ứng khi người dùng vào trang con
   const groupRoutes = useMemo(
@@ -62,19 +63,22 @@ export default function SideBar({
     }),
     []
   );
-  const clickTogleAllowSearch = async () => {
-
+  const clickToggleAllowSearch = async () => {
       const res = await UserAPI.setJobSearchStatus();
       setAllowSearch(res.data);
       toast.success("Cập nhật thành công");
-
-
+  } 
+  const clickToggleAllowJobMail = async () => {
+      const res = await UserAPI.toggleJobMail();
+      setJobMail(res.data);
+      toast.success("Cập nhật thành công");
   } 
   useEffect(() => {
     setOpenQLVL(groupRoutes.qlvl.some((p) => pathname.startsWith(p)));
     setOpenNTD(groupRoutes.ntd.some((p) => pathname.startsWith(p)));
     setOpenSupport(groupRoutes.support.some((p) => pathname.startsWith(p)));
     setAllowSearch(user.isOpenToWork)
+    setJobMail(user.isOpenToNotifyNewJob)
   }, [pathname, groupRoutes,user]);
 
   const activeItemCls = "bg-indigo-50 text-indigo-700";
@@ -127,7 +131,13 @@ export default function SideBar({
           <span className="text-sm text-slate-700 leading-snug">
             Cho phép Nhà tuyển dụng tìm bạn
           </span>
-          <Toggle checked={allowSearch} onChange={clickTogleAllowSearch} />
+          <Toggle checked={allowSearch} onChange={clickToggleAllowSearch} />
+        </div>
+        <div className="mb-5 rounded-lg bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1),0_0_20px_rgba(0,0,0,0.1)] p-3 flex items-center justify-between gap-2">
+          <span className="text-sm text-slate-700 leading-snug">
+            Nhận thông báo việc làm phù hợp
+          </span>
+          <Toggle checked={allowJobMail} onChange={clickToggleAllowJobMail} />
         </div>
 
         {/* Menu */}

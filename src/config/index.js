@@ -63,6 +63,7 @@ export const apiConfig = {
       savedJobs: "/candidates/saved-jobs",
       media: "/candidates/media",
       openWork: "/candidates/job-search-status",
+      jobMail: "/candidates/job-mail",
       
     },
     company: {
