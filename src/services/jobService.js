@@ -388,4 +388,9 @@ export const JobService = {
   async applyToJob(jobId, payload) {
     return JobAPI.applyToJob(jobId, payload);
   },
+
+  /** Lấy gợi ý CV từ AI cho job. */
+  async fetchCvSuggestion(jobId) {
+    return JobAPI.getCvSuggestion(jobId);
+  },
 };
