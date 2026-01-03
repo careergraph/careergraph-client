@@ -8,6 +8,7 @@ import About from "../pages/About";
 import NotFound from "../pages/NotFound";
 import Register from "../pages/Register";
 import JobDetail from "../pages/JobDetail";
+import CompanyDetail from "../pages/CompanyDetail";
 import Jobs from "../pages/Jobs";
 import CareerGuide from "../pages/CareerGuide";
 import CareerGuideDetail from "../pages/CareerGuideDetail";
@@ -35,6 +36,7 @@ const publicRoutes = [
   { path: routes.login, component: Login, layout: FooterOnly },
   { path: routes.register, component: Register, layout: FooterOnly },
   { path: routes.jobDetail, component: JobDetail },
+  { path: routes.companyDetail, component: CompanyDetail },
   { path: "/test-api", component: TestApi }, // ← Test page
   { path: routes.forgotPassword, component: ForgotPassword, layout: FooterOnly},
   { path: routes.verifyOtp, component: VerifyOtp, layout: FooterOnly},
