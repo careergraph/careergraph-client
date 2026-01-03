@@ -1,5 +1,7 @@
-import { useMemo, useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useUserStore } from "../stores/userStore";
+import { useLocation as useLocationHook } from "../hooks/use-location";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { LayoutTemplate, ArrowLeft } from "lucide-react";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
 import CVEditor from "../sections/CVBuilder/components/CVEditor.jsx";
@@ -25,6 +27,94 @@ export default function CVBuilder() {
   const [sectionsVisibility, setSectionsVisibility] = useState(() => ({
     ...defaultSectionsVisibility,
   }));
+
+  const user = useUserStore((state) => state.user);
+  const location = useLocation();
+  const jobFromState = location.state?.job;
+
+  const { provinceName, districtName } = useLocationHook(
+    user?.primaryAddress?.province,
+    user?.primaryAddress?.district
+  );
+  const userLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (user && !userLoadedRef.current) {
+      const hasExperience = user.experiences && user.experiences.length > 0;
+      const hasEducation = user.educations && user.educations.length > 0;
+      const hasSkills = user.skills && user.skills.length > 0;
+
+      const newCvData = {
+        personal: {
+          fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim() || defaultCvData.personal.fullName,
+          headline: jobFromState?.title || "Ứng viên tiềm năng", 
+          summary: jobFromState 
+            ? `Mong muốn ứng tuyển vị trí ${jobFromState.title} tại ${jobFromState.companyName || "quý công ty"}. Với kinh nghiệm và kỹ năng hiện có, tôi tin rằng mình có thể đóng góp tích cực vào sự phát triển của công ty.`
+            : defaultCvData.personal.summary,
+          location: "",
+        },
+        contact: {
+          email: user.email || defaultCvData.contact.email,
+          phone: user.primaryContact?.value || defaultCvData.contact.phone,
+          website: defaultCvData.contact.website,
+          linkedin: defaultCvData.contact.linkedin,
+        },
+        experience: hasExperience 
+          ? (user.experiences || []).map((exp) => ({
+              id: exp.id || `exp-${Math.random()}`,
+              role: exp.jobTitle || "",
+              company: exp.companyName || "",
+              location: "",
+              startDate: exp.startDate || "",
+              endDate: exp.isCurrent ? "Hiện tại" : (exp.endDate || ""),
+              bulletPoints: exp.description ? exp.description.split('\n') : ["Đóng góp vào sự phát triển của dự án.", "Phối hợp với các thành viên trong nhóm."],
+            }))
+          : defaultCvData.experience,
+        education: hasEducation
+          ? (user.educations || []).map((edu) => ({
+              id: edu.id || `edu-${Math.random()}`,
+              school: edu.officialName || "",
+              degree: `${edu.degreeTitle || ""} ${edu.major ? "- " + edu.major : ""}`.trim(),
+              startDate: edu.startDate || "",
+              endDate: edu.endDate || "",
+            }))
+          : defaultCvData.education,
+        skills: hasSkills
+          ? (user.skills || []).map((skill) => ({
+              id: skill.id || `skill-${Math.random()}`,
+              name: skill.skillName || skill.name || "",
+            }))
+          : (jobFromState?.skills || []).length > 0
+            ? (jobFromState.skills || []).map((skill, index) => ({
+                id: `skill-${index}`,
+                name: skill.name || skill,
+              }))
+            : defaultCvData.skills,
+        languages: defaultCvData.languages,
+        awards: defaultCvData.awards,
+      };
+
+      setCvData((prev) => ({
+        ...prev,
+        ...newCvData,
+        personal: { ...prev.personal, ...newCvData.personal },
+        contact: { ...prev.contact, ...newCvData.contact },
+      }));
+      userLoadedRef.current = true;
+    }
+  }, [user, jobFromState]);
+
+  useEffect(() => {
+    if ((provinceName || districtName) && userLoadedRef.current) {
+      setCvData((prev) => ({
+        ...prev,
+        personal: {
+          ...prev.personal,
+          location: [districtName, provinceName].filter(Boolean).join(", "),
+        },
+      }));
+    }
+  }, [provinceName, districtName]);
 
   // Update selected template when URL changes
   useEffect(() => {
