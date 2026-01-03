@@ -195,4 +195,19 @@ export const JobAPI = {
     });
   },
 
+  /**
+   * Gọi API lấy gợi ý CV từ AI dựa trên job detail.
+   * POST /jobs/{jobId}/cv-suggestion
+   */
+  getCvSuggestion(jobId) {
+    if (!jobId) {
+      return Promise.reject(new Error("Job id is required"));
+    }
+    const path = apiConfig.endpoints.jobs.detail.replace(":id", jobId) + "/cv-suggestion";
+    return http(path, {
+      method: "POST",
+      auth: true,
+    });
+  },
+
 };
