@@ -31,6 +31,7 @@ function StatusBadge({ value }) {
     value === "HIRED" ? "Chính thức nhận việc" :
     value === "REJECTED" ? "Ứng tuyển bị từ chối" :
     value === "WITHDRAWN" ? "Đã rút hồ sơ" :
+    value === "SCHEDULED" ? "Hẹn phỏng vấn" :
     "Đang chờ";
 
   return (
@@ -180,6 +181,7 @@ const handleViewJobDetail = async (jobId) => {
   { value: "HIRED", label: "Chính thức nhận việc" },
   { value: "REJECTED", label: "Ứng tuyển bị từ chối" },
   { value: "WITHDRAWN", label: "Đã rút hồ sơ" },
+  {value: "SCHEDULED" , label: "Hẹn phỏng vấn"},
 ];
 
   // if(isLoading){
