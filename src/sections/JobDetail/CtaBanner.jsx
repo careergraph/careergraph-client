@@ -1,9 +1,9 @@
 import { Megaphone } from "lucide-react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 
 // A richer CTA banner: shows optional company logo, short benefits, and a tiny testimonial
 export default function CtaBanner({ job }) {
+  const navigate = useNavigate();
   const title = job?.title || "vị trí này";
   const companyLogo = job?.companyAvatar || job?.companyLogo || null;
 
@@ -27,7 +27,7 @@ export default function CtaBanner({ job }) {
           <rect width="800" height="200" fill="url(#g)" />
         </svg>
 
-  <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 font-sans">
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 font-sans">
           {/* Logo / Icon */}
           <div className="flex-shrink-0">
             {companyLogo ? (
@@ -45,7 +45,10 @@ export default function CtaBanner({ job }) {
 
           {/* Main copy */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl md:text-2xl font-semibold tracking-tight leading-tight">Cần hỗ trợ ứng tuyển cho <span className="whitespace-nowrap">{title}</span>?</h3>
+            <h3 className="text-xl md:text-2xl font-semibold tracking-tight leading-tight">
+              Cần hỗ trợ ứng tuyển cho{" "}
+              <span className="whitespace-nowrap">{title}</span>?
+            </h3>
             <p className="mt-2 text-sm text-white/95 leading-relaxed max-w-prose">
               Chúng tôi cung cấp mẫu CV chuẩn, checklist phỏng vấn và mẹo tối ưu
               hồ sơ theo role để hồ sơ của bạn nổi bật hơn và tăng cơ hội được
@@ -71,7 +74,7 @@ export default function CtaBanner({ job }) {
           {/* CTAs */}
           <div className="flex-shrink-0 flex flex-col sm:flex-row items-center gap-3">
             <button
-              onClick={() => toast.warning("Tính năng này đang trong quá trình phát triển!")}
+              onClick={() => navigate("/build-cv?template=harvard", { state: { job } })}
               className="inline-flex items-center justify-center px-4 py-2 bg-white text-indigo-600 rounded-md font-semibold text-sm shadow-md hover:opacity-95"
               aria-label={`Xem mẫu CV cho ${title}`}
             >
