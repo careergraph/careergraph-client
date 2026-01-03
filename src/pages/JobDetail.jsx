@@ -176,7 +176,7 @@ const buildCompanyInfo = (job) => {
     address: job.address || job.location || "Đang cập nhật",
     size: job.companySize || "Đang cập nhật",
     logo: job.companyAvatar || "https://placehold.co/64x64?text=Logo",
-    link: "#", // TODO: Lấy từ API khi có
+    link: job.companyId ? `/companies/${job.companyId}` : "#",
   };
 };
 

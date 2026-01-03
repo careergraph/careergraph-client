@@ -22,6 +22,7 @@ export const routes = {
   forgotPassword: "/forgot-password",
   verifyOtp: "/verify-otp",
   resetPassword: "/reset-password",
+  companyDetail: "/companies/:id",
 };
 
 // Cấu hình API endpoints
@@ -69,6 +70,7 @@ export const apiConfig = {
     company: {
       lookup: "/companies/lookup",
       jobs: "/companies/:id/jobs",
+      detail: "/companies/:id",
     },
     education: {
       lookup: "/educations/lookup",

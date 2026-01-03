@@ -70,7 +70,6 @@ export default function ProfileCard() {
   const toPayload = (f) => ({
     firstName: f.firstName?.trim(),
     lastName: f.lastName?.trim(),
-    phone: f.phone?.trim(),
     dateOfBirth: f.birth || null, // giữ format yyyy-mm-dd
     gender: f.gender === "Nam" ? "MALE" : (f.gender === "Nữ" ? "FEMALE" : null),
     isMarried: f.marital === "Đã lập gia đình",

@@ -19,7 +19,7 @@ function JobCardPersonal({ job }) {
     return loc;
   };
 
-  const companyLabel = job.company || "Đang cập nhật";
+  const companyLabel = job.experienceLevel || "Đang cập nhật";
   const summary =
     job.summary || job.description || "Mô tả công việc đang cập nhật.";
   const isNewJob = (() => {
@@ -58,7 +58,7 @@ function JobCardPersonal({ job }) {
       <div className="flex items-start gap-3" onClick={handleViewJob}>
         <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
           <img
-            src={job.photoUrl || cardSectionCompanyAccessed}
+            src={job.companyAvatar || cardSectionCompanyAccessed}
             alt={`Ảnh đại diện ${companyLabel}`}
             className="size-full object-cover cursor-pointer"
           />
