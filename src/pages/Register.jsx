@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
-import { useAuthStore } from '~/store/authStore';
+import { useAuthStore } from '~/stores/authStore';
+import { toast } from 'sonner';
+import { setVerifyCurrent } from '~/utils/storage';
 
 export default function Register() {
   // State để lưu thông tin form
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName:'',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -36,7 +39,7 @@ export default function Register() {
     setSuccess('');
 
     // Kiểm tra validation cơ bản
-    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Vui lòng điền đầy đủ thông tin!');
       return;
     }
@@ -54,14 +57,17 @@ export default function Register() {
     }
 
     // Gọi hàm register từ AuthContext
-    const result = await register(formData.fullName, formData.email, formData.password);
+    const result = await register(formData.firstName ,formData.lastName, formData.email, formData.password);
     
     if (result.success) {
-      setSuccess(result.message);
-      // Sau 2 giây chuyển về trang login
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      toast.success("Đăng ký thành công")
+      setVerifyCurrent({
+        email: formData.email, 
+        purpose: "verify_email_register",
+        redirectTo: "/login",})
+      navigate('/verify-otp', {
+        replace: true,
+      })
     } else {
       setError(result.message);
     }
@@ -114,19 +120,32 @@ export default function Register() {
             </div>
           )}
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
-            <input
-              type="text"
-              name="fullName"
-              placeholder="Full name"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
-              required
-            />
+          <div className='flex gap-2'>
+            <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Họ"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+                required
+              />
+            </div>
+            <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+              <input
+                type="text"
+                name="firstName"
+                placeholder="Tên"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+                required
+              />
+            </div>
           </div>
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
             <input
               type="email"
               name="email"
@@ -138,7 +157,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
             <input
               type="password"
               name="password"
@@ -150,7 +169,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
             <input
               type="password"
               name="confirmPassword"

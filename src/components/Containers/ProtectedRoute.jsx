@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '~/store/authStore';
+import { useAuthStore } from '~/stores/authStore';
 
 
 // Component để bảo vệ các trang cần đăng nhập

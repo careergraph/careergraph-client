@@ -40,7 +40,7 @@ export default function BannerSlider() {
   }, [currentSlide]);
 
   return (
-    <div className="w-full overflow-hidden relative rounded-xl border border-slate-200 shadow-sm mt-[-20px]">
+    <div className="w-full max-w-[1400px] mx-auto overflow-hidden relative rounded-xl h-96 border border-slate-200 shadow-sm mb-10 mt-[-20px]">
       <div
         className="flex transition-transform duration-500 ease-in-out"
         ref={sliderRef}
@@ -50,7 +50,7 @@ export default function BannerSlider() {
             key={i}
             src={src}
             alt={`Slide ${i + 1}`}
-            className="w-full flex-shrink-0 h-60 md:h-80 object-cover"
+            className="w-full h-full flex-shrink-0 object-cover"
           />
         ))}
       </div>

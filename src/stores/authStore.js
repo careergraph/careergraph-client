@@ -8,7 +8,8 @@ import { useUserStore } from "./userStore";
 import {
   normalizeAddress,
   normalizeContact,
-} from "~/services/domain/candidate/profile.mapper";
+} from "~/services/mapper/profileMapper";
+
 
 export const useAuthStore = create((set, get) => ({
   isAuthenticated: false,
@@ -27,8 +28,7 @@ export const useAuthStore = create((set, get) => ({
       useUserStore.getState().setUser(userData);
       set({ isAuthenticated: true });
       return true;
-    } catch (e) {
-      console.warn("fetchMe failed:", e);
+    } catch  {
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
@@ -42,7 +42,11 @@ export const useAuthStore = create((set, get) => ({
       const newAccess = await refreshAccessToken();
       if (newAccess) {
         setToken(newAccess);
-        await useAuthStore.getState().fetchMe();
+        if(!await useAuthStore.getState().fetchMe()){
+          set({ isAuthenticated: false });
+          removeToken();
+          return;
+        }
         set({ isAuthenticated: true });
       } else {
         removeToken();
@@ -63,33 +67,33 @@ export const useAuthStore = create((set, get) => ({
     try {
       const data = await http("/auth/login", {
         method: "POST",
-        body: { email, password },
+        body: { email, password, role: "user" },
         auth: false,
       });
       const access = data?.data?.accessToken || data?.accessToken || data;
       if (!access) throw new Error("Thiếu accessToken");
-
+      
       setToken(access);
       await get().fetchMe();
       set({ isAuthenticated: true });
       toast.success("Đăng nhập thành công!");
       return { success: true };
     } catch (e) {
-      console.error("Lỗi đăng nhập:", e);
+      console.log(e);
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
-      return { success: false, message: e?.message || "Đăng nhập thất bại" };
+      return { success: false, message: e?.message, error: e || "Đăng nhập thất bại" };
     } finally {
       set({ authSubmitting: false });
     }
   },
 
   // Đăng ký
-  register: async (fullName, email, password) => {
+  register: async (firstName, lastName, email, password) => {
     set({ registerSubmitting: true, isLoading: true });
     try {
-      const payload = { fullName, email, password };
+      const payload = { firstName, lastName, email, password };
       const data = await http("/auth/register/candidate", {
         method: "POST",
         body: payload,
@@ -117,7 +121,7 @@ export const useAuthStore = create((set, get) => ({
         const ok = await get().fetchMe();
         if (!ok) await get().tryRefresh();
       } else {
-        await get().tryRefresh(); // giống logic của Context
+        await get().tryRefresh(); 
       }
     } finally {
       set({ authInitializing: false });

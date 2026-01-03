@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
-import { useAuthStore } from '~/store/authStore';
+import { useAuthStore } from '~/stores/authStore';
+import { toast } from 'sonner';
+import { setVerifyCurrent } from '~/utils/storage';
 
 export default function Login() {
   
+
+  const errorMap = {
+    "Invalid password": "Sai mật khẩu.",
+    "Account not found": "Tài khoản không tồn tại. Vui lòng đăng ký mới.",
+    "Account locked": "Tài khoản đã bị khóa.",
+    "Email not verified": "Email chưa xác thực. Vui lòng xác thực",
+    "You do not have permission to log in to this account": "Bạn không có quyền để truy cập tài khoản này"
+  };
   // State để lưu thông tin form
   const [formData, setFormData] = useState({
     email: '',
@@ -35,6 +45,14 @@ export default function Login() {
     location.state?.from?.pathname
       ? `${location.state.from.pathname}${location.state.from.search || ""}${location.state.from.hash || ""}`
       : "/";
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, from, navigate]);
+
   // Hàm xử lý submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,20 +64,38 @@ export default function Login() {
       return;
     }
 
-    const result = await login(formData.email, formData.password);
-   
-    if (result.success) {
-      // Đăng nhập thành công, chuyển về trang chủ
-      navigate(from, { replace: true });
-    } else {
-      // Hiển thị lỗi
-      setError(result.message);
+    try {
+      const result = await login(formData.email, formData.password);
+      if (result.success) {
+        // Đăng nhập thành công, chuyển về trang chủ
+        navigate(from, { replace: true });
+      } else {
+        const message = result?.error.response?.data?.message;
+        const statusCode =  result?.error.response?.status;
+        if(statusCode === 505 || message === "Email not verified" ){
+          //OTPExpiredIn: 300s
+          setVerifyCurrent({email: formData.email})
+          toast.error(errorMap[message])
+          navigate("/verify-otp", {
+            replace: true,
+            state: {
+              purpose: "verify_email",
+              redirectTo: "/login",
+              // expiresIn: res?.data ?? 120,
+            }
+          })
+        }
+        else{
+          // Hiển thị lỗi
+          setError(errorMap[message] || "Đã xảy ra lỗi, vui lòng thử lại.");
+        }
+        
+      }
+    }catch {
+      // 
     }
   };
 
-  if(isAuthenticated){
-    navigate(from, { replace: true });
-  }
 
   return (
     <div className="flex h-[700px] w-full gap-30">

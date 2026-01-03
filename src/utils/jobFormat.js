@@ -301,6 +301,18 @@ const normalizeTags = (job, limit = 3) => {
   return result.slice(0, limit);
 };
 
+const normalizeApplicationRequirements = (job) => {
+  const raw = job?.applicationRequirements || job?.applicationRequirement || {};
+
+  const resume = raw?.resume !== false;
+  const coverLetter = Boolean(raw?.coverLetter);
+
+  return {
+    resume,
+    coverLetter,
+  };
+};
+
 const normalizeJob = (job = {}) => {
   const title = safeText(job.title || job.name) || "Đang cập nhật";
   const department = safeText(job.department || job.departmentName);
@@ -329,7 +341,8 @@ const normalizeJob = (job = {}) => {
     address: safeText(job.specific || job.address || job.addressLine),
     salaryRange: formatSalary(job),
     likes: normalizeLikes(job),
-    isLiked: Boolean(job.isLiked || job.liked || job.userLiked),
+    isSaved: Boolean(job.isLiked || job.liked || job.isSaved),
+    isApplied: Boolean(job.isApplied),
     detailUrl:
       safeText(
         job.detailUrl ||
@@ -362,6 +375,7 @@ const normalizeJob = (job = {}) => {
     minimumQualifications: toCleanArray(job.minimumQualifications),
     benefits: toCleanArray(job.benefits), // ← Thêm field benefits
     education: safeText(job.education), // ← Thêm field education cho trình độ
+    applicationRequirements: normalizeApplicationRequirements(job),
   };
 };
 

@@ -3,6 +3,7 @@ import { apiConfig } from "~/config";
 import { http } from "../http/request";
 import { getToken } from "~/utils/storage";
 
+
 export const JobAPI = {
   /**
    * Gọi API lấy toàn bộ danh sách việc làm.
@@ -73,7 +74,7 @@ export const JobAPI = {
 
     return http(path, {
       method: "POST",
-      auth: false,
+      auth: true,
       body: payload,
       signal,
     });
@@ -119,7 +120,7 @@ export const JobAPI = {
 
     return http(path, {
       method: "GET",
-      auth: false,
+      auth: true,
       signal,
     });
   },
@@ -175,4 +176,23 @@ export const JobAPI = {
       signal,
     });
   },
+
+  /**
+   * Gửi đơn ứng tuyển cho một job cụ thể.
+   * Lưu ý: cập nhật `apiConfig.endpoints.jobs.apply` nếu BE dùng đường dẫn khác.
+   */
+  applyToJob(id, payload = {}) {
+    if (!id) {
+      return Promise.reject(new Error("Job id is required"));
+    }
+
+    const path = apiConfig.endpoints.jobs.apply.replace(":id", id);
+
+    return http(path, {
+      method: "POST",
+      body: payload,
+      auth: true,
+    });
+  },
+
 };
