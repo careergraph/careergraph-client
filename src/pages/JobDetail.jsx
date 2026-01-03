@@ -8,11 +8,13 @@ import {
 import JobHeader from "~/sections/JobDetail/JobHeader";
 import CompanyCard from "~/sections/JobDetail/CompanyCard";
 import SimilarJobsList from "~/sections/JobDetail/SimilarJobsList";
+import CtaBanner from "~/sections/JobDetail/CtaBanner";
 import JobSections from "~/sections/JobDetail/JobSections";
 import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "~/services/jobService";
+import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -174,7 +176,7 @@ const buildCompanyInfo = (job) => {
     address: job.address || job.location || "Đang cập nhật",
     size: job.companySize || "Đang cập nhật",
     logo: job.companyAvatar || "https://placehold.co/64x64?text=Logo",
-    link: "#", // TODO: Lấy từ API khi có
+    link: job.companyId ? `/companies/${job.companyId}` : "#",
   };
 };
 
@@ -197,6 +199,7 @@ export default function JobDetailPage() {
   const [similarJobs, setSimilarJobs] = useState([]);
   const [loadingSimilarJobs, setLoadingSimilarJobs] = useState(false);
 
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
   // ==================== LOAD DỮ LIỆU TỪ API ====================
   useEffect(() => {
     let isMounted = true;
@@ -236,12 +239,13 @@ export default function JobDetailPage() {
         }
       }
     };
-
     // Hàm chính load job detail
     const fetchJobData = async () => {
       try {
         setLoading(true);
         setError(null);
+        
+
 
         // Gọi API lấy chi tiết job
         const data = await JobService.fetchJobDetail(id);
@@ -405,9 +409,14 @@ export default function JobDetailPage() {
           {/* Header: Tiêu đề + highlights + stats + tags */}
           <JobHeader
             title={job.title}
+            jobId={job.id}
             highlights={highlights}
             stats={stats}
             tags={tags}
+            onApply={() => setIsApplyDialogOpen(true)}
+
+            applyDisabled={job.isApplied}
+            isSaved={job.isSaved}
           />
 
           {/* Sections: Mô tả, yêu cầu, quyền lợi */}
@@ -451,6 +460,20 @@ export default function JobDetailPage() {
           />
         </aside>
       </div>
+
+      {/* ---------- Promotional CTA (full width, above footer) ---------- */}
+      <CtaBanner job={job} />
+
+      <ApplyDialog
+        open={isApplyDialogOpen}
+        onClose={() => setIsApplyDialogOpen(false)}
+        jobId={id}
+        jobTitle={job.title}
+        coverLetterRequired={Boolean(job.applicationRequirements?.coverLetter)}
+        onAppliedSuccess={() => {
+          setJob(prev => ({ ...prev, isApplied: true })); // 🔥 cập nhật ngay
+        }}
+      />
     </div>
   );
 }

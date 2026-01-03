@@ -83,11 +83,15 @@ export default function CriteriaForm({ defaultValues, onSubmit }) {
     }));
 
   const industryOptions = [
-    "IT Phần mềm",
-    "Thiết kế - Sáng tạo nghệ thuật",
-    "Kế toán - Kiểm toán",
-    "Nhân sự",
-    "Kinh doanh - Bán hàng",
+    "Kỹ thuật",
+    "Công nghệ",
+    "Kinh doanh",
+    "Nghệ thuật & Âm nhạc",
+    "Hành chính",
+    "Bán hàng",
+    "Giáo dục",
+    "Chăm sóc khách hàng",
+    "Sản xuất",
   ];
 
   const {provinceOptions, loadingProvince} = useLocation();

@@ -10,4 +10,11 @@ export const CompanyAPI = {
     })
   },
 
+  getCompanyDetail(id) {
+    const url = apiConfig.endpoints.company.detail.replace(":id", id);
+    return http(url, {
+      method: "GET",
+    });
+  },
+
 }

@@ -16,10 +16,10 @@ import AvatarCropModal from "../AvatarCropModal";
 import RightDrawer from "../RightDrawer";
 import PersonalForm from "./PersonForm";
 import { toast } from "sonner";
-import { normalizeAddress, normalizeContact } from "~/services/domain/candidate/profile.mapper";
+import { normalizeAddress, normalizeContact } from "~/services/mapper/profileMapper";
 import AvatarUser from "~/components/DefaultData/AvatarUser";
 import { useLocation } from "~/hooks/use-location";
-import { useUserStore } from "~/store/userStore";
+import { useUserStore } from "~/stores/userStore";
 
 export default function ProfileCard() {
 
@@ -70,7 +70,6 @@ export default function ProfileCard() {
   const toPayload = (f) => ({
     firstName: f.firstName?.trim(),
     lastName: f.lastName?.trim(),
-    phone: f.phone?.trim(),
     dateOfBirth: f.birth || null, // giữ format yyyy-mm-dd
     gender: f.gender === "Nam" ? "MALE" : (f.gender === "Nữ" ? "FEMALE" : null),
     isMarried: f.marital === "Đã lập gia đình",
@@ -164,7 +163,6 @@ export default function ProfileCard() {
       toast.success("Cập nhật ảnh đại diện thành công");
       
     }catch(err){
-      console.log(err)
       toast.error(err.message || "Cập nhật thất bại")
     }
 

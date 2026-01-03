@@ -1,7 +1,6 @@
 //D:\DaiHoc\DoAn\careergraph-client\src\services\api\user\user.js
 import { apiConfig } from "~/config";
 import { http } from "../http/request";
-import { toast } from "sonner";
 
 export const UserAPI = {
 
@@ -12,7 +11,6 @@ export const UserAPI = {
     })
   },
   async me () {
-    try{
       const data = await http (apiConfig.endpoints.user.me, {method:"GET",auth:true});
       // if (data?.data?.candidateId){
       //   try {
@@ -25,10 +23,6 @@ export const UserAPI = {
       //   }
       // }
       return data;
-    }catch{
-      toast("Lỗi lấy thông tin người dùng")
-      return null;
-    }
   },
   updateInfo(payload) {
     return http(apiConfig.endpoints.user.updateInfo, {
@@ -87,6 +81,54 @@ export const UserAPI = {
       method: "PUT",
       body:payload,
     });
+  },
+
+  getAppliedJobs(status=""){
+     return http(`${apiConfig.endpoints.user.appliedJobs}?status=${status}`, {
+      method: "GET",
+      auth: true,
+    });
+  },
+  deleteFile(fileId=""){
+    return http(`${apiConfig.endpoints.user.media}?fileId=${encodeURIComponent(fileId)}`, {
+      method: "DELETE",
+      auth: true,
+    });
+  },
+  savedJobs(candidateId, jobId){
+    return http(`${apiConfig.endpoints.jobs.list}/${encodeURIComponent(candidateId)}/${encodeURIComponent(jobId)}`, {
+      method: "POST",
+      auth: true,
+    });
+  },
+  unSavedJobs(candidateId, jobId){
+    return http(`${apiConfig.endpoints.jobs.list}/${encodeURIComponent(candidateId)}/${encodeURIComponent(jobId)}`, {
+      method: "DELETE",
+      auth: true,
+    });
+  },
+
+  getAllSavedJobs(){
+    return http(`${apiConfig.endpoints.user.savedJobs}`, {
+      method: "GET",
+      auth: true,
+    });
+  },
+  setJobSearchStatus(){
+    return http(`${apiConfig.endpoints.user.openWork}`, {
+      method: "PUT",
+      auth: true,
+    });
+  },
+  toggleJobMail(){
+    return http(`${apiConfig.endpoints.user.jobMail}`, {
+      method: "PUT",
+      auth: true,
+    });
   }
+  
+  
+
+
   
 };

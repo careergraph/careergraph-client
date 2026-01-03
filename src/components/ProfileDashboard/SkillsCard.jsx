@@ -1,13 +1,12 @@
 "use client";
 import { Pencil, Plus, X as XIcon } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import useDebounce from "~/hooks/useDebounce";
 import useDirty from "~/hooks/useDirty";
 import { SkillAPI } from "~/services/api/skill";
 import { UserAPI } from "~/services/api/user";
-import { convertStringSkills } from "~/services/domain/candidate/profile.mapper";
-import { useUserStore } from "~/store/userStore";
-import SimpleSelect from "./SimpleSelect";
+import { convertStringSkills } from "~/services/mapper/profileMapper";
+import { useUserStore } from "~/stores/userStore";
 
 /* ---------- Modal ---------- */
 function Modal({ open, title, onCloseRequest, children, footer }) {
@@ -95,11 +94,13 @@ function SkillsForm({
     typeof s === "string" ? s : (s && (s.skillName || s.name || "")) || "";
   const toObj = (s) => ({ skillName: toLabel(s) });
 
-  const normalizeInit = (arr) =>
-    (arr || [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const normalizeInit = useCallback((arr) => {
+    return (arr || [])
       .map(toObj)
       .map((o) => ({ skillName: String(o.skillName || "").trim() }))
       .filter((o) => !!o.skillName);
+  }, []);
 
   // so trùng (case-insensitive)
   const exists = (name) =>
@@ -109,7 +110,7 @@ function SkillsForm({
   // nhận initialSkills -> chuẩn hoá về [{skillName}]
   useEffect(() => {
     setSkills(normalizeInit(initialSkills));
-  }, [initialSkills]);
+  }, [initialSkills, normalizeInit]);
 
   // callback ra ngoài khi thay đổi
   useEffect(() => {
@@ -240,7 +241,7 @@ function SkillsForm({
 
         {open && suggests.length > 0 && (
           <div className="absolute left-0 right-0 z-20 -mt-px max-h-50 w-full overflow-auto
-                    rounded-xl border border-violet-500 bg-white shadow-lg mt-2">
+                    rounded-xl border border-violet-500 bg-white shadow-lg">
             {suggests.map((opt, idx) => (
               <button
                 key={opt.id ?? opt.name ?? idx}
@@ -262,7 +263,7 @@ function SkillsForm({
         {open && !suggests.length > 0 && (
           <div
           className="absolute left-0 right-0 z-20 -mt-px max-h-64 w-full overflow-auto
-                    rounded-xl border bg-white shadow-lg mt-2 border-violet-500"
+                    rounded-xl border bg-white shadow-lg border-violet-500"
         >
           <div className="p-2"> <span className="font-medium">Nhấn "Enter" để thêm:</span> {input} </div>
           </div>
@@ -319,11 +320,10 @@ export default function SkillsCard() {
     setOpen(false);
     try {
       const saved = await UserAPI.replaceSkillsForUser({skills:convertStringSkills(next)});
-      console.log(saved); 
       useUserStore.getState().updateUserPart({ skills: saved?.data })
     } catch (e) {
+      console.error("Save skills failed:", e);
       setSkills(prev);
-      console.error(e);
     }
   };
 

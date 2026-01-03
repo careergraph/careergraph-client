@@ -19,6 +19,10 @@ export const routes = {
   waitingJobs: "/jobs/waiting",
   jobAlerts: "/jobs/alerts",
   employersViews: "/employers/views",
+  forgotPassword: "/forgot-password",
+  verifyOtp: "/verify-otp",
+  resetPassword: "/reset-password",
+  companyDetail: "/companies/:id",
 };
 
 // Cấu hình API endpoints
@@ -30,34 +34,66 @@ export const apiConfig = {
       register: "/auth/register/candidate",
       verify: "/auth/verify",
       logout: "/auth/logout",
+      forgotPassword: "/auth/forgot-password",
+      verifyOtpRegister: "/auth/confirm-otp-register",
+      verifyOtpResetPassword: "/auth/confirm-otp-reset-password",
+      resetPassword: "auth/reset-password",
+      resendOTP: "auth/resend-otp",
+      getTtlOtp: "auth/ttl-otp",
     },
     jobs: {
       list: "/jobs",
+      candidate: "/jobs/candidates",
       detail: "/jobs/:id",
       search: "/jobs/search",
       categories: "/jobs/categories",
       popular: "/jobs/popular",
       personalized: "/jobs/personalized",
       similar: "/jobs/:id/similar",
+      apply: "/jobs/:id/application",
     },
     user: {
       me: "/candidates/me",
-      updateInfo: "/candidates/update-information",
+      updateInfo: "/candidates/information",
       empty: "/candidates",
-      updateJobFindCriteria: "/candidates/update-job-find-criteria",
+      updateJobFindCriteria: "/candidates/job-find-criteria",
       experience: "/candidates/experiences",
       education: "/candidates/educations",
       skill: "/candidates/skills",
+      appliedJobs: "/candidates/applied-jobs",
+      savedJobs: "/candidates/saved-jobs",
+      media: "/candidates/media",
+      openWork: "/candidates/job-search-status",
+      jobMail: "/candidates/job-mail",
+      
     },
     company: {
       lookup: "/companies/lookup",
       jobs: "/companies/:id/jobs",
+      detail: "/companies/:id",
     },
     education: {
       lookup: "/educations/lookup",
     },
     skill: {
       lookup: "/skills/lookup",
+    },
+    media: {
+      upload: "/media/file",
+      list: "/media",
+      base: "/media"
+    },
+    applications: {
+      list: "/applications",
+      detail: "/applications/:id",
+      updateStatus: "/applications/:id/status",
+    },
+    chat: {
+      sendMessage: "/chat/chat",
+      conversations: "/chat/conversations",
+      lasted: "/chat/lasted",
+      history: "/chat/history",
+      clear: "/chat/clear",
     },
   },
 };
