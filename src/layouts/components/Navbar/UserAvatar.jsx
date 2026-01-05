@@ -27,9 +27,9 @@ export default function UserAvatar() {
         onClick={() => setShowUserMenu(!showUserMenu)}
         className="flex items-center gap-2 px-4 py-2 hover:bg-slate-100 transition rounded-md"
       >
-        {user?.avatarUrl ? (
+        {user?.avatar ? (
           <img 
-            src={user.avatarUrl} 
+            src={user.avatar} 
             alt={user?.firstName ?? "avatar"} 
             className="w-9 h-9 object-cover rounded-full"
           />
