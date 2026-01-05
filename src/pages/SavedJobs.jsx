@@ -84,7 +84,7 @@ function JobCard({ job }) {
   const avatarSrc = imgError
     ? `https://avatar.oxro.io/avatar.svg?name=${encodeURIComponent(job.companyName || job.title || "Company")}`
     : job.companyAvatar || "/dist/assets/ai-feature-DH8aVC4K.svg";
-
+ 
 
   return (
     <div className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:shadow-sm">
@@ -223,7 +223,7 @@ export default function SavedJobs({
       setIsLoading(true);
         try {
           const res =  await UserAPI.getAllSavedJobs();
-          console.log(res?.data)
+          console.log("jobs ", res?.data)
           setItems(res?.data);
           setIsLoading(false);
         }catch (err){
@@ -238,7 +238,7 @@ export default function SavedJobs({
   },[])
 
 
-  const hasAny = useMemo(() => items?.some((i) => i.saved), [items]);
+
   return (
     <section className="w-full mx-6">
       {/* greeting */}
@@ -270,14 +270,12 @@ export default function SavedJobs({
       </div>
     </div>): (
       <div className="px-5 py-4 space-y-3">
-          {!items ? (
+          {!items || items.length === 0 ? (
             <EmptySaved />
           ) : (
-            items
-              .filter((j) => j.saved)
-              .map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))
+            items.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))
           )}
         </div>
       )}
