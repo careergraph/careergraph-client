@@ -47,8 +47,8 @@ export default function ProfileCard() {
     if(!user) return;
     setInfo(user);
     setAddressCode({provinceCode: user?.primaryAddress?.province, districtCode: user?.primaryAddress?.district })
-    if(user?.avatarUrl){
-        setAvatarUrl(user?.avatarUrl);
+    if(user?.avatar){
+        setAvatarUrl(user?.avatar);
       }
   },[user])
 
@@ -157,7 +157,7 @@ export default function ProfileCard() {
         id: info.candidateId,
         body: formData,
       });
-      useUserStore.getState().updateUserPart({ avatarUrl: res?.data })
+      useUserStore.getState().updateUserPart({ avatar: res?.data })
     
       
       toast.success("Cập nhật ảnh đại diện thành công");
