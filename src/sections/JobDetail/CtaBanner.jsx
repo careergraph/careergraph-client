@@ -1,11 +1,37 @@
-import { Megaphone } from "lucide-react";
+import { Megaphone, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { JobService } from "~/services/jobService";
+import { toast } from "sonner";
 
 // A richer CTA banner: shows optional company logo, short benefits, and a tiny testimonial
 export default function CtaBanner({ job }) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const title = job?.title || "vị trí này";
   const companyLogo = job?.companyAvatar || job?.companyLogo || null;
+
+  const handleViewCvTemplate = async () => {
+    if (!job?.id) return;
+
+    try {
+      setIsLoading(true);
+      const response = await JobService.fetchCvSuggestion(job.id);
+      
+      navigate("/build-cv?template=harvard", { 
+        state: { 
+          job,
+          suggestedCv: response 
+        } 
+      });
+    } catch (error) {
+      console.error("Failed to fetch CV suggestion:", error);
+      toast.error("Không thể tạo gợi ý CV. Đang chuyển đến trang tạo CV...");
+      navigate("/build-cv?template=harvard", { state: { job } });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="mt-8">
@@ -74,10 +100,12 @@ export default function CtaBanner({ job }) {
           {/* CTAs */}
           <div className="flex-shrink-0 flex flex-col sm:flex-row items-center gap-3">
             <button
-              onClick={() => navigate("/build-cv?template=harvard", { state: { job } })}
-              className="inline-flex items-center justify-center px-4 py-2 bg-white text-indigo-600 rounded-md font-semibold text-sm shadow-md hover:opacity-95"
+              onClick={handleViewCvTemplate}
+              disabled={isLoading}
+              className="inline-flex items-center justify-center px-4 py-2 bg-white text-indigo-600 rounded-md font-semibold text-sm shadow-md hover:opacity-95 disabled:opacity-70"
               aria-label={`Xem mẫu CV cho ${title}`}
             >
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Xem mẫu CV
             </button>
 

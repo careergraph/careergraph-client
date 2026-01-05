@@ -31,6 +31,7 @@ export default function CVBuilder() {
   const user = useUserStore((state) => state.user);
   const location = useLocation();
   const jobFromState = location.state?.job;
+  const suggestedCv = location.state?.suggestedCv;
 
   const { provinceName, districtName } = useLocationHook(
     user?.primaryAddress?.province,
@@ -39,6 +40,39 @@ export default function CVBuilder() {
   const userLoadedRef = useRef(false);
 
   useEffect(() => {
+    if (suggestedCv) {
+      // Xử lý dữ liệu từ AI (có thể nằm trong .data hoặc trực tiếp)
+      const aiData = suggestedCv.data || suggestedCv;
+
+      // Hàm helper để tạo ID nếu thiếu (vì AI trả về id: null)
+      const ensureIds = (items, prefix) => {
+        if (!Array.isArray(items)) return [];
+        return items.map((item, index) => ({
+          ...item,
+          id: item.id || `${prefix}-${Date.now()}-${index}`,
+        }));
+      };
+
+      const processedData = {
+        ...aiData,
+        experience: ensureIds(aiData.experience, "exp"),
+        education: ensureIds(aiData.education, "edu"),
+        skills: ensureIds(aiData.skills, "skill"),
+        languages: ensureIds(aiData.languages, "lang"),
+        awards: ensureIds(aiData.awards, "award"),
+      };
+
+      setCvData((prev) => ({
+        ...prev,
+        ...processedData,
+        personal: { ...prev.personal, ...(processedData.personal || {}) },
+        contact: { ...prev.contact, ...(processedData.contact || {}) },
+      }));
+      
+      userLoadedRef.current = true;
+      return;
+    }
+
     if (user && !userLoadedRef.current) {
       const hasExperience = user.experiences && user.experiences.length > 0;
       const hasEducation = user.educations && user.educations.length > 0;
