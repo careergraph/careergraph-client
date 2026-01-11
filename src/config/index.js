@@ -40,6 +40,7 @@ export const apiConfig = {
       resetPassword: "auth/reset-password",
       resendOTP: "auth/resend-otp",
       getTtlOtp: "auth/ttl-otp",
+      googleLogin: "auth/google",
     },
     jobs: {
       list: "/jobs",

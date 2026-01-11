@@ -5,8 +5,32 @@ import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
 
+import { GoogleLogin } from "@react-oauth/google";
+import { AuthAPI } from '~/services/api/auth';
+
 export default function Login() {
   
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const res = await AuthAPI.googleLogin({ idToken: credentialResponse.credential });
+
+      const accessToken = res.data.accessToken;
+
+      // lưu token theo hệ thống của bạn
+      useAuthStore.getState().setToken(accessToken);
+
+      toast.success("Đăng nhập Google thành công");
+      navigate(from, { replace: true });
+
+    } catch (err) {
+      toast.error("Google login thất bại");
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google login bị lỗi");
+  };
+
 
   const errorMap = {
     "Invalid password": "Sai mật khẩu.",
@@ -126,15 +150,16 @@ export default function Login() {
             </div>
           )}
 
-          <button
-            type="button"
-            className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full"
-          >
-            <img
-              src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/login/googleLogo.svg"
-              alt="googleLogo"
+          <div className="w-full mt-8 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              shape="circle"
+              size="large"
+              width="384"
+              text="signin_with"
             />
-          </button>
+          </div>
 
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-gray-300/90"></div>

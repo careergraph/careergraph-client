@@ -45,4 +45,11 @@ export const AuthAPI = {
       auth: false,
     })
   },
+  googleLogin(payload){
+    return http(`${apiConfig.endpoints.auth.googleLogin}}`, {
+      method: "GET",
+      body: payload,
+      auth: false,
+    })
+  },
 }
