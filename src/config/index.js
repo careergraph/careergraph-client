@@ -1,4 +1,7 @@
 // Cấu hình routes cho ứng dụng
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/careergraph/api/v1";
 export const routes = {
   home: "/",
   homeDefault: "/home",
@@ -23,11 +26,12 @@ export const routes = {
   verifyOtp: "/verify-otp",
   resetPassword: "/reset-password",
   companyDetail: "/companies/:id",
+  interviews: "/interviews",
 };
 
 // Cấu hình API endpoints
 export const apiConfig = {
-  baseURL: "http://localhost:8080/careergraph/api/v1",
+  baseURL: API_BASE_URL,
   endpoints: {
     auth: {
       login: "/auth/login",
@@ -87,6 +91,15 @@ export const apiConfig = {
       list: "/applications",
       detail: "/applications/:id",
       updateStatus: "/applications/:id/status",
+    },
+    interviews: {
+      me: "/interviews/me",
+      upcoming: "/interviews/me/upcoming",
+      detail: "/interviews/:id",
+      confirm: "/interviews/:id/confirm",
+      decline: "/interviews/:id/decline",
+      propose: "/interviews/:id/propose",
+      room: "/interviews/room/:roomCode",
     },
     chat: {
       sendMessage: "/chat/chat",

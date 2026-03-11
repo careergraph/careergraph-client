@@ -22,6 +22,8 @@ import TestApi from "~/pages/TestApi";
 import ForgotPassword from "~/pages/ForgotPassword";
 import VerifyOtp from "~/pages/VerifyOtp";
 import ResetPassword from "~/pages/ResetPassword";
+import MyInterviews from "~/pages/MyInterviews";
+import InterviewRoom from "~/pages/InterviewRoom";
 
 const publicRoutes = [
   { path: routes.home, component: Home },
@@ -50,6 +52,8 @@ const publicRoutes = [
 //In addition to diving private routes and public routes, you can also use the protected flag
 const privateRoutes = [
   { path: routes.profile, component: Profile, layout: ProfileDashboardLayout },
+  { path: routes.interviews, component: MyInterviews, layout: ProfileDashboardLayout },
+  { path: "/interview/room/:roomCode", component: InterviewRoom, layout: null },
 ];
 
 export { publicRoutes, privateRoutes };

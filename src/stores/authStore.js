@@ -113,6 +113,34 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  // Đăng nhập bằng Google
+  googleLogin: async (idToken) => {
+    set({ authSubmitting: true });
+    try {
+      const data = await http("/auth/google-login", {
+        method: "POST",
+        body: { idToken, role: "user" },
+        auth: false,
+      });
+      const access = data?.data?.accessToken || data?.accessToken || data;
+      if (!access) throw new Error("Thiếu accessToken");
+
+      setToken(access);
+      await get().fetchMe();
+      set({ isAuthenticated: true });
+      toast.success("Đăng nhập Google thành công!");
+      return { success: true };
+    } catch (e) {
+      console.error("Google login error:", e);
+      removeToken();
+      useUserStore.getState().clearUser();
+      set({ isAuthenticated: false });
+      return { success: false, message: e?.message, error: e || "Đăng nhập Google thất bại" };
+    } finally {
+      set({ authSubmitting: false });
+    }
+  },
+
   initAuth: async () => {
     set({ authInitializing: true });
     try {

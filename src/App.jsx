@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { publicRoutes, privateRoutes } from "../src/routes";
 import DefaultLayout from "../src/layouts";
@@ -7,8 +8,11 @@ import ProtectedRoute from "./components/Containers/ProtectedRoute";
 import { Toaster } from "sonner";
 import { AppInitializer } from "~/components/AppInitializer";
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
 export default function App() {
   return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <Router>
       <AppInitializer>
           <Toaster richColors/>
@@ -79,5 +83,6 @@ export default function App() {
             </div>
         </AppInitializer>
       </Router>
+    </GoogleOAuthProvider>
   );
 }

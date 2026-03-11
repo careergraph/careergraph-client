@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
@@ -27,7 +28,7 @@ export default function Login() {
   
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
-  const { login, authSubmitting, isAuthenticated } = useAuthStore();
+  const { login, googleLogin, authSubmitting, isAuthenticated } = useAuthStore();
 
 
   // Hàm xử lý thay đổi input
@@ -126,15 +127,22 @@ export default function Login() {
             </div>
           )}
 
-          <button
-            type="button"
-            className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full"
-          >
-            <img
-              src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/login/googleLogo.svg"
-              alt="googleLogo"
+          <div className="w-full mt-8 flex items-center justify-center">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                const result = await googleLogin(credentialResponse.credential);
+                if (result.success) {
+                  navigate(from, { replace: true });
+                }
+              }}
+              onError={() => {
+                toast.error('Đăng nhập Google thất bại');
+              }}
+              text="signin_with"
+              shape="pill"
+              width="384"
             />
-          </button>
+          </div>
 
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-gray-300/90"></div>
