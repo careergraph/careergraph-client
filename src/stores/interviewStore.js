@@ -33,7 +33,7 @@ export const useInterviewStore = create((set, get) => ({
     const { interviews } = get();
     set({
       interviews: interviews.map((i) =>
-        i.id === id ? { ...i, status: "CONFIRMED" } : i
+        i.id === id ? { ...i, interviewStatus: "CONFIRMED" } : i
       ),
     });
     return res;
@@ -44,7 +44,7 @@ export const useInterviewStore = create((set, get) => ({
     const { interviews } = get();
     set({
       interviews: interviews.map((i) =>
-        i.id === id ? { ...i, status: "CANCELLED" } : i
+        i.id === id ? { ...i, interviewStatus: "CANCELLED" } : i
       ),
     });
     return res;

@@ -376,9 +376,9 @@ export default function MyInterviews() {
                 </div>
 
                 <div className="flex flex-col items-end gap-2 shrink-0">
-                  <StatusBadge value={interview.status} />
+                  <StatusBadge value={interview.interviewStatus} />
 
-                  {interview.status === "SCHEDULED" && (
+                  {interview.interviewStatus === "SCHEDULED" && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       <button
                         onClick={() => handleConfirm(interview.id)}
@@ -401,13 +401,13 @@ export default function MyInterviews() {
                     </div>
                   )}
 
-                  {interview.status === "PENDING_RESCHEDULE" && (
+                  {interview.interviewStatus === "PENDING_RESCHEDULE" && (
                     <p className="mt-2 text-xs text-purple-600 font-medium">
                       Đã gửi đề xuất — đang chờ HR xác nhận
                     </p>
                   )}
 
-                  {interview.status === "CONFIRMED" && interview.type === "ONLINE" && interview.meetingLink && (
+                  {["SCHEDULED", "CONFIRMED"].includes(interview.interviewStatus) && interview.type === "ONLINE" && interview.meetingLink && (
                     <button
                       onClick={() => navigate(`/interview/room/${interview.meetingLink}`)}
                       className="mt-2 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
