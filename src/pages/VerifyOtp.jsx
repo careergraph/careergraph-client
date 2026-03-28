@@ -12,9 +12,9 @@ export default function VerifyOtp() {
   const state = location.state || {};
 
   const data  = getVerifyCurrent();
-  const email = data?.email || "";
+  const email = (data?.email || "").trim().toLowerCase();
 
-  const purpose = state.purpose || "reset_password"; 
+  const purpose = data?.purpose || state.purpose || "verify_email"; 
   // const initialExpiresIn = typeof state.expiresIn === "number" ? state?.expiresIn : 120;
   // const initialExpiresIn = Math.max(0, Math.floor((expiredIn - Date.now()) / 1000));
   const redirectTo = data?.redirectTo || "/";
@@ -107,7 +107,7 @@ export default function VerifyOtp() {
     try {
       setSubmitting(true);
       let res;
-      if(purpose=="reset_password"){
+      if (purpose === "reset_password") {
         res = await AuthAPI.verifyOTPResetPassword({ email:email, otp: otpValue });
       }else {
         res = await AuthAPI.verifyOTPRegister({ email:email, otp: otpValue });

@@ -1,5 +1,5 @@
 import DefaultLayout from "~/layouts/DefaultLayout";
-import SideBar from "~/components/ProfileDashboard/SideBar";
+import SideBar from "~/components/ProfileDashboard/Sidebar";
 
 function ProfileDashboardLayout({children}) {
     return (

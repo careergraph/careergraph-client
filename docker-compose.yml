@@ -1,0 +1,24 @@
+# ============================================
+# CareerGraph Client - Docker Compose
+# ============================================
+# Chạy riêng: docker compose up -d
+# Build: docker compose up -d --build
+
+services:
+  careergraph-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/careergraph/api/v1}
+        VITE_GEMINI_API_KEY: ${VITE_GEMINI_API_KEY:-}
+    container_name: careergraph-client
+    ports:
+      - "5000:80"
+    restart: unless-stopped
+    networks:
+      - careergraph-network
+
+networks:
+  careergraph-network:
+    driver: bridge

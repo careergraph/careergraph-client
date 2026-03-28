@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
 
-import { GoogleLogin } from "@react-oauth/google";
 import { AuthAPI } from '~/services/api/auth';
 
 export default function Login() {
@@ -51,7 +51,7 @@ export default function Login() {
   
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
-  const { login, authSubmitting, isAuthenticated } = useAuthStore();
+  const { login, googleLogin, authSubmitting, isAuthenticated } = useAuthStore();
 
 
   // Hàm xử lý thay đổi input
@@ -96,9 +96,9 @@ export default function Login() {
       } else {
         const message = result?.error.response?.data?.message;
         const statusCode =  result?.error.response?.status;
-        if(statusCode === 505 || message === "Email not verified" ){
+        if(statusCode === 403 || statusCode === 505 || message === "Email not verified" ){
           //OTPExpiredIn: 300s
-          setVerifyCurrent({email: formData.email})
+          setVerifyCurrent({email: formData.email.trim().toLowerCase(), purpose: "verify_email", redirectTo: "/login"})
           toast.error(errorMap[message])
           navigate("/verify-otp", {
             replace: true,

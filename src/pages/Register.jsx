@@ -57,13 +57,14 @@ export default function Register() {
     }
 
     // Gọi hàm register từ AuthContext
-    const result = await register(formData.firstName ,formData.lastName, formData.email, formData.password);
+    const normalizedEmail = formData.email.trim().toLowerCase();
+    const result = await register(formData.firstName, formData.lastName, normalizedEmail, formData.password);
     
     if (result.success) {
       toast.success("Đăng ký thành công")
       setVerifyCurrent({
-        email: formData.email, 
-        purpose: "verify_email_register",
+        email: normalizedEmail,
+        purpose: "verify_email",
         redirectTo: "/login",})
       navigate('/verify-otp', {
         replace: true,

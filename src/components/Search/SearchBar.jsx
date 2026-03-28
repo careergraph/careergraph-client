@@ -9,12 +9,19 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
+const SEARCH_KEYWORD_KEY = "jobs_search_keyword";
+const SEARCH_LOCATION_KEY = "jobs_search_location";
+
 export default function SearchBar({
   keywordPlaceholder = "Tìm kiếm việc làm, công ty, từ khoá...",
   onSearch
 }) {
-  const [keyword, setKeyword] = useState("");
-  const [location, setLocation] = useState("");
+  const [keyword, setKeyword] = useState(() => {
+    return sessionStorage.getItem(SEARCH_KEYWORD_KEY) || "";
+  });
+  const [location, setLocation] = useState(() => {
+    return sessionStorage.getItem(SEARCH_LOCATION_KEY) || "";
+  });
   const [provinces, setProvinces] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +41,16 @@ export default function SearchBar({
 
     loadProvinces();
   }, []);
+
+  // Lưu keyword vào sessionStorage khi thay đổi
+  useEffect(() => {
+    sessionStorage.setItem(SEARCH_KEYWORD_KEY, keyword);
+  }, [keyword]);
+
+  // Lưu location vào sessionStorage khi thay đổi
+  useEffect(() => {
+    sessionStorage.setItem(SEARCH_LOCATION_KEY, location);
+  }, [location]);
 
   // Tự động search khi keyword hoặc location thay đổi (với debounce)
   useEffect(() => {

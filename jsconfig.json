@@ -4,8 +4,7 @@
         "baseUrl": ".", // gốc là thư mục hiện tại
         "paths": {
             "~/*": ["src/*"] // alias ~ trỏ về src/
-        },
-        "ignoreDeprecations": "6.0"
+        }
     },
     "exclude": ["node_modules", "dist"]
 }
