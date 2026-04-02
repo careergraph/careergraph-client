@@ -9,6 +9,7 @@ import UserAvatar from "./UserAvatar";
 
 
 export default function Navbar() {
+  const hrSiteUrl = import.meta.env.VITE_HR_SITE_URL || "https://hr.thinz.io.vn";
   const navigate = useNavigate();
   const location = useLocation();
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
@@ -102,6 +103,7 @@ export default function Navbar() {
           );
         })}
       </div>
+      
       {/* Mobile menu */}
       <div
         className={`fixed inset-0 flex flex-col items-center justify-center gap-6 text-lg font-medium bg-white/40 backdrop-blur-md md:hidden transition duration-300 ${
@@ -155,6 +157,13 @@ export default function Navbar() {
             </NavLink>
           );
         })}
+        <a
+          href={hrSiteUrl}
+          className="text-slate-700 underline"
+          onClick={() => setOpenMobileMenu(false)}
+        >
+          Chuyển sang trang HR
+        </a>
         { !authInitializing && (
           isAuthenticated ? (
           <div className="hidden md:flex items-center gap-4">
@@ -170,12 +179,6 @@ export default function Navbar() {
               className="hidden md:block hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
             >
               Đăng nhập
-            </button>
-            <button
-              onClick={() => navigate("/register")}
-              className="hidden md:block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
-            >
-              Đăng ký
             </button>
           </>
         )
@@ -206,15 +209,17 @@ export default function Navbar() {
               >
                 Đăng nhập
               </button>
-              <button
-                onClick={() => navigate("/register")}
-                className="hidden md:block h-9 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md"
+
+              <a
+                href={hrSiteUrl}
+                className="hidden lg:inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 mr-3 "
               >
-                Đăng ký
-              </button>
+                Dành cho HR
+              </a>
             </>
           )
         )}
+        
         <button
           onClick={() => setOpenMobileMenu(!openMobileMenu)}
           className="md:hidden"

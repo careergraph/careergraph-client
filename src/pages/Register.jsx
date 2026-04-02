@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { Home } from 'lucide-react';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
 
 export default function Register() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const hasGoogleClientId =
+    typeof googleClientId === "string" &&
+    googleClientId.trim().length > 0 &&
+    googleClientId.includes(".apps.googleusercontent.com");
+
   // State để lưu thông tin form
   const [formData, setFormData] = useState({
     firstName:'',
@@ -21,7 +29,26 @@ export default function Register() {
   
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
-  const { register, isLoading } = useAuthStore();
+  const { register, googleLogin, isLoading } = useAuthStore();
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    const idToken = credentialResponse?.credential;
+    if (!idToken) {
+      toast.error("Không nhận được Google credential");
+      return;
+    }
+
+    const result = await googleLogin(idToken);
+    if (result?.success) {
+      navigate('/', { replace: true });
+      return;
+    }
+    toast.error(result?.message || "Google login thất bại");
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google login bị lỗi");
+  };
 
   // Hàm xử lý thay đổi input
   const handleChange = (e) => {
@@ -86,25 +113,35 @@ export default function Register() {
 
       <div className="w-1/2 flex flex-col items-start justify-center">
         <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
+          <Link
+            to="/"
+            className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
+          >
+            <Home size={16} />
+            Về trang chủ
+          </Link>
           <h2 className="text-xl text-gray-900 font-medium">
-            Create your{"  "}
+            Đăng ký{"  "}
             <span className="font-bold text-4xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
               Career Graph
             </span>
           </h2>
 
-          <button
-            type="button"
-            className="w-full mt-6 mb-4 bg-gray-500/10 flex items-center justify-center h-12 rounded-full"
-          >
-            <img
-              src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/login/googleLogo.svg"
-              alt="googleLogo"
-            />
-          </button>
+          {hasGoogleClientId && (
+            <div className="w-full mt-6 mb-4 flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                shape="pill"
+                size="large"
+                width="384"
+                text="continue_with"
+              />
+            </div>
+          )}
 
           <p className="text-sm text-gray-500/90 mt-3">
-            Join us today! Please fill in the details to sign up.
+            Tham gia ngay! Vui lòng điền thông tin để đăng ký tài khoản.
           </p>
 
           {/* Hiển thị thông báo lỗi */}
@@ -162,7 +199,7 @@ export default function Register() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder="Mật khẩu"
               value={formData.password}
               onChange={handleChange}
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
@@ -174,7 +211,7 @@ export default function Register() {
             <input
               type="password"
               name="confirmPassword"
-              placeholder="Confirm Password"
+              placeholder="Xác nhận mật khẩu"
               value={formData.confirmPassword}
               onChange={handleChange}
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
@@ -187,12 +224,12 @@ export default function Register() {
             disabled={isLoading}
             className="mt-8 w-full h-11 rounded-full font-bold text-white bg-pink-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Đang đăng ký...' : 'Sign up'}
+            {isLoading ? 'Đang đăng ký...' : 'Đăng ký'}
           </button>
           <p className="text-gray-500/90 text-sm mt-4">
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <Link className="text-indigo-400 hover:underline" to="/login">
-              Sign in
+              Đăng nhập
             </Link>
           </p>
         </form>

@@ -2,6 +2,15 @@
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/careergraph/api/v1";
+
+const resolveApiBaseUrl = (rawBaseUrl) => {
+  if (typeof window !== "undefined" && window.location.protocol === "https:" && rawBaseUrl.startsWith("http://")) {
+    return `https://${rawBaseUrl.slice("http://".length)}`;
+  }
+  return rawBaseUrl;
+};
+
+const RESOLVED_API_BASE_URL = resolveApiBaseUrl(API_BASE_URL);
 export const routes = {
   home: "/",
   homeDefault: "/home",
@@ -31,7 +40,7 @@ export const routes = {
 
 // Cấu hình API endpoints
 export const apiConfig = {
-  baseURL: API_BASE_URL,
+  baseURL: RESOLVED_API_BASE_URL,
   endpoints: {
     auth: {
       login: "/auth/login",

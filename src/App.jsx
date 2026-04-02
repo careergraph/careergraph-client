@@ -9,80 +9,75 @@ import { Toaster } from "sonner";
 import { AppInitializer } from "~/components/AppInitializer";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const HAS_VALID_GOOGLE_CLIENT_ID =
+  GOOGLE_CLIENT_ID.trim().length > 0 && GOOGLE_CLIENT_ID.includes(".apps.googleusercontent.com");
+
+const AppRoutes = () => (
+  <Router>
+    <AppInitializer>
+      <Toaster richColors/>
+      <div className="App">
+        <Routes>
+          {/* Public routes */}
+          {publicRoutes.map((route, index) => {
+            const Page = route.component;
+            let Layout = DefaultLayout;
+            if (route.layout) {
+              Layout = route.layout;
+            } else if (route.layout === null) {
+              Layout = Fragment;
+            }
+
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                }
+              />
+            );
+          })}
+
+          {/* Private routes */}
+          {privateRoutes.map((route, index) => {
+            const Page = route.component;
+            let Layout = DefaultLayout
+            if(route.layout){
+              Layout = route.layout;
+            }else if(route.layout === null){
+                Layout = Fragment;
+            }
+            return (
+              <Route
+                key={`private-${index}`}
+                path={route.path}
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+            );
+          })}
+        </Routes>
+      </div>
+    </AppInitializer>
+  </Router>
+);
 
 export default function App() {
+  if (!HAS_VALID_GOOGLE_CLIENT_ID) {
+    return <AppRoutes />;
+  }
+
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-    <Router>
-      <AppInitializer>
-          <Toaster richColors/>
-          
-            <div className="App">
-              <Routes>
-                {/* Public routes */}
-                {publicRoutes.map((route, index) => {
-                  const Page = route.component;
-                  let Layout = DefaultLayout;
-                  if (route.layout) {
-                    Layout = route.layout;
-                  } else if (route.layout === null) {
-                    Layout = Fragment;
-                  }
-
-                  //Use the protected flag
-                  // const element = route.protected ? (
-                  //   <ProtectedRoute>
-                  //     <Layout>
-                  //       <Page />
-                  //     </Layout>
-                  //   </ProtectedRoute>
-                  // ) : (
-                  //   <Layout>
-                  //     <Page />
-                  //   </Layout>
-                  // );
-
-                  return (
-                    <Route
-                      key={index}
-                      path={route.path}
-                      element={
-                        <Layout>
-                          <Page />
-                          
-                        </Layout>
-                      }
-                    />
-                  );
-                })}
-                
-                {/* Private routes */}
-                {privateRoutes.map((route, index) => {
-                  const Page = route.component;
-                  let Layout = DefaultLayout
-                  if(route.layout){
-                    Layout = route.layout;
-                  }else if(route.layout === null){
-                      Layout = Fragment;
-                  }
-                  return (
-                    <Route
-                      key={`private-${index}`}
-                      path={route.path}
-                      element={
-                        <ProtectedRoute>
-                          <Layout>
-                            <Page />
-                          </Layout>
-                        </ProtectedRoute>
-                      }
-                    />
-                  );
-                })}
-              </Routes>
-            </div>
-        </AppInitializer>
-      </Router>
+      <AppRoutes />
     </GoogleOAuthProvider>
   );
 }

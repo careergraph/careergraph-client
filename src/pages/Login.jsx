@@ -1,26 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation as useLocationR } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import { Home } from 'lucide-react';
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
 
-import { AuthAPI } from '~/services/api/auth';
-
 export default function Login() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const hasGoogleClientId =
+    typeof googleClientId === "string" &&
+    googleClientId.trim().length > 0 &&
+    googleClientId.includes(".apps.googleusercontent.com");
   
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const res = await AuthAPI.googleLogin({ idToken: credentialResponse.credential });
+      const idToken = credentialResponse?.credential;
+      if (!idToken) {
+        toast.error("Không nhận được Google credential");
+        return;
+      }
 
-      const accessToken = res.data.accessToken;
-
-      // lưu token theo hệ thống của bạn
-      useAuthStore.getState().setToken(accessToken);
-
-      toast.success("Đăng nhập Google thành công");
-      navigate(from, { replace: true });
+      const result = await googleLogin(idToken);
+      if (result?.success) {
+        navigate(from, { replace: true });
+      } else {
+        toast.error(result?.message || "Google login thất bại");
+      }
 
     } catch (err) {
       toast.error("Google login thất bại");
@@ -133,14 +140,21 @@ export default function Login() {
 
       <div className="w-1/2 flex flex-col items-start justify-center">
         <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
+          <Link
+            to="/"
+            className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
+          >
+            <Home size={16} />
+            Về trang chủ
+          </Link>
           <h2 className="text-xl text-gray-900 font-medium">
-            Sign in with{" "}
+            Đăng nhập{" "}
             <span className="font-bold text-4xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
               Career Graph
             </span>
           </h2>
           <p className="text-sm text-gray-500/90 mt-3">
-            Welcome back! Please sign in to continue
+            Chào mừng bạn quay trở lại! Vui lòng đăng nhập để tiếp tục
           </p>
 
           {/* Hiển thị thông báo lỗi */}
@@ -150,21 +164,23 @@ export default function Login() {
             </div>
           )}
 
-          <div className="w-full mt-8 flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              shape="circle"
-              size="large"
-              width="384"
-              text="signin_with"
-            />
-          </div>
+          {hasGoogleClientId && (
+            <div className="w-full mt-8 flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                shape="circle"
+                size="large"
+                width="384"
+                text="signin_with"
+              />
+            </div>
+          )}
 
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-gray-300/90"></div>
             <p className="w-full text-nowrap text-sm text-gray-500/90">
-              or sign in with email
+              hoặc đăng nhập bằng email
             </p>
             <div className="w-full h-px bg-gray-300/90"></div>
           </div>
@@ -185,7 +201,7 @@ export default function Login() {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder="Mật khẩu"
               value={formData.password}
               onChange={handleChange}
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
@@ -204,11 +220,11 @@ export default function Login() {
                 onChange={handleChange}
               />
               <label className="text-sm" htmlFor="rememberMe">
-                Remember me
+                Ghi nhớ đăng nhập
               </label>
             </div>
             <a className="text-sm underline" href="/forgot-password">
-              Forgot password?
+              Quên mật khẩu?
             </a>
           </div>
 
@@ -217,12 +233,12 @@ export default function Login() {
             disabled={authSubmitting}
             className="mt-8 w-full h-11 rounded-full font-bold text-white bg-indigo-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {authSubmitting ? "Đang đăng nhập..." : "Login"}
+            {authSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
           <p className="text-gray-500/90 text-sm mt-4">
-            Don't have an account?{"  "}
+            Chưa có tài khoản?{"  "}
             <Link className="text-indigo-400 hover:underline" to="/register">
-              Sign up
+              Đăng ký
             </Link>
           </p>
         </form>

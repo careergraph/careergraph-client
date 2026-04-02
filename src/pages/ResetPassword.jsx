@@ -1,34 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
-import { UserAPI } from "~/services/api/user";
 import { AuthAPI } from "~/services/api/auth";
 import { toast } from "sonner";
-
-// TODO: thay bằng service thật
-async function resetPasswordApi({ email, newPassword, token, purpose }) {
-  // POST /auth/password/reset
-  // body: { email, newPassword, token, purpose: "reset_password" }
-  await new Promise((r) => setTimeout(r, 700));
-  // Demo: chấp nhận tất cả
-  return { success: true, message: "Đặt lại mật khẩu thành công" };
-}
-
-function getQuery(search, key) {
-  return new URLSearchParams(search).get(key);
-}
-
-function checkStrength(pwd) {
-  const rules = {
-    length: pwd.length >= 8,
-    lower: /[a-z]/.test(pwd),
-    upper: /[A-Z]/.test(pwd),
-    digit: /\d/.test(pwd),
-    special: /[^A-Za-z0-9]/.test(pwd),
-  };
-  const score = Object.values(rules).filter(Boolean).length; // 0..5
-  return { rules, score };
-}
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -54,18 +28,12 @@ export default function ResetPassword() {
     }
   }, [email, navigate]);
 
-  const { rules, score } = useMemo(() => checkStrength(password), [password]);
   const matched = password === confirm && password.length > 0;
   const canSubmit =
     !submitting &&
     email &&
-    password.length > 0 &&
-    matched &&
-    rules.length &&
-    rules.lower &&
-    rules.upper &&
-    rules.digit &&
-    rules.special;
+    password.length >= 6 &&
+    matched;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,7 +41,7 @@ export default function ResetPassword() {
     setSuccessMsg("");
 
     if (!canSubmit) {
-      setError("Vui lòng hoàn thành yêu cầu mật khẩu và xác nhận khớp.");
+      setError("Mật khẩu tối thiểu 6 ký tự và xác nhận phải khớp.");
       return;
     }
 
@@ -99,15 +67,6 @@ export default function ResetPassword() {
     }
   };
 
-  // màu nhãn theo điểm
-  const strengthLabel = useMemo(() => {
-    if (!password) return "";
-    if (score <= 2) return "Yếu";
-    if (score === 3) return "Vừa";
-    if (score === 4) return "Khá";
-    return "Mạnh";
-  }, [score, password]);
-
   return (
     <div className="flex h-[700px] w-full gap-30">
       <div className="w-1/2 hidden md:flex justify-end items-center">
@@ -121,7 +80,7 @@ export default function ResetPassword() {
       <div className="w-1/2 flex flex-col items-start justify-center">
         <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
           <h2 className="text-xl text-gray-900 font-medium">
-            Reset password{" "}
+            Đặt lại mật khẩu{" "}
             <span className="font-bold text-4xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
               Career Graph
             </span>
@@ -146,7 +105,7 @@ export default function ResetPassword() {
             <input
               type={showPwd ? "text" : "password"}
               name="newPassword"
-              placeholder="New password"
+              placeholder="Mật khẩu mới"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
@@ -158,7 +117,7 @@ export default function ResetPassword() {
               onClick={() => setShowPwd((s) => !s)}
               className="px-4 text-sm text-gray-500/80 hover:text-gray-700"
             >
-              {showPwd ? "Hide" : "Show"}
+              {showPwd ? "Ẩn" : "Hiện"}
             </button>
           </div>
 
@@ -167,7 +126,7 @@ export default function ResetPassword() {
             <input
               type={showConfirm ? "text" : "password"}
               name="confirmPassword"
-              placeholder="Confirm new password"
+              placeholder="Xác nhận mật khẩu mới"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
@@ -179,7 +138,7 @@ export default function ResetPassword() {
               onClick={() => setShowConfirm((s) => !s)}
               className="px-4 text-sm text-gray-500/80 hover:text-gray-700"
             >
-              {showConfirm ? "Hide" : "Show"}
+              {showConfirm ? "Ẩn" : "Hiện"}
             </button>
           </div>
 
@@ -187,37 +146,9 @@ export default function ResetPassword() {
             <div className="mt-2 text-xs text-red-600">Mật khẩu xác nhận không khớp.</div>
           )}
 
-          {/* Strength checklist */}
-          <div className="mt-3 text-xs text-gray-600 space-y-1">
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${rules.length ? "bg-green-500" : "bg-gray-300"}`} />
-              Tối thiểu 8 ký tự
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${rules.lower ? "bg-green-500" : "bg-gray-300"}`} />
-              Có chữ thường (a–z)
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${rules.upper ? "bg-green-500" : "bg-gray-300"}`} />
-              Có chữ hoa (A–Z)
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${rules.digit ? "bg-green-500" : "bg-gray-300"}`} />
-              Có số (0–9)
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${rules.special ? "bg-green-500" : "bg-gray-300"}`} />
-              Có ký tự đặc biệt (!@#$%…)
-            </div>
-            {password && (
-              <div className="pt-1">
-                <span className="text-gray-500">Độ mạnh: </span>
-                <span className="font-medium text-gray-900">{strengthLabel}</span>
-              </div>
-            )}
-          </div>
-
-          
+          {password.length > 0 && password.length < 8 && (
+            <div className="mt-2 text-xs text-red-600">Mật khẩu tối thiểu 8 ký tự.</div>
+          )}
 
           <button
             type="submit"

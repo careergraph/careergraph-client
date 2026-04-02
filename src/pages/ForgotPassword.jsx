@@ -54,7 +54,7 @@ export default function ForgotPassword() {
       <div className="w-1/2 flex flex-col items-start justify-center">
         <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
           <h2 className="text-xl text-gray-900 font-medium">
-            Forgot your password?
+            Quên mật khẩu?
           </h2>
           <p className="text-sm text-gray-500/90 mt-3">
             Nhập email để nhận mã xác thực (OTP).
