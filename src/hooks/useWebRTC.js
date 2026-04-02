@@ -151,6 +151,7 @@ export function useWebRTC({ roomCode, token, localStream }) {
 
     // ── WebRTC peer events (only fire after admitted) ─
     socket.on("room-peers", (peers) => {
+      setAdmissionStatus("admitted");
       setPeerCount(peers.length);
       if (peers.length > 0) {
         remoteSocketIdRef.current = peers[0].socketId;
@@ -159,6 +160,7 @@ export function useWebRTC({ roomCode, token, localStream }) {
     });
 
     socket.on("user-joined", ({ socketId }) => {
+      setAdmissionStatus("admitted");
       setPeerCount((c) => c + 1);
       remoteSocketIdRef.current = socketId;
       // Candidate stays passive to avoid offer glare; host will initiate.
