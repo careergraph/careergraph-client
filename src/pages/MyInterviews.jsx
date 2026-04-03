@@ -28,7 +28,25 @@ const statusMap = {
   COMPLETED: { label: "Hoàn thành", cls: "bg-green-100 text-green-700" },
   CANCELLED: { label: "Đã hủy", cls: "bg-red-100 text-red-700" },
   NO_SHOW: { label: "Vắng mặt", cls: "bg-gray-100 text-gray-600" },
+  KICKED: { label: "Đã bị mời rời phòng", cls: "bg-red-100 text-red-600" },
+  KICKED_PERMANENT: { label: "Không thể tham gia", cls: "bg-red-100 text-red-600" },
 };
+
+/** Check localStorage for kicked status for an interview */
+function getKickedStatus(interviewId) {
+  try {
+    return localStorage.getItem(`interview-kicked:${interviewId}`) || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Clear kicked status (used when re-joining) */
+function clearKickedStatus(interviewId) {
+  try {
+    localStorage.removeItem(`interview-kicked:${interviewId}`);
+  } catch { /* ignore */ }
+}
 
 function StatusBadge({ value }) {
   const s = statusMap[value] || { label: value, cls: "bg-slate-100 text-slate-600" };
@@ -337,7 +355,17 @@ export default function MyInterviews() {
         </div>
       ) : (
         <div className="space-y-3">
-          {interviews.map((interview) => (
+          {interviews.map((interview) => {
+            const kickedStatus = getKickedStatus(interview.id);
+            const isKickedPermanent = kickedStatus === "kicked-permanent";
+            const isKicked = kickedStatus === "kicked";
+            const displayStatus = isKickedPermanent
+              ? "KICKED_PERMANENT"
+              : isKicked
+                ? "KICKED"
+                : interview.interviewStatus;
+
+            return (
             <div
               key={interview.id}
               className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 hover:shadow-sm transition-shadow"
@@ -376,9 +404,21 @@ export default function MyInterviews() {
                 </div>
 
                 <div className="flex flex-col items-end gap-2 shrink-0">
-                  <StatusBadge value={interview.interviewStatus} />
+                  <StatusBadge value={displayStatus} />
 
-                  {interview.interviewStatus === "SCHEDULED" && (
+                  {/* Kicked info message */}
+                  {isKickedPermanent && (
+                    <p className="mt-1 text-xs text-red-500 font-medium max-w-[200px] text-right">
+                      Bạn đã bị mời rời phòng vĩnh viễn và không thể tham gia lại.
+                    </p>
+                  )}
+                  {isKicked && !isKickedPermanent && (
+                    <p className="mt-1 text-xs text-amber-600 font-medium max-w-[200px] text-right">
+                      Bạn đã bị mời rời phòng. HR có thể cho phép tham gia lại.
+                    </p>
+                  )}
+
+                  {interview.interviewStatus === "SCHEDULED" && !kickedStatus && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       <button
                         onClick={() => handleConfirm(interview.id)}
@@ -407,18 +447,24 @@ export default function MyInterviews() {
                     </p>
                   )}
 
-                  {["SCHEDULED", "CONFIRMED"].includes(interview.interviewStatus) && interview.type === "ONLINE" && interview.meetingLink && (
+                  {/* Join button — show for SCHEDULED/CONFIRMED/IN_PROGRESS, hide for kicked-permanent */}
+                  {["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(interview.interviewStatus) && interview.type === "ONLINE" && interview.meetingLink && !isKickedPermanent && (
                     <button
-                      onClick={() => navigate(`/interview/room/${interview.meetingLink}`)}
+                      onClick={() => {
+                        if (kickedStatus) clearKickedStatus(interview.id);
+                        navigate(`/interview/room/${interview.meetingLink}`);
+                      }}
                       className="mt-2 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
                     >
-                      <ExternalLink size={14} /> Tham gia phỏng vấn
+                      <ExternalLink size={14} />
+                      {isKicked ? "Thử tham gia lại" : "Tham gia phỏng vấn"}
                     </button>
                   )}
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

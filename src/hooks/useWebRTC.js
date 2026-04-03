@@ -26,8 +26,12 @@ export function useWebRTC({ roomCode, token, localStream }) {
   const [peerCount, setPeerCount] = useState(0);
 
   // Admission control states
-  const [admissionStatus, setAdmissionStatus] = useState("idle"); // idle | pending | no-host | admitted | rejected | kicked
+  const [admissionStatus, setAdmissionStatus] = useState("idle"); // idle | pending | no-host | admitted | rejected | kicked | room-ended
   const [isBeingRecorded, setIsBeingRecorded] = useState(false);
+
+  // Room lifecycle
+  const [roomStatus, setRoomStatus] = useState("SCHEDULED");
+  const [roomClosingGrace, setRoomClosingGrace] = useState(false);
 
   const closePeer = useCallback(() => {
     pcRef.current?.close();
@@ -62,6 +66,10 @@ export function useWebRTC({ roomCode, token, localStream }) {
         stream.getTracks().forEach((track) => {
           pc.addTrack(track, stream);
         });
+      } else {
+        // No local media — add receive-only transceivers so we can still get remote tracks
+        pc.addTransceiver("audio", { direction: "recvonly" });
+        pc.addTransceiver("video", { direction: "recvonly" });
       }
 
       const remote = new MediaStream();
@@ -140,14 +148,39 @@ export function useWebRTC({ roomCode, token, localStream }) {
       setAdmissionStatus("rejected");
     });
 
-    socket.on("kicked", () => {
-      setAdmissionStatus("kicked");
+    socket.on("kicked", ({ permanent }) => {
+      setAdmissionStatus(permanent ? "kicked-permanent" : "kicked");
       closePeer();
     });
 
     // ── Recording notification from HR ────────────────
     socket.on("recording-started", () => setIsBeingRecorded(true));
     socket.on("recording-stopped", () => setIsBeingRecorded(false));
+
+    // ── Room lifecycle events ─────────────────────────
+    socket.on("room-status-changed", ({ status }) => {
+      setRoomStatus(status);
+    });
+
+    socket.on("room-closing", () => {
+      setRoomClosingGrace(true);
+    });
+
+    socket.on("room-ended", () => {
+      setAdmissionStatus("room-ended");
+      closePeer();
+    });
+
+    // ── Host disables our media ───────────────────────
+    socket.on("media-disabled-by-host", ({ kind }) => {
+      const stream = localStreamRef.current;
+      if (!stream) return;
+      if (kind === "camera") {
+        stream.getVideoTracks().forEach((t) => { t.enabled = false; });
+      } else if (kind === "mic") {
+        stream.getAudioTracks().forEach((t) => { t.enabled = false; });
+      }
+    });
 
     // ── WebRTC peer events (only fire after admitted) ─
     socket.on("room-peers", (peers) => {
@@ -258,6 +291,11 @@ export function useWebRTC({ roomCode, token, localStream }) {
     setAdmissionStatus("idle");
   }, []);
 
+  // Broadcast media state to room
+  const emitMediaStateChanged = useCallback((state) => {
+    socketRef.current?.emit("media-state-changed", state);
+  }, []);
+
   return {
     remoteStream,
     connected,
@@ -266,5 +304,8 @@ export function useWebRTC({ roomCode, token, localStream }) {
     admissionStatus,
     isBeingRecorded,
     cancelJoin,
+    roomStatus,
+    roomClosingGrace,
+    emitMediaStateChanged,
   };
 }
