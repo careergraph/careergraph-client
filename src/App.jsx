@@ -7,6 +7,7 @@ import DefaultLayout from "../src/layouts";
 import ProtectedRoute from "./components/Containers/ProtectedRoute";
 import { Toaster } from "sonner";
 import { AppInitializer } from "~/components/AppInitializer";
+import NotFound from "./pages/NotFound";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 const HAS_VALID_GOOGLE_CLIENT_ID =
@@ -64,6 +65,8 @@ const AppRoutes = () => (
               />
             );
           })}
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </AppInitializer>

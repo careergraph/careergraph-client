@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -12,10 +12,14 @@ import {
   Clock,
   Copy,
   AlertCircle,
+  SearchX,
+  RotateCcw,
+  ArrowLeft,
 } from "lucide-react";
 import { InterviewAPI } from "~/services/api/interview";
 import { useWebRTC } from "~/hooks/useWebRTC";
 import { getToken } from "~/utils/storage";
+import { useUserStore } from "~/stores/userStore";
 
 const EARLY_JOIN_MINUTES = 15;
 
@@ -28,6 +32,7 @@ const fmtElapsed = (s) => {
 export default function InterviewRoom() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
+  const candidateId = useUserStore((state) => state.user?.candidateId);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -42,22 +47,98 @@ export default function InterviewRoom() {
   // Interview info & early join state
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [roomCheckError, setRoomCheckError] = useState(null);
   const [canJoin, setCanJoin] = useState(false);
   const [countdown, setCountdown] = useState("");
 
+  const checkRoomAvailability = useCallback(async () => {
+    if (!roomCode) {
+      setRoomCheckError({
+        type: "not-found",
+        title: "Mã phòng không hợp lệ",
+        description: "Liên kết phòng phỏng vấn không đúng hoặc đã bị thay đổi.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setRoomCheckError(null);
+
+    try {
+      const [resp, myResp] = await Promise.all([
+        InterviewAPI.getByRoomCode(roomCode),
+        InterviewAPI.getMyInterviews(),
+      ]);
+
+      const roomInterview = resp?.data ?? null;
+      const myInterviews = Array.isArray(myResp?.data) ? myResp.data : [];
+
+      const priority = {
+        IN_PROGRESS: 1,
+        CONFIRMED: 2,
+        SCHEDULED: 3,
+        PENDING_RESCHEDULE: 4,
+        COMPLETED: 5,
+        CANCELLED: 6,
+        NO_SHOW: 7,
+      };
+
+      const ownInterviewInRoom = myInterviews
+        .filter((iv) => iv?.meetingLink === roomCode)
+        .filter((iv) => !candidateId || iv?.candidateId === candidateId)
+        .sort((a, b) => {
+          const pa = priority[a?.interviewStatus] ?? 99;
+          const pb = priority[b?.interviewStatus] ?? 99;
+          if (pa !== pb) return pa - pb;
+          return new Date(b?.scheduledAt || 0).getTime() - new Date(a?.scheduledAt || 0).getTime();
+        })[0] ?? null;
+
+      if (!roomInterview) {
+        setRoomCheckError({
+          type: "not-found",
+          title: "Không tìm thấy phòng phỏng vấn",
+          description: "Phòng có thể đã bị đóng, hết hạn hoặc mã phòng không còn tồn tại.",
+        });
+        return;
+      }
+
+      if (!ownInterviewInRoom) {
+        setRoomCheckError({
+          type: "unavailable",
+          title: "Bạn không có lịch trong phòng này",
+          description: "Phòng tồn tại nhưng không có lịch phỏng vấn hợp lệ dành cho bạn.",
+        });
+        return;
+      }
+
+      setInterview(ownInterviewInRoom);
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404) {
+        setRoomCheckError({
+          type: "not-found",
+          title: "Không tìm thấy phòng phỏng vấn",
+          description: "Phòng có thể đã bị đóng, hết hạn hoặc mã phòng không còn tồn tại.",
+        });
+        return;
+      }
+
+      setRoomCheckError({
+        type: "unavailable",
+        title: "Không thể kết nối tới phòng",
+        description:
+          "Hệ thống đang bận hoặc kết nối mạng không ổn định. Vui lòng thử lại sau vài giây.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [roomCode, candidateId]);
+
   // Fetch interview info by room code
   useEffect(() => {
-    if (!roomCode) return;
-    setLoading(true);
-    InterviewAPI.getByRoomCode(roomCode)
-      .then((resp) => {
-        setInterview(resp?.data ?? null);
-      })
-      .catch(() => {
-        toast.error("Không tìm thấy phòng phỏng vấn");
-      })
-      .finally(() => setLoading(false));
-  }, [roomCode]);
+    checkRoomAvailability();
+  }, [checkRoomAvailability]);
 
   // Check if user can join (15 min before scheduled)
   useEffect(() => {
@@ -88,7 +169,7 @@ export default function InterviewRoom() {
   }, [interview]);
 
   // WebRTC peer connection
-  const { remoteStream, connected, peerCount, replaceTrack, admissionStatus, isBeingRecorded, cancelJoin, roomStatus, roomClosingGrace, emitMediaStateChanged } = useWebRTC({
+  const { remoteStream, connected, peerCount, replaceTrack, admissionStatus, isBeingRecorded, cancelJoin, roomClosingGrace, emitMediaStateChanged } = useWebRTC({
     roomCode: joined && roomCode ? roomCode : "",
     token: getToken() ?? "",
     localStream: localStream,
@@ -154,7 +235,7 @@ export default function InterviewRoom() {
     const audioEnabled = localStream.getAudioTracks().some((t) => t.enabled);
     setCameraOn(videoEnabled);
     setMicOn(audioEnabled);
-  });
+  }, [localStream]);
 
   // ── Media device detection & initialization ──────────
   const [hasCamera, setHasCamera] = useState(null);
@@ -381,10 +462,50 @@ export default function InterviewRoom() {
   // Loading state
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950">
-        <div className="text-center space-y-3">
-          <div className="h-8 w-8 mx-auto animate-spin rounded-full border-2 border-gray-600 border-t-white" />
-          <p className="text-gray-400 text-sm">Đang tải thông tin phòng phỏng vấn...</p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top,#172554_0%,#020617_55%,#000000_100%)] px-4">
+        <div className="w-full max-w-lg rounded-3xl border border-blue-900/60 bg-slate-950/80 p-8 text-center shadow-2xl shadow-blue-950/50 backdrop-blur">
+          <div className="mx-auto mb-5 h-11 w-11 animate-spin rounded-full border-2 border-blue-300/20 border-t-blue-300" />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300/80">Room Access Check</p>
+          <h1 className="mt-2 text-xl font-bold text-white">Đang kiểm tra phòng phỏng vấn</h1>
+          <p className="mt-3 text-sm text-blue-100/70">
+            Hệ thống đang xác minh mã phòng trước khi cho phép bạn tham gia.
+          </p>
+          {roomCode && (
+            <p className="mt-4 text-xs font-mono text-blue-200/70">Mã phòng: {roomCode}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (roomCheckError) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top,#3f1d2e_0%,#111827_48%,#020617_100%)] px-4">
+        <div className="w-full max-w-xl rounded-3xl border border-rose-300/20 bg-slate-950/90 p-8 shadow-2xl shadow-black/60">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-200">
+            {roomCheckError.type === "not-found" ? <SearchX className="h-7 w-7" /> : <AlertCircle className="h-7 w-7" />}
+          </div>
+          <h1 className="mt-5 text-center text-2xl font-bold text-white">{roomCheckError.title}</h1>
+          <p className="mx-auto mt-3 max-w-md text-center text-sm leading-6 text-rose-100/80">
+            {roomCheckError.description}
+          </p>
+          {roomCode && (
+            <p className="mt-4 text-center text-xs font-mono text-rose-200/70">Mã phòng: {roomCode}</p>
+          )}
+          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <button
+              onClick={checkRoomAvailability}
+              className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-500"
+            >
+              <RotateCcw className="h-4 w-4" /> Thử lại
+            </button>
+            <button
+              onClick={() => navigate("/interviews")}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800"
+            >
+              <ArrowLeft className="h-4 w-4" /> Quay về lịch phỏng vấn
+            </button>
+          </div>
         </div>
       </div>
     );
