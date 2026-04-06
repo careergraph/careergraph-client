@@ -1,4 +1,4 @@
-import { Home, ArrowLeft, Search, Mail, FileQuestion } from "lucide-react";
+import { Home, ArrowLeft, Search, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
 
@@ -16,9 +16,9 @@ export default function NotFound() {
 
         {/* Divider */}
         <div className="flex items-center justify-center gap-3 my-6">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent via-indigo-400 to-transparent"></div>
+          <div className="h-px w-16 bg-linear-to-r from-transparent via-indigo-400 to-transparent"></div>
           <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-          <div className="h-px w-16 bg-gradient-to-r from-transparent via-indigo-400 to-transparent"></div>
+          <div className="h-px w-16 bg-linear-to-r from-transparent via-indigo-400 to-transparent"></div>
         </div>
 
         {/* Description */}
