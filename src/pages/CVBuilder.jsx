@@ -23,10 +23,37 @@ export default function CVBuilder() {
   const [selectedTemplate, setSelectedTemplate] = useState(
     templateFromUrl || "harvard"
   );
-  const [cvData, setCvData] = useState(() => cloneDeep(defaultCvData));
-  const [sectionsVisibility, setSectionsVisibility] = useState(() => ({
-    ...defaultSectionsVisibility,
-  }));
+  const [cvData, setCvData] = useState(() => {
+    const saved = localStorage.getItem("careergraph_cv_state");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.cvData) return parsed.cvData;
+      } catch (e) {
+        console.error("Failed to load CV state", e);
+      }
+    }
+    return cloneDeep(defaultCvData);
+  });
+  const [sectionsVisibility, setSectionsVisibility] = useState(() => {
+    const saved = localStorage.getItem("careergraph_cv_state");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.sectionsVisibility) return parsed.sectionsVisibility;
+      } catch (e) {
+        console.error("Failed to load CV state", e);
+      }
+    }
+    return { ...defaultSectionsVisibility };
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "careergraph_cv_state",
+      JSON.stringify({ cvData, sectionsVisibility })
+    );
+  }, [cvData, sectionsVisibility]);
 
   const user = useUserStore((state) => state.user);
   const location = useLocation();
@@ -162,34 +189,40 @@ export default function CVBuilder() {
     const cleanList = (list, predicate) =>
       Array.isArray(list) ? list.filter((item) => predicate(item)) : [];
 
-    const experience = cleanList(cvData.experience, (item) =>
-      Boolean(
-        item?.role?.trim() ||
-          item?.company?.trim() ||
-          item?.bulletPoints?.some((bullet) => Boolean(bullet?.trim()))
-      )
-    ).map((item) => ({
-      ...item,
-      bulletPoints: cleanList(item.bulletPoints, (bullet) =>
-        Boolean(bullet?.trim())
-      ),
-    }));
+    const experience = sectionsVisibility.experience !== false
+      ? cleanList(cvData.experience, (item) =>
+          Boolean(
+            item?.role?.trim() ||
+              item?.company?.trim() ||
+              item?.bulletPoints?.some((bullet) => Boolean(bullet?.trim()))
+          )
+        ).map((item) => ({
+          ...item,
+          bulletPoints: cleanList(item.bulletPoints, (bullet) =>
+            Boolean(bullet?.trim())
+          ),
+        }))
+      : [];
 
-    const education = cleanList(cvData.education, (item) =>
-      Boolean(item?.school?.trim() || item?.degree?.trim())
-    );
+    const education = sectionsVisibility.education !== false
+      ? cleanList(cvData.education, (item) =>
+          Boolean(item?.school?.trim() || item?.degree?.trim())
+        )
+      : [];
 
-    const skills = cleanList(cvData.skills, (skill) => 
-      Boolean(skill?.name?.trim() || (typeof skill === 'string' && skill?.trim()))
-    ).map((skill) => {
-      // Normalize to object format
-      if (typeof skill === 'string') {
-        return { id: skill, name: skill };
-      }
-      return skill;
-    });
+    const skills = sectionsVisibility.skills !== false
+      ? cleanList(cvData.skills, (skill) => 
+          Boolean(skill?.name?.trim() || (typeof skill === 'string' && skill?.trim()))
+        ).map((skill) => {
+          // Normalize to object format
+          if (typeof skill === 'string') {
+            return { id: skill, name: skill };
+          }
+          return skill;
+        })
+      : [];
 
-    const languages = sectionsVisibility.languages
+    const languages = sectionsVisibility.languages !== false
       ? cleanList(cvData.languages, (lang) => Boolean(lang?.name?.trim()))
       : [];
 
@@ -221,6 +254,14 @@ export default function CVBuilder() {
       ...current,
       [sectionKey]: isVisible,
     }));
+  };
+
+  const handleReset = () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu hiện tại và khôi phục về mẫu ban đầu?")) {
+      setCvData(cloneDeep(defaultCvData));
+      setSectionsVisibility({ ...defaultSectionsVisibility });
+      localStorage.removeItem("careergraph_cv_state");
+    }
   };
 
   const activeTemplate = cvTemplates.find(
@@ -288,6 +329,7 @@ export default function CVBuilder() {
               onChange={handleDataChange}
               sectionsVisibility={sectionsVisibility}
               onToggleSection={handleToggleSection}
+              onReset={handleReset}
             />
           </div>
           <div className="lg:col-span-6">

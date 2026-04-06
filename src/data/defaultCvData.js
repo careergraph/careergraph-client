@@ -78,6 +78,9 @@ export const defaultCvData = {
 
 export const defaultSectionsVisibility = {
   summary: true,
+  experience: true,
+  education: true,
+  skills: true,
   languages: true,
   awards: true,
 };
