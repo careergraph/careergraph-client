@@ -369,7 +369,7 @@ export default function InterviewRoom() {
               autoPlay
               playsInline
               muted
-              className="h-full w-full object-cover"
+              className="h-full w-full bg-black object-contain"
             />
             {!localStream && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -451,7 +451,7 @@ export default function InterviewRoom() {
               autoPlay
               playsInline
               muted
-              className="h-full w-full object-cover"
+              className="h-full w-full bg-black object-contain"
             />
           </div>
           <button
@@ -545,7 +545,7 @@ export default function InterviewRoom() {
               autoPlay
               playsInline
               muted
-              className="h-full w-full object-cover"
+              className="h-full w-full bg-black object-contain"
             />
             {!cameraOn && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
@@ -573,7 +573,7 @@ export default function InterviewRoom() {
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
-                className="h-full w-full object-cover"
+                className="h-full w-full bg-black object-contain"
               />
             ) : (
               <div className="flex h-full items-center justify-center">
