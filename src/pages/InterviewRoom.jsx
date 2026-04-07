@@ -87,11 +87,14 @@ export default function InterviewRoom() {
       const ownInterviewInRoom = myInterviews
         .filter((iv) => iv?.meetingLink === roomCode)
         .filter((iv) => !candidateId || iv?.candidateId === candidateId)
+        .filter((iv) => ["IN_PROGRESS", "CONFIRMED", "SCHEDULED", "PENDING_RESCHEDULE"].includes(iv?.interviewStatus))
         .sort((a, b) => {
+          const aTime = new Date(a?.scheduledAt || 0).getTime();
+          const bTime = new Date(b?.scheduledAt || 0).getTime();
+          if (aTime !== bTime) return aTime - bTime;
           const pa = priority[a?.interviewStatus] ?? 99;
           const pb = priority[b?.interviewStatus] ?? 99;
-          if (pa !== pb) return pa - pb;
-          return new Date(b?.scheduledAt || 0).getTime() - new Date(a?.scheduledAt || 0).getTime();
+          return pa - pb;
         })[0] ?? null;
 
       if (!roomInterview) {
@@ -147,7 +150,14 @@ export default function InterviewRoom() {
     const checkAccess = () => {
       const scheduled = new Date(interview.scheduledAt).getTime();
       const earlyJoinTime = scheduled - EARLY_JOIN_MINUTES * 60 * 1000;
+      const endAt = interview.endAt ? new Date(interview.endAt).getTime() : null;
       const now = Date.now();
+
+      if (endAt && now > endAt) {
+        setCanJoin(false);
+        setCountdown("Buổi phỏng vấn đã kết thúc");
+        return;
+      }
 
       if (now >= earlyJoinTime) {
         setCanJoin(true);
