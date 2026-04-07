@@ -23,6 +23,14 @@ import { useUserStore } from "~/stores/userStore";
 
 const EARLY_JOIN_MINUTES = 15;
 
+const getBackendMessage = (error) => {
+  const message = error?.response?.data?.message;
+  return typeof message === "string" ? message : "";
+};
+
+const isRoomExpiredMessage = (message) =>
+  message.includes("hết hiệu lực truy cập") || message.includes("đã kết thúc") || message.includes("đã hết hạn");
+
 const fmtElapsed = (s) => {
   const m = Math.floor(s / 60);
   const sec = s % 60;
@@ -118,11 +126,30 @@ export default function InterviewRoom() {
       setInterview(ownInterviewInRoom);
     } catch (error) {
       const status = error?.response?.status;
+      const backendMessage = getBackendMessage(error);
       if (status === 404) {
         setRoomCheckError({
           type: "not-found",
           title: "Không tìm thấy phòng phỏng vấn",
           description: "Phòng có thể đã bị đóng, hết hạn hoặc mã phòng không còn tồn tại.",
+        });
+        return;
+      }
+
+      if (status === 400 && backendMessage) {
+        if (isRoomExpiredMessage(backendMessage)) {
+          setRoomCheckError({
+            type: "expired",
+            title: "Phòng phỏng vấn đã hết hiệu lực",
+            description: backendMessage,
+          });
+          return;
+        }
+
+        setRoomCheckError({
+          type: "unavailable",
+          title: "Không thể truy cập phòng phỏng vấn",
+          description: backendMessage,
         });
         return;
       }
@@ -489,6 +516,8 @@ export default function InterviewRoom() {
   }
 
   if (roomCheckError) {
+    const canRetry = roomCheckError.type !== "expired";
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top,#3f1d2e_0%,#111827_48%,#020617_100%)] px-4">
         <div className="w-full max-w-xl rounded-3xl border border-rose-300/20 bg-slate-950/90 p-8 shadow-2xl shadow-black/60">
@@ -503,12 +532,14 @@ export default function InterviewRoom() {
             <p className="mt-4 text-center text-xs font-mono text-rose-200/70">Mã phòng: {roomCode}</p>
           )}
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button
-              onClick={checkRoomAvailability}
-              className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-500"
-            >
-              <RotateCcw className="h-4 w-4" /> Thử lại
-            </button>
+            {canRetry && (
+              <button
+                onClick={checkRoomAvailability}
+                className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-500"
+              >
+                <RotateCcw className="h-4 w-4" /> Thử lại
+              </button>
+            )}
             <button
               onClick={() => navigate("/interviews")}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800"
@@ -546,6 +577,8 @@ export default function InterviewRoom() {
 
   // Too early to join
   if (!canJoin && interview) {
+    const isEndedByTime = countdown === "Buổi phỏng vấn đã kết thúc";
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950">
         <div className="w-full max-w-md space-y-6 px-6 text-center">
@@ -553,9 +586,11 @@ export default function InterviewRoom() {
             <AlertCircle className="h-8 w-8 text-amber-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Chưa đến giờ phỏng vấn</h1>
+            <h1 className="text-xl font-bold text-white">{isEndedByTime ? "Phỏng vấn đã kết thúc" : "Chưa đến giờ phỏng vấn"}</h1>
             <p className="mt-2 text-sm text-gray-400">
-              Bạn có thể vào phòng trước {EARLY_JOIN_MINUTES} phút so với giờ hẹn
+              {isEndedByTime
+                ? "Buổi phỏng vấn này đã quá thời gian và không thể tham gia lại."
+                : `Bạn có thể vào phòng trước ${EARLY_JOIN_MINUTES} phút so với giờ hẹn`}
             </p>
           </div>
           <div className="rounded-2xl bg-gray-800/80 p-4 space-y-2">
@@ -569,10 +604,12 @@ export default function InterviewRoom() {
               </p>
             )}
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-gray-500">Có thể vào sau</p>
-            <p className="text-3xl font-mono font-bold text-white">{countdown}</p>
-          </div>
+          {!isEndedByTime && (
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500">Có thể vào sau</p>
+              <p className="text-3xl font-mono font-bold text-white">{countdown}</p>
+            </div>
+          )}
           <button
             onClick={() => navigate(-1)}
             className="rounded-xl px-4 py-2.5 text-sm text-gray-400 hover:text-white"

@@ -359,6 +359,15 @@ export default function MyInterviews() {
             const kickedStatus = getKickedStatus(interview.id);
             const isKickedPermanent = kickedStatus === "kicked-permanent";
             const isKicked = kickedStatus === "kicked";
+            const endAtMs = interview.endAt
+              ? new Date(interview.endAt).getTime()
+              : new Date(interview.scheduledAt).getTime();
+            const isPastByTime = Number.isFinite(endAtMs) && Date.now() > endAtMs;
+            const canRespondScheduled = interview.interviewStatus === "SCHEDULED" && !kickedStatus;
+            const canJoinInterview = ["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(interview.interviewStatus)
+              && interview.type === "ONLINE"
+              && interview.meetingLink
+              && !isKickedPermanent;
             const displayStatus = isKickedPermanent
               ? "KICKED_PERMANENT"
               : isKicked
@@ -418,23 +427,26 @@ export default function MyInterviews() {
                     </p>
                   )}
 
-                  {interview.interviewStatus === "SCHEDULED" && !kickedStatus && (
+                  {canRespondScheduled && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       <button
                         onClick={() => handleConfirm(interview.id)}
-                        className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+                        disabled={isPastByTime}
+                        className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <CheckCircle size={14} /> Xác nhận
                       </button>
                       <button
                         onClick={() => setProposing(interview.id)}
-                        className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50"
+                        disabled={isPastByTime}
+                        className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-3 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <CalendarPlus size={14} /> Đề xuất thời gian khác
                       </button>
                       <button
                         onClick={() => setDeclining(interview.id)}
-                        className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                        disabled={isPastByTime}
+                        className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <XCircle size={14} /> Từ chối
                       </button>
@@ -448,17 +460,25 @@ export default function MyInterviews() {
                   )}
 
                   {/* Join button — show for SCHEDULED/CONFIRMED/IN_PROGRESS, hide for kicked-permanent */}
-                  {["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(interview.interviewStatus) && interview.type === "ONLINE" && interview.meetingLink && !isKickedPermanent && (
+                  {canJoinInterview && (
                     <button
                       onClick={() => {
+                        if (isPastByTime) return;
                         if (kickedStatus) clearKickedStatus(interview.id);
                         navigate(`/interview/room/${interview.meetingLink}`);
                       }}
-                      className="mt-2 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+                      disabled={isPastByTime}
+                      className="mt-2 flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <ExternalLink size={14} />
-                      {isKicked ? "Thử tham gia lại" : "Tham gia phỏng vấn"}
+                      {isPastByTime ? "Đã quá giờ phỏng vấn" : isKicked ? "Thử tham gia lại" : "Tham gia phỏng vấn"}
                     </button>
+                  )}
+
+                  {isPastByTime && (
+                    <p className="mt-2 text-xs font-medium text-amber-600 max-w-[220px] text-right">
+                      Lịch phỏng vấn này đã quá thời gian, vui lòng liên hệ HR nếu cần hỗ trợ.
+                    </p>
                   )}
                 </div>
               </div>
