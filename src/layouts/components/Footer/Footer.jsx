@@ -47,6 +47,7 @@ export default function Footer() {
             <div className="space-y-2">
               <p>0976870127</p>
               <p>congquynguyen296@gmail.com</p>
+              <p>tcrow0604@gmail.com</p>
             </div>
           </div>
         </div>
