@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { io } from "socket.io-client";
 
-const RTC_URL = import.meta.env.VITE_RTC_URL ?? "http://localhost:4000";
+const RTC_URL = import.meta.env.VITE_RTC_BASE_URL ?? "http://localhost:4000";
 
 const ICE_SERVERS = {
   iceServers: [

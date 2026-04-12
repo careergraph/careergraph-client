@@ -3,6 +3,9 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/careergraph/api/v1";
 
+const RTC_BASE_URL =
+  import.meta.env.VITE_RTC_BASE_URL ?? "http://localhost:4000";
+
 const DEFAULT_API_CONTEXT_PATH = "/careergraph/api/v1";
 
 const resolveApiBaseUrl = (rawBaseUrl) => {
@@ -145,8 +148,13 @@ export const appConfig = {
   description: "Nền tảng tìm kiếm việc làm hàng đầu Việt Nam",
 };
 
+export const rtcConfig = {
+  baseURL: RTC_BASE_URL,
+};
+
 export default {
   routes,
   apiConfig,
+  rtcConfig,
   appConfig,
 };
