@@ -1,4 +1,4 @@
-import { MenuIcon, XIcon, ChevronDown } from "lucide-react";
+import { MenuIcon, XIcon, ChevronDown, MessageSquareMore } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { navLinks } from "../../../data/navLinks";
@@ -6,6 +6,7 @@ import logoSvg from "../../../assets/logo.svg";
 import { useAuthStore } from "~/stores/authStore";
 import NotificationBell from "./NotificationBell";
 import UserAvatar from "./UserAvatar";
+import { useMessagingUnread } from "~/features/messaging/hooks/useMessagingUnread";
 
 
 export default function Navbar() {
@@ -16,6 +17,7 @@ export default function Navbar() {
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
   const { isAuthenticated, authInitializing } = useAuthStore();
+  const { unreadCount: unreadMessages } = useMessagingUnread({ autoStart: isAuthenticated });
   useEffect(() => {
     if (openMobileMenu) {
       document.body.classList.add("max-md:overflow-hidden");
@@ -166,12 +168,28 @@ export default function Navbar() {
         </a>
         { !authInitializing && (
           isAuthenticated ? (
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <NotificationBell />
-              <UserAvatar />
+          <>
+            <Link
+              to="/messages"
+              onClick={() => setOpenMobileMenu(false)}
+              className="relative inline-flex h-11 items-center gap-2 rounded-lg px-3 text-slate-800 transition hover:bg-slate-100"
+            >
+              <MessageSquareMore size={20} />
+              <span>Tin nhắn</span>
+              {unreadMessages > 0 ? (
+                <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                  {unreadMessages > 99 ? "99+" : unreadMessages}
+                </span>
+              ) : null}
+            </Link>
+
+            <div className="hidden md:flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <NotificationBell />
+                <UserAvatar />
+              </div>
             </div>
-          </div>
+          </>
         ) : (
           <>
             <button
@@ -196,6 +214,18 @@ export default function Navbar() {
         {!authInitializing&& (
           isAuthenticated ? (
             <div className="hidden md:flex items-center gap-4">
+              <Link
+                to="/messages"
+                className="relative inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-3 text-slate-700 transition hover:bg-slate-100"
+              >
+                <MessageSquareMore size={19} />
+                {unreadMessages > 0 ? (
+                  <span className="absolute -right-1.5 -top-1.5 rounded-full bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                ) : null}
+              </Link>
+
               <div className="flex items-center gap-3">
                 <NotificationBell />
                 <UserAvatar />

@@ -24,6 +24,7 @@ import VerifyOtp from "~/pages/VerifyOtp";
 import ResetPassword from "~/pages/ResetPassword";
 import MyInterviews from "~/pages/MyInterviews";
 import InterviewRoom from "~/pages/InterviewRoom";
+import MessagesPage from "~/features/messaging/pages/MessagesPage";
 
 const publicRoutes = [
   { path: routes.home, component: Home },
@@ -53,6 +54,7 @@ const publicRoutes = [
 const privateRoutes = [
   { path: routes.profile, component: Profile, layout: ProfileDashboardLayout },
   { path: routes.interviews, component: MyInterviews, layout: ProfileDashboardLayout },
+  { path: routes.messages, component: MessagesPage, layout: ProfileDashboardLayout },
   { path: "/interview/room/:roomCode", component: InterviewRoom, layout: null },
 ];
 

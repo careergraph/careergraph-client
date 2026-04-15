@@ -1,11 +1,14 @@
 // AppliedJobs.jsx
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MessageCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { UserAPI } from "~/services/api/user";
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import messagingApi from "~/features/messaging/api/messagingApi";
+import { JobService } from "~/services/jobService";
 /* ---------- small utils ---------- */
 const fmtDate = (iso) =>
   new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -135,6 +138,7 @@ export function Select({ value, onChange, placeholder, options, className }) {
 export default function AppliedJobs() {
 
   const [isLoading, setIsLoading] = useState(false);
+  const [openingChatJobId, setOpeningChatJobId] = useState(null);
   const navigate = useNavigate();
   const [items, setItems] = useState(null);
   useEffect(()=> {
@@ -154,6 +158,62 @@ const handleViewJobDetail = async (jobId) => {
       navigate(`/jobs/${jobId}`);
     }
 }
+
+const resolveApplicationId = (job) =>
+  job?.applicationId || job?.id || job?.application?.id || job?.appliedJobId || null;
+
+const resolveCompanyId = (job) =>
+  job?.companyId || job?.company?.id || job?.companyInfo?.id || null;
+
+const resolveCompanyIdFromJobDetail = async (job) => {
+  const localCompanyId = resolveCompanyId(job);
+  if (localCompanyId) {
+    return localCompanyId;
+  }
+
+  if (!job?.jobId) {
+    return null;
+  }
+
+  const detail = await JobService.fetchJobDetail(job.jobId);
+  return detail?.companyId || null;
+};
+
+const handleOpenChat = async (job) => {
+  if (!job?.jobId) {
+    toast.error("Không thể mở chat cho công việc này.");
+    return;
+  }
+
+  setOpeningChatJobId(job.jobId);
+
+  try {
+    const applicationId = resolveApplicationId(job);
+    const companyId = await resolveCompanyIdFromJobDetail(job);
+
+    if (!applicationId && !companyId) {
+      toast.error("Thiếu thông tin ứng tuyển để mở cuộc trò chuyện.");
+      return;
+    }
+
+    const thread = await messagingApi.getOrCreateThread({
+      applicationId: applicationId || undefined,
+      companyId: companyId || undefined,
+    });
+
+    if (!thread?.threadId) {
+      toast.error("Không thể mở cuộc trò chuyện lúc này.");
+      return;
+    }
+
+    navigate(`/messages?thread=${thread.threadId}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Không thể mở chat với HR.";
+    toast.error(message);
+  } finally {
+    setOpeningChatJobId(null);
+  }
+};
 
 
   const handleFilter = async (status) => {
@@ -269,6 +329,18 @@ const handleViewJobDetail = async (jobId) => {
                         onClick={() => handleViewJobDetail(job.jobId)}
                       >{job.jobName}</div>
                       <div className="mt-1 text-sm text-slate-500 line-clamp-2">{job.companyName}</div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void handleOpenChat(job);
+                        }}
+                        disabled={openingChatJobId === job.jobId}
+                        className="mt-3 inline-flex h-11 items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <MessageCircle size={16} />
+                        {openingChatJobId === job.jobId ? "Đang mở chat..." : "Nhắn tin với HR"}
+                      </button>
                     </td>
 
                     {/* CV */}
