@@ -60,13 +60,13 @@ export function MessagesPage() {
   );
 
   return (
-    <div className="w-full px-3 pb-4 sm:px-6 lg:px-8">
-      <div className="mb-3 mt-1">
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden px-2 pb-2 sm:px-4 lg:px-6">
+      <div className="mb-2">
         <h1 className="text-xl font-bold text-slate-900">Tin nhắn</h1>
         <p className="text-sm text-slate-500">Các cuộc trò chuyện của bạn với nhà tuyển dụng</p>
       </div>
 
-      <div className="messaging-page-enter flex h-[calc(100dvh-11rem)] min-h-[30rem] w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm lg:h-[calc(100dvh-11.5rem)]">
+      <div className="messaging-page-enter flex min-h-0 flex-1 w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className={`${sidebarVisibleClass} w-full md:w-80 xl:w-96`}>
           <InboxList
             selectedThreadId={selectedThreadId}

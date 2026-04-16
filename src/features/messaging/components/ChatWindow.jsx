@@ -76,6 +76,15 @@ const toDisplayName = (otherUser) => {
   return "Nhà tuyển dụng";
 };
 
+const resolveTypingDisplayName = (typingUser, threadOtherUser) => {
+  const typingName = (typingUser?.displayName || "").trim();
+  if (typingName && !typingName.includes("@")) {
+    return typingName;
+  }
+
+  return toDisplayName(threadOtherUser);
+};
+
 const firstLetter = (value) => {
   const char = value.trim().charAt(0);
   return char ? char.toUpperCase() : "H";
@@ -163,8 +172,14 @@ export function ChatWindow({ threadId, onBackMobile }) {
   } = useMessages(threadId);
 
   const peerTypingUsers = useMemo(
-    () => typingUsers.filter((user) => normalize(user.userId) !== normalize(currentUser.id)),
-    [currentUser.id, typingUsers]
+    () =>
+      typingUsers
+        .filter((user) => normalize(user.userId) !== normalize(currentUser.id))
+        .map((user) => ({
+          ...user,
+          displayName: resolveTypingDisplayName(user, thread?.otherUser),
+        })),
+    [currentUser.id, thread?.otherUser, typingUsers]
   );
 
   const lastOwnMessageId = useMemo(() => {
@@ -465,6 +480,9 @@ export function ChatWindow({ threadId, onBackMobile }) {
             );
           })}
 
+        </div>
+
+        <div className="pointer-events-none absolute bottom-16 left-3 right-3 z-20 sm:left-4 sm:right-4 mb-2">
           {peerTypingUsers.length > 0 ? <TypingIndicator users={peerTypingUsers} /> : null}
         </div>
 

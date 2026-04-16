@@ -126,3 +126,22 @@ After this fix, end-to-end flow passed.
 - Candidate FE Phase 4 messaging requirements are implemented.
 - Build is green.
 - Cross-role messaging flow is validated in local environment after schema alignment.
+
+## 7) Addendum Hotfix - 2026-04-16 (Production UX + Realtime Stability)
+
+### Fixed items
+
+| Item | Status | Notes |
+|---|---|---|
+| Typing indicator hiển thị tên thân thiện thay vì email | PASS | `useChatSocket` + `ChatWindow` fallback theo thông tin thread peer. |
+| Typing không bị mất sau vài giây khi vẫn nhập | PASS | `MessageInput` dùng heartbeat typing ~2.2s, stop khi blur/empty/submit/tab hidden. |
+| Online/offline của đối phương hiển thị đúng | PASS | Presence xử lý theo sự kiện thread-scoped realtime thay vì mapping id profile thuần. |
+| Layout `/messages` không bị dư chiều cao do footer/header/padding | PASS | Ẩn Footer/ChatBotButton trên route messages và chuẩn hóa `h-full/min-h-0/flex-1`. |
+
+### Build regression check
+
+- `npm run build`: PASS
+
+### Notes
+
+- Cảnh báo chunk size của Vite vẫn tồn tại và không thuộc phạm vi hotfix messaging.

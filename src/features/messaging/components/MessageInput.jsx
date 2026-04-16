@@ -3,7 +3,7 @@ import { SendHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 const MAX_TEXTAREA_HEIGHT = 140;
-const TYPING_STOP_DELAY = 2800;
+const TYPING_HEARTBEAT_INTERVAL = 2200;
 
 export function MessageInput({
   onSend,
@@ -17,8 +17,9 @@ export function MessageInput({
   const [keyboardInset, setKeyboardInset] = useState(0);
 
   const textareaRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+  const typingHeartbeatRef = useRef(null);
   const isTypingRef = useRef(false);
+  const isFocusedRef = useRef(false);
 
   const stopTyping = useCallback(() => {
     if (isTypingRef.current) {
@@ -26,11 +27,26 @@ export function MessageInput({
       isTypingRef.current = false;
     }
 
-    if (typingTimeoutRef.current !== null) {
-      window.clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
+    if (typingHeartbeatRef.current !== null) {
+      window.clearInterval(typingHeartbeatRef.current);
+      typingHeartbeatRef.current = null;
     }
   }, [onTypingStop]);
+
+  const startTypingHeartbeat = useCallback(() => {
+    if (isTypingRef.current) {
+      return;
+    }
+
+    isTypingRef.current = true;
+    onTypingStart?.();
+
+    typingHeartbeatRef.current = window.setInterval(() => {
+      if (isTypingRef.current && isFocusedRef.current) {
+        onTypingStart?.();
+      }
+    }, TYPING_HEARTBEAT_INTERVAL);
+  }, [onTypingStart]);
 
   const resizeTextarea = useCallback(() => {
     if (!textareaRef.current) {
@@ -44,16 +60,6 @@ export function MessageInput({
     )}px`;
   }, []);
 
-  const scheduleTypingStop = useCallback(() => {
-    if (typingTimeoutRef.current !== null) {
-      window.clearTimeout(typingTimeoutRef.current);
-    }
-
-    typingTimeoutRef.current = window.setTimeout(() => {
-      stopTyping();
-    }, TYPING_STOP_DELAY);
-  }, [stopTyping]);
-
   const handleChange = useCallback(
     (nextValue) => {
       setValue(nextValue);
@@ -61,19 +67,16 @@ export function MessageInput({
 
       const hasMeaningfulContent = nextValue.trim().length > 0;
 
-      if (hasMeaningfulContent && !isTypingRef.current) {
-        onTypingStart?.();
-        isTypingRef.current = true;
-      }
-
       if (!hasMeaningfulContent) {
         stopTyping();
         return;
       }
 
-      scheduleTypingStop();
+      if (isFocusedRef.current) {
+        startTypingHeartbeat();
+      }
     },
-    [onTypingStart, resizeTextarea, scheduleTypingStop, stopTyping]
+    [resizeTextarea, startTypingHeartbeat, stopTyping]
   );
 
   const submitMessage = useCallback(async () => {
@@ -104,6 +107,20 @@ export function MessageInput({
   useEffect(() => {
     return () => {
       stopTyping();
+    };
+  }, [stopTyping]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopTyping();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [stopTyping]);
 
@@ -150,6 +167,16 @@ export function MessageInput({
               event.preventDefault();
               void submitMessage();
             }
+          }}
+          onFocus={() => {
+            isFocusedRef.current = true;
+            if (value.trim().length > 0) {
+              startTypingHeartbeat();
+            }
+          }}
+          onBlur={() => {
+            isFocusedRef.current = false;
+            stopTyping();
           }}
           placeholder={placeholder}
           className="min-h-11 max-h-35 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"

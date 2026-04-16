@@ -16,7 +16,7 @@ export function TypingIndicator({ users = [] }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-slate-100/80 px-3 py-2 text-xs font-medium text-slate-600">
+    <div className="inline-flex items-center gap-2 rounded-lg bg-slate-100/95 px-2.5 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm">
       <div className="flex items-center gap-1">
         <span className="typing-dot h-2 w-2 rounded-full bg-indigo-500" />
         <span className="typing-dot h-2 w-2 rounded-full bg-indigo-500" />
