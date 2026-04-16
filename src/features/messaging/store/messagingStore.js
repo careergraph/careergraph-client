@@ -36,6 +36,8 @@ const upsertThread = (threads, nextThread) => {
             ...(nextThread.otherUser || {}),
           },
           application: nextThread.application || thread.application,
+          jobs: nextThread.jobs || thread.jobs,
+          primaryJob: nextThread.primaryJob || thread.primaryJob,
         }
       : thread
   );
@@ -136,6 +138,8 @@ export const useMessagingStore = create((set, get) => ({
               ...(patch?.otherUser || {}),
             },
             application: patch?.application || thread.application,
+            jobs: patch?.jobs || thread.jobs,
+            primaryJob: patch?.primaryJob || thread.primaryJob,
           }
         : thread
     );

@@ -91,10 +91,33 @@ const normalizeThreadSummary = (payload) => {
       }
     : undefined;
 
+  const normalizeThreadJob = (jobPayload) => {
+    const jobSource = isRecord(jobPayload) ? jobPayload : {};
+
+    return {
+      jobId: toStringSafe(jobSource.jobId),
+      jobTitle: toStringSafe(jobSource.jobTitle),
+      jobStatus: toStringSafe(jobSource.jobStatus),
+      unreadCount: toNumberSafe(jobSource.unreadCount),
+      lastMessageAt: toStringSafe(jobSource.lastMessageAt) || null,
+      hasMessages: toBooleanSafe(jobSource.hasMessages),
+    };
+  };
+
+  const jobs = Array.isArray(source.jobs)
+    ? source.jobs.map((job) => normalizeThreadJob(job)).filter((job) => Boolean(job.jobId))
+    : [];
+
+  const primaryJob = isRecord(source.primaryJob)
+    ? normalizeThreadJob(source.primaryJob)
+    : undefined;
+
   return {
     threadId: toStringSafe(source.threadId),
     otherUser,
     application,
+    jobs,
+    primaryJob,
     lastMessagePreview: toStringSafe(source.lastMessagePreview),
     lastMessageAt: toStringSafe(source.lastMessageAt) || null,
     unreadCount: toNumberSafe(source.unreadCount),
@@ -128,6 +151,13 @@ const normalizeMessage = (payload, fallbackThreadId = "") => {
         ? source.fileSize
         : undefined,
     deleted: toBooleanSafe(source.deleted),
+    jobContext: isRecord(source.jobContext)
+      ? {
+          jobId: toStringSafe(source.jobContext.jobId),
+          jobTitle: toStringSafe(source.jobContext.jobTitle),
+          jobStatus: toStringSafe(source.jobContext.jobStatus),
+        }
+      : null,
     createdAt: toStringSafe(source.createdAt, new Date().toISOString()),
     isRead: toBooleanSafe(source.isRead, toBooleanSafe(source.read)),
     readAt: toStringSafe(source.readAt) || undefined,
@@ -203,11 +233,17 @@ const getOrCreateThread = async ({ candidateId, companyId, applicationId } = {})
 
 const getMessages = async (
   threadId,
+  jobId = null,
   page = 0,
   size = DEFAULT_MESSAGE_PAGE_SIZE
 ) => {
+  const query = new URLSearchParams({ page: String(page), size: String(size) });
+  if (jobId) {
+    query.set("jobId", jobId);
+  }
+
   const response = await http(
-    `/messages/threads/${threadId}/messages?page=${page}&size=${size}`,
+    `/messages/threads/${threadId}/messages?${query.toString()}`,
     {
       method: "GET",
       auth: true,
@@ -222,18 +258,50 @@ const getMessages = async (
   );
 };
 
-const sendMessage = async (threadId, content, contentType = "TEXT") => {
+const sendMessage = async (
+  threadId,
+  content,
+  contentType = "TEXT",
+  jobContextId = null
+) => {
+  const body = {
+    content,
+    contentType,
+    ...(jobContextId ? { jobContextId } : {}),
+  };
+
   const response = await http(`/messages/threads/${threadId}/messages`, {
     method: "POST",
     auth: true,
-    body: {
-      content,
-      contentType,
-    },
+    body,
   });
 
   const unwrapped = unwrapEnvelope(response);
   return normalizeMessage(unwrapped, threadId);
+};
+
+const getThreadJobs = async (threadId) => {
+  const response = await http(`/messages/threads/${threadId}/jobs`, {
+    method: "GET",
+    auth: true,
+  });
+
+  const unwrapped = unwrapEnvelope(response);
+  const list = Array.isArray(unwrapped) ? unwrapped : [];
+
+  return list
+    .map((item) => {
+      const source = isRecord(item) ? item : {};
+      return {
+        jobId: toStringSafe(source.jobId),
+        jobTitle: toStringSafe(source.jobTitle),
+        jobStatus: toStringSafe(source.jobStatus),
+        unreadCount: toNumberSafe(source.unreadCount),
+        lastMessageAt: toStringSafe(source.lastMessageAt) || null,
+        hasMessages: toBooleanSafe(source.hasMessages),
+      };
+    })
+    .filter((job) => Boolean(job.jobId));
 };
 
 const markThreadAsRead = async (threadId) => {
@@ -278,6 +346,7 @@ export const messagingApi = {
   getOrCreateThread,
   getMessages,
   sendMessage,
+  getThreadJobs,
   markThreadAsRead,
   unsendMessage,
   deleteMessage,

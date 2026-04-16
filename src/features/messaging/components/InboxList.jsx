@@ -63,12 +63,14 @@ export function InboxList({
       const companyName = normalize(resolveDisplayName(thread.otherUser));
       const email = normalize(thread.otherUser?.email);
       const jobTitle = normalize(thread.application?.jobTitle);
+      const jobTitles = normalize((thread.jobs || []).map((job) => job.jobTitle).join(" "));
       const preview = normalize(thread.lastMessagePreview);
 
       return (
         companyName.includes(normalizedKeyword) ||
         email.includes(normalizedKeyword) ||
         jobTitle.includes(normalizedKeyword) ||
+        jobTitles.includes(normalizedKeyword) ||
         preview.includes(normalizedKeyword)
       );
     });

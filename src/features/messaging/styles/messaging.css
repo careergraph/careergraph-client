@@ -107,3 +107,156 @@
   top: 0;
   z-index: 5;
 }
+
+.job-ctx-selector {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.job-ctx-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.ctx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 220px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  color: #475569;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.ctx-chip.active {
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ctx-chip.active-general {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ctx-unread {
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0 3px;
+}
+
+.job-filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.job-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  color: #475569;
+  padding: 3px 9px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filter-tab.active {
+  color: #0f172a;
+  border-color: #cbd5e1;
+  font-weight: 500;
+  background: #ffffff;
+}
+
+.filter-badge {
+  background: #ef4444;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 1px 4px;
+}
+
+.job-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 8px;
+}
+
+.jd-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.jd-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  padding: 0 4px;
+}
+
+.msg-job-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.65;
+}
+
+.job-tag-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.thread-job-chips {
+  display: flex;
+  gap: 6px;
+  flex-direction: column;
+}
+
+.job-chip {
+  max-width: 180px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  border-radius: 999px;
+  padding: 1px 7px;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.job-chip.has-unread {
+  background: #e6f1fb;
+  color: #185fa5;
+  font-weight: 500;
+}
+
+.chip-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+}

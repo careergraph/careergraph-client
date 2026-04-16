@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MoreHorizontal, RotateCcw, Undo2 } from "lucide-react";
 import ReadReceipt from "~/features/messaging/components/ReadReceipt";
 import useUnsendCountdown from "~/features/messaging/hooks/useUnsendCountdown";
+import { getJobColor } from "~/features/messaging/utils/jobColor";
 import { cn } from "~/lib/utils";
 
 const getDisplayName = (sender = {}) => {
@@ -202,6 +203,15 @@ export function MessageBubble({
             isOwn ? "justify-end" : "justify-start"
           )}
         >
+          {message.jobContext ? (
+            <span className="msg-job-tag">
+              <span
+                className="job-tag-dot"
+                style={{ background: getJobColor(message.jobContext.jobId) }}
+              />
+              <span>{message.jobContext.jobTitle}</span>
+            </span>
+          ) : null}
           <span>{toDisplayTime(message.createdAt)}</span>
           {isOwn && showReadReceipt ? <ReadReceipt message={message} /> : null}
         </div>

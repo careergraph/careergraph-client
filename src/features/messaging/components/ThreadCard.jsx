@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+import { getJobColor } from "~/features/messaging/utils/jobColor";
 import { cn } from "~/lib/utils";
 
 const STATUS_LABEL = {
@@ -122,7 +123,7 @@ export function ThreadCard({ thread, isSelected, onClick }) {
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
           <p className="truncate text-xs text-slate-600">
-            {thread.application?.jobTitle || "Trao đổi tuyển dụng"}
+            {thread.primaryJob?.jobTitle || thread.application?.jobTitle || "Trao đổi tuyển dụng"}
           </p>
           {status ? (
             <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-700">
@@ -130,6 +131,20 @@ export function ThreadCard({ thread, isSelected, onClick }) {
             </span>
           ) : null}
         </div>
+
+        {thread.jobs?.length ? (
+          <div className="thread-job-chips mt-1">
+            {thread.jobs.slice(0, 2).map((job) => (
+              <span
+                key={job.jobId}
+                className={cn("job-chip", job.unreadCount > 0 && "has-unread")}
+              >
+                <span className="chip-dot" style={{ background: getJobColor(job.jobId) }} />
+                <span className="truncate">{job.jobTitle}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         <div className="mt-1.5 flex items-center justify-between gap-2">
           <p className="truncate text-xs text-slate-500">

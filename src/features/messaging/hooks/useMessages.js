@@ -21,7 +21,7 @@ const resolveErrorMessage = (error) => {
   return "Không thể xử lý tin nhắn.";
 };
 
-export const useMessages = (threadId) => {
+export const useMessages = (threadId, activeJobFilterId = null) => {
   const [messagesError, setMessagesError] = useState(null);
   const authUser = useUserStore((state) => state.user);
 
@@ -77,7 +77,12 @@ export const useMessages = (threadId) => {
     setMessagesError(null);
 
     try {
-      const firstPage = await messagingApi.getMessages(threadId, 0, MESSAGE_PAGE_SIZE);
+      const firstPage = await messagingApi.getMessages(
+        threadId,
+        activeJobFilterId,
+        0,
+        MESSAGE_PAGE_SIZE
+      );
 
       if (firstPage.totalElements === 0) {
         setMessagesForThread(threadId, []);
@@ -94,7 +99,12 @@ export const useMessages = (threadId) => {
       const latestPage =
         latestPageIndex === 0
           ? firstPage
-          : await messagingApi.getMessages(threadId, latestPageIndex, MESSAGE_PAGE_SIZE);
+          : await messagingApi.getMessages(
+              threadId,
+              activeJobFilterId,
+              latestPageIndex,
+              MESSAGE_PAGE_SIZE
+            );
 
       setMessagesForThread(threadId, latestPage.content);
       setMessageMeta(threadId, {
@@ -107,7 +117,7 @@ export const useMessages = (threadId) => {
       setMessagesError(resolveErrorMessage(error));
       setMessageMeta(threadId, { loading: false, loadingOlder: false });
     }
-  }, [setMessageMeta, setMessagesForThread, threadId]);
+  }, [activeJobFilterId, setMessageMeta, setMessagesForThread, threadId]);
 
   const loadOlderMessages = useCallback(async () => {
     if (!threadId) {
@@ -124,7 +134,12 @@ export const useMessages = (threadId) => {
     setMessageMeta(threadId, { loadingOlder: true });
 
     try {
-      const page = await messagingApi.getMessages(threadId, nextOlderPage, MESSAGE_PAGE_SIZE);
+      const page = await messagingApi.getMessages(
+        threadId,
+        activeJobFilterId,
+        nextOlderPage,
+        MESSAGE_PAGE_SIZE
+      );
 
       prependMessagesForThread(threadId, page.content);
 
@@ -142,10 +157,10 @@ export const useMessages = (threadId) => {
       setMessageMeta(threadId, { loadingOlder: false });
       return false;
     }
-  }, [prependMessagesForThread, setMessageMeta, threadId]);
+  }, [activeJobFilterId, prependMessagesForThread, setMessageMeta, threadId]);
 
   const sendMessage = useCallback(
-    async (content, contentType = "TEXT") => {
+    async (content, contentType = "TEXT", jobContextId = null) => {
       if (!threadId) {
         return { ok: false };
       }
@@ -175,7 +190,8 @@ export const useMessages = (threadId) => {
         const createdMessage = await messagingApi.sendMessage(
           threadId,
           normalizedContent,
-          contentType
+          contentType,
+          jobContextId
         );
 
         replaceMessageInThread(threadId, tempMessageId, {
@@ -226,7 +242,8 @@ export const useMessages = (threadId) => {
         const createdMessage = await messagingApi.sendMessage(
           threadId,
           targetMessage.content,
-          targetMessage.contentType
+          targetMessage.contentType,
+          targetMessage.jobContext?.jobId || null
         );
 
         replaceMessageInThread(threadId, messageId, {
