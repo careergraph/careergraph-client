@@ -154,10 +154,10 @@ export function MessageInput({
     <div
       className="border-t border-slate-200 bg-white px-3 pt-2"
       style={{
-        paddingBottom: `calc(env(safe-area-inset-bottom) + ${keyboardInset}px)`,
+        paddingBottom: `calc(env(safe-area-inset-bottom) + ${keyboardInset}px + 8px)`,
       }}
     >
-      <div className="flex items-end gap-2">
+      <div className="flex items-center gap-2">
         <textarea
           ref={textareaRef}
           value={value}

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import messagingApi from "~/features/messaging/api/messagingApi";
 import { useMessagingStore } from "~/features/messaging/store/messagingStore";
 import { getMessagingIdentity } from "~/features/messaging/utils/identity";
@@ -13,16 +13,88 @@ const DEFAULT_MESSAGE_META = {
   loadingOlder: false,
 };
 
-const resolveErrorMessage = (error) => {
-  if (error instanceof Error && error.message.trim()) {
-    return error.message;
+const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+
+const getResponseMessage = (error) => {
+  const responseData = error?.response?.data;
+
+  if (isObject(responseData)) {
+    if (typeof responseData.message === "string" && responseData.message.trim()) {
+      return responseData.message.trim();
+    }
+
+    if (typeof responseData.error === "string" && responseData.error.trim()) {
+      return responseData.error.trim();
+    }
   }
 
-  return "Không thể xử lý tin nhắn.";
+  if (typeof error?.message === "string" && error.message.trim()) {
+    return error.message.trim();
+  }
+
+  return "";
+};
+
+const isBlockedConversationError = (error) => {
+  const status = error?.response?.status;
+  const responseMessage = getResponseMessage(error).toLowerCase();
+
+  return (
+    status === 403 ||
+    status === 500 ||
+    responseMessage.includes("bị hr chặn") ||
+    responseMessage.includes("blocked") ||
+    responseMessage.includes("chặn")
+  );
+};
+
+const resolveErrorMessage = (error) => {
+  const status = error?.response?.status;
+  const responseMessage = getResponseMessage(error);
+  const normalizedMessage = responseMessage.toLowerCase();
+
+  if (isBlockedConversationError(error)) {
+    return "Bạn đã bị HR chặn nên không thể gửi tin nhắn trong cuộc trò chuyện này.";
+  }
+
+  if (status === 400) {
+    return responseMessage || "Tin nhắn không hợp lệ.";
+  }
+
+  if (status === 401) {
+    return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+  }
+
+  if (status === 403) {
+    return responseMessage || "Bạn không có quyền thực hiện thao tác này.";
+  }
+
+  if (status === 404) {
+    return responseMessage || "Không tìm thấy cuộc trò chuyện hoặc tin nhắn.";
+  }
+
+  if (status === 429) {
+    return "Bạn thao tác quá nhanh. Vui lòng thử lại sau vài giây.";
+  }
+
+  if (status >= 500) {
+    if (normalizedMessage && !normalizedMessage.includes("request failed with status code")) {
+      return responseMessage;
+    }
+
+    return "Hệ thống đang gặp sự cố tạm thời. Vui lòng thử lại sau.";
+  }
+
+  if (responseMessage && !normalizedMessage.includes("request failed with status code")) {
+    return responseMessage;
+  }
+
+  return "Không thể xử lý tin nhắn. Vui lòng thử lại.";
 };
 
 export const useMessages = (threadId, activeJobFilterId = null) => {
   const [messagesError, setMessagesError] = useState(null);
+  const [isBlockedByHR, setIsBlockedByHR] = useState(false);
   const authUser = useUserStore((state) => state.user);
 
   const messages = useMessagingStore(
@@ -67,6 +139,11 @@ export const useMessages = (threadId, activeJobFilterId = null) => {
   );
 
   const currentUser = useMemo(() => getMessagingIdentity(authUser), [authUser]);
+
+  useEffect(() => {
+    setIsBlockedByHR(false);
+    setMessagesError(null);
+  }, [threadId]);
 
   const loadLatestMessages = useCallback(async () => {
     if (!threadId) {
@@ -204,6 +281,10 @@ export const useMessages = (threadId, activeJobFilterId = null) => {
           message: createdMessage,
         };
       } catch (error) {
+        if (isBlockedConversationError(error)) {
+          setIsBlockedByHR(true);
+        }
+
         markMessageFailed(threadId, tempMessageId);
         setMessagesError(resolveErrorMessage(error));
         return {
@@ -256,6 +337,10 @@ export const useMessages = (threadId, activeJobFilterId = null) => {
           message: createdMessage,
         };
       } catch (error) {
+        if (isBlockedConversationError(error)) {
+          setIsBlockedByHR(true);
+        }
+
         markMessageFailed(threadId, messageId);
         setMessagesError(resolveErrorMessage(error));
         return {
@@ -315,6 +400,7 @@ export const useMessages = (threadId, activeJobFilterId = null) => {
     currentUser,
     messages,
     messagesError,
+    isBlockedByHR,
     isMessagesLoading: messageMeta.loading,
     isLoadingOlderMessages: messageMeta.loadingOlder,
     hasMoreMessages: messageMeta.hasMore,

@@ -202,6 +202,7 @@ export function ChatWindow({ threadId, onBackMobile }) {
     currentUser,
     messages,
     messagesError,
+    isBlockedByHR,
     hasMoreMessages,
     isMessagesLoading,
     isLoadingOlderMessages,
@@ -227,14 +228,14 @@ export function ChatWindow({ threadId, onBackMobile }) {
 
         const nextJobs = jobs.length > 0 ? jobs : fallbackJobs;
         setThreadJobs(nextJobs);
-        setComposeJobId(thread?.primaryJob?.jobId || null);
+        setComposeJobId(nextJobs.length === 1 ? nextJobs[0].jobId : null);
       } catch {
         if (!mounted) {
           return;
         }
 
         setThreadJobs(fallbackJobs);
-        setComposeJobId(thread?.primaryJob?.jobId || null);
+        setComposeJobId(fallbackJobs.length === 1 ? fallbackJobs[0].jobId : null);
       }
     };
 
@@ -437,13 +438,16 @@ export function ChatWindow({ threadId, onBackMobile }) {
 
   const displayName = toDisplayName(thread?.otherUser);
   const avatarFallback = firstLetter(displayName);
-  const applicationStatus = thread?.application?.status || "";
-  const applicationStatusLabel = STATUS_LABEL[applicationStatus] || applicationStatus;
   const groupedMessages = useMemo(() => groupMessagesByJob(messages), [messages]);
-  const selectedComposeJob = useMemo(
-    () => threadJobs.find((job) => job.jobId === composeJobId) || null,
-    [composeJobId, threadJobs]
-  );
+  const selectedComposeJob = useMemo(() => {
+    if (composeJobId) {
+      return threadJobs.find((job) => job.jobId === composeJobId) || null;
+    }
+
+    return null;
+  }, [composeJobId, threadJobs]);
+  const activeDisplayJob = selectedComposeJob || (threadJobs.length === 1 ? threadJobs[0] : null);
+  const isMessagingDisabled = Boolean(thread?.isBlocked || isBlockedByHR);
 
   return (
     <section className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white">
@@ -492,43 +496,30 @@ export function ChatWindow({ threadId, onBackMobile }) {
         onFilter={setActiveFilterJobId}
       />
 
-      {thread?.application ? (
-        <div className="job-context-bar border-b border-slate-200 bg-slate-50 px-3 py-2 sm:px-4">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-            <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white text-[10px] font-semibold uppercase">
-              {thread?.otherUser?.avatarUrl ? (
-                <img
-                  src={thread.otherUser.avatarUrl}
-                  alt={displayName}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                avatarFallback
-              )}
-            </div>
-
-            <span>
-              Về vị trí <strong>{thread.application.jobTitle || "Đang cập nhật"}</strong>
-            </span>
-
-            {applicationStatusLabel ? (
-              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-700">
-                {applicationStatusLabel}
-              </span>
-            ) : null}
-
-            {thread.application.jobId ? (
-              <Link
-                to={`/jobs/${thread.application.jobId}`}
-                className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-indigo-600 transition hover:bg-indigo-50"
-              >
-                Xem chi tiết
-                <ExternalLink className="h-3.5 w-3.5" />
-              </Link>
-            ) : null}
+      <div className="border-b border-slate-200 bg-slate-50 px-3 py-2 sm:px-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              Nội dung trao đổi
+            </p>
+            <p className="truncate text-xs text-slate-700">
+              {activeDisplayJob
+                ? `Đang trao đổi về vị trí ${activeDisplayJob.jobTitle}`
+                : "Đang trao đổi chung (không gắn với vị trí cụ thể)"}
+            </p>
           </div>
+
+          {activeDisplayJob?.jobId ? (
+            <Link
+              to={`/jobs/${activeDisplayJob.jobId}`}
+              className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50"
+            >
+              Xem chi tiết job
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+          ) : null}
         </div>
-      ) : null}
+      </div>
 
       <div className="relative flex min-h-0 flex-1 flex-col">
         <div
@@ -608,8 +599,21 @@ export function ChatWindow({ threadId, onBackMobile }) {
         ) : null}
 
         {messagesError ? (
-          <div className="border-t border-red-100 bg-red-50 px-4 py-2 text-xs text-red-600">
-            {messagesError}
+          <div className="border-t border-red-100 bg-red-50 px-4 py-2 text-xs text-red-700">
+            <div className="flex items-center justify-between gap-3">
+              <span className="min-w-0 flex-1">{messagesError}</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 shrink-0 rounded-lg border-red-200 bg-white text-red-700 hover:bg-red-50"
+                onClick={() => {
+                  void loadLatestMessages();
+                }}
+              >
+                Thử lại
+              </Button>
+            </div>
           </div>
         ) : null}
 
@@ -619,12 +623,21 @@ export function ChatWindow({ threadId, onBackMobile }) {
           onSelect={setComposeJobId}
         />
 
+        {isMessagingDisabled ? (
+          <div className="border-t border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+            <strong>Bạn không thể gửi tin nhắn lúc này.</strong> HR đã chặn cuộc trò chuyện này.
+          </div>
+        ) : null}
+
         <MessageInput
           onSend={handleSendMessage}
           onTypingStart={() => sendTypingStart(threadId)}
           onTypingStop={() => sendTypingStop(threadId)}
+          disabled={isMessagingDisabled}
           placeholder={
-            selectedComposeJob
+            isMessagingDisabled
+              ? "Cuộc trò chuyện đã bị chặn"
+              : selectedComposeJob
               ? `Nhắn về ${selectedComposeJob.jobTitle}...`
               : "Nhập tin nhắn..."
           }
