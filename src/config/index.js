@@ -56,6 +56,7 @@ export const routes = {
   resetPassword: "/reset-password",
   companyDetail: "/companies/:id",
   interviews: "/interviews",
+  messages: "/messages",
 };
 
 // Cấu hình API endpoints

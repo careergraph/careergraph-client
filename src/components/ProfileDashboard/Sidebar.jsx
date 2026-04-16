@@ -10,11 +10,13 @@ import {
   UserRound,
   FileBadge2,
   Bell,
-  CalendarCheck
+  CalendarCheck,
+  MessageSquareMore,
 } from "lucide-react";
 import { useUserStore } from "~/stores/userStore";
 import { UserAPI } from "~/services/api/user";
 import { toast } from "sonner";
+import { useMessagingUnread } from "~/features/messaging/hooks/useMessagingUnread";
 
 function Toggle({ checked, onChange }) {
   return (
@@ -49,6 +51,7 @@ export default function SideBar({
 
   const [allowSearch, setAllowSearch] = useState(false);
   const [allowJobMail, setJobMail] = useState(false);
+  const { unreadCount: unreadMessages } = useMessagingUnread();
 
   // Map route con của từng nhóm để auto mở nhóm tương ứng khi người dùng vào trang con
   const groupRoutes = useMemo(
@@ -86,7 +89,7 @@ export default function SideBar({
   const baseItemCls =
     "w-full flex items-center justify-between rounded-xl px-3 py-3 text-left text-slate-700 hover:bg-slate-100";
 
-  const LinkItem = ({ to, icon: Icon, label, has = true }) => (
+  const LinkItem = ({ to, icon: Icon, label, has = true, badge = 0 }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
@@ -98,6 +101,11 @@ export default function SideBar({
           <span className="flex items-center gap-3">
             <Icon size={20} className={isActive ? "text-indigo-600" : "text-slate-600"} />
             <span className="text-[15px] font-medium">{label}</span>
+            {badge > 0 ? (
+              <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                {badge > 99 ? "99+" : badge}
+              </span>
+            ) : null}
           </span>
           {has&&<ChevronRight size={18} className="text-slate-400" />}
         </>
@@ -146,6 +154,13 @@ export default function SideBar({
           <LinkItem to="/profile" icon={FileBadge2} label="Hồ sơ của tôi" has={false} />
           <LinkItem to="/template-cv" icon={Palette} label="Trang trí CV" has={false} />
           <LinkItem to="/interviews" icon={CalendarCheck} label="Lịch phỏng vấn" has={false} />
+          <LinkItem
+            to="/messages"
+            icon={MessageSquareMore}
+            label="Tin nhắn"
+            has={false}
+            badge={unreadMessages}
+          />
 
           {/* Quản lý việc làm */}
           <button
