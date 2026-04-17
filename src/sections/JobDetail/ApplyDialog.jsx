@@ -78,7 +78,6 @@ export default function ApplyDialog({
       try {
         setLoadingResumes(true);
         const resumes = await MediaService.listResumes({ candidateId });
-        console.log(resumes)
         setExistingResumes(resumes);
         if (resumes.length > 0) {
           setSelectedResume(resumes[0]);
