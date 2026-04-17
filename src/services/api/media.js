@@ -47,4 +47,16 @@ export const MediaAPI = {
       method: "DELETE",
     });
   },
+
+  rename({ fileId, newName }) {
+    if (!fileId) {
+      return Promise.reject(new Error("Missing fileId to rename"));
+    }
+
+    return http(`${apiConfig.endpoints.media.rename}/${encodeURIComponent(fileId)}/rename`, {
+      method: "PATCH",
+      body: { newName },
+      auth: true,
+    });
+  },
 };

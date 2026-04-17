@@ -116,7 +116,8 @@ export const apiConfig = {
     media: {
       upload: "/media/file",
       list: "/media",
-      base: "/media"
+      base: "/media",
+      rename: "/cv"
     },
     applications: {
       list: "/applications",
