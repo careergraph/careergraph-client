@@ -73,8 +73,8 @@ export default function ApplyBar({ onApply, jobId, disabled = false, isSaved = f
 
 
   return (
-    <div className="mt-4 w-full flex flex-wrap gap-3">
-      <div className="flex-5">
+    <div className="mx-4 my-4 flex w-auto flex-col gap-3 sm:flex-row">
+      <div className="sm:flex-[5]">
         <PrimaryButton
           className="w-full"
           text= {disabled ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
@@ -82,7 +82,7 @@ export default function ApplyBar({ onApply, jobId, disabled = false, isSaved = f
           disabled={disabled}
         />
       </div>
-      <div className="flex-2">
+      <div className="sm:flex-[2]">
         <SecondaryButton
           text="Lưu công việc"
           className="w-full"

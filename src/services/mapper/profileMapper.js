@@ -7,7 +7,8 @@ export function normalizeInfoFromResponse(data) {
   return {
     
     candidateId: data.candidateId,
-    avatarUrl: data.avatarUrl,
+    avatarUrl: data.avatarUrl || data.avatar || "",
+    avatar: data.avatar || data.avatarUrl || "",
     firstName: data.firstName || "",
     lastName: data.lastName || "",
 

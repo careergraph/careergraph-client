@@ -46,6 +46,7 @@ export const routes = {
   register: "/register",
   jobDetail: "/jobs/:id",
   profile: "/profile",
+  account: "/account",
   appliedJobs: "/jobs/applied",
   savedJobs: "/jobs/saved",
   waitingJobs: "/jobs/waiting",
@@ -75,6 +76,10 @@ export const apiConfig = {
       resendOTP: "/auth/resend-otp",
       getTtlOtp: "/auth/ttl-otp",
       googleLogin: "/auth/google-login",
+      requestEmailChangeOtp: "/auth/email-change/request-otp",
+      confirmEmailChange: "/auth/email-change/confirm",
+      requestPasswordChangeOtp: "/auth/password-change/request-otp",
+      confirmPasswordChange: "/auth/password-change/confirm",
     },
     jobs: {
       list: "/jobs",

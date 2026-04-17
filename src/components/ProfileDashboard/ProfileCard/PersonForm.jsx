@@ -156,13 +156,12 @@ export default function PersonalForm({ defaultValues = {}, onSubmit }) {
 
       {/* Email */}
       <div>
-        <label className="text-sm font-medium">Email *</label>
+        <label className="text-sm font-medium">Email</label>
         <input
+          disabled
           type="email"
-          className="mt-1 w-full rounded-lg border p-2 outline-none focus:ring-2 focus:ring-violet-500"
+          className="mt-1 w-full rounded-lg border p-2 bg-gray-100 cursor-not-allowed"
           value={form.email}
-          onChange={update("email")}
-          required
         />
       </div>
 
