@@ -7,6 +7,8 @@ import DefaultLayout from "../src/layouts";
 import ProtectedRoute from "./components/Containers/ProtectedRoute";
 import { Toaster } from "sonner";
 import { AppInitializer } from "~/components/AppInitializer";
+import { NotificationProvider } from "~/features/notifications/context/NotificationContext";
+import MessagingRealtimeBootstrap from "~/features/messaging/components/MessagingRealtimeBootstrap";
 import NotFound from "./pages/NotFound";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -16,59 +18,62 @@ const HAS_VALID_GOOGLE_CLIENT_ID =
 const AppRoutes = () => (
   <Router>
     <AppInitializer>
-      <Toaster richColors/>
-      <div className="App">
-        <Routes>
-          {/* Public routes */}
-          {publicRoutes.map((route, index) => {
-            const Page = route.component;
-            let Layout = DefaultLayout;
-            if (route.layout) {
-              Layout = route.layout;
-            } else if (route.layout === null) {
-              Layout = Fragment;
-            }
-
-            return (
-              <Route
-                key={index}
-                path={route.path}
-                element={
-                  <Layout>
-                    <Page />
-                  </Layout>
-                }
-              />
-            );
-          })}
-
-          {/* Private routes */}
-          {privateRoutes.map((route, index) => {
-            const Page = route.component;
-            let Layout = DefaultLayout
-            if(route.layout){
-              Layout = route.layout;
-            }else if(route.layout === null){
+      <NotificationProvider>
+        <MessagingRealtimeBootstrap />
+        <Toaster richColors/>
+        <div className="App">
+          <Routes>
+            {/* Public routes */}
+            {publicRoutes.map((route, index) => {
+              const Page = route.component;
+              let Layout = DefaultLayout;
+              if (route.layout) {
+                Layout = route.layout;
+              } else if (route.layout === null) {
                 Layout = Fragment;
-            }
-            return (
-              <Route
-                key={`private-${index}`}
-                path={route.path}
-                element={
-                  <ProtectedRoute>
+              }
+
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
                     <Layout>
                       <Page />
                     </Layout>
-                  </ProtectedRoute>
-                }
-              />
-            );
-          })}
+                  }
+                />
+              );
+            })}
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+            {/* Private routes */}
+            {privateRoutes.map((route, index) => {
+              const Page = route.component;
+              let Layout = DefaultLayout
+              if(route.layout){
+                Layout = route.layout;
+              }else if(route.layout === null){
+                  Layout = Fragment;
+              }
+              return (
+                <Route
+                  key={`private-${index}`}
+                  path={route.path}
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Page />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            })}
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </NotificationProvider>
     </AppInitializer>
   </Router>
 );

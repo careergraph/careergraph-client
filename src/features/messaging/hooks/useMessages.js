@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import messagingApi from "~/features/messaging/api/messagingApi";
+import { syncMessagingUnreadCount } from "~/features/messaging/hooks/useMessagingUnread";
 import { useMessagingStore } from "~/features/messaging/store/messagingStore";
 import { getMessagingIdentity } from "~/features/messaging/utils/identity";
 import { useUserStore } from "~/stores/userStore";
@@ -388,6 +389,7 @@ export const useMessages = (threadId, activeJobFilterId = null) => {
     }
 
     markThreadOpenedAsRead(threadId);
+    syncMessagingUnreadCount(useMessagingStore.getState().totalUnread);
 
     try {
       await messagingApi.markThreadAsRead(threadId);

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import messagingApi from "~/features/messaging/api/messagingApi";
+import { syncMessagingUnreadCount } from "~/features/messaging/hooks/useMessagingUnread";
 import { useMessagingStore } from "~/features/messaging/store/messagingStore";
 
 const THREAD_PAGE_SIZE = 20;
@@ -103,6 +104,7 @@ export const useThreads = ({ autoLoad = true, archived = false } = {}) => {
       setSelectedThreadId(threadId);
       if (threadId) {
         useMessagingStore.getState().markThreadOpenedAsRead(threadId);
+        syncMessagingUnreadCount(useMessagingStore.getState().totalUnread);
       }
     },
     [setSelectedThreadId]

@@ -37,6 +37,24 @@ const fmtElapsed = (s) => {
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 };
 
+const fmtEarlyJoinCountdown = (diffMs) => {
+  const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const hh = String(hours).padStart(2, "0");
+  const mm = String(minutes).padStart(2, "0");
+  const ss = String(seconds).padStart(2, "0");
+
+  if (days > 0) {
+    return `${String(days).padStart(2, "0")} ngày ${hh} giờ ${mm} phút ${ss} giây`;
+  }
+
+  return `${hh} giờ ${mm} phút ${ss} giây`;
+};
+
 export default function InterviewRoom() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
@@ -192,11 +210,7 @@ export default function InterviewRoom() {
       } else {
         setCanJoin(false);
         const diff = earlyJoinTime - now;
-        const mins = Math.floor(diff / 60000);
-        const secs = Math.floor((diff % 60000) / 1000);
-        setCountdown(
-          `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
-        );
+        setCountdown(fmtEarlyJoinCountdown(diff));
       }
     };
 
@@ -607,7 +621,7 @@ export default function InterviewRoom() {
           {!isEndedByTime && (
             <div className="space-y-1">
               <p className="text-sm text-gray-500">Có thể vào sau</p>
-              <p className="text-3xl font-mono font-bold text-white">{countdown}</p>
+              <p className="text-base font-semibold text-white sm:text-xl">{countdown}</p>
             </div>
           )}
           <button
