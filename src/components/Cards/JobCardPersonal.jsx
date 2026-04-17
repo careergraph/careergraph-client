@@ -42,7 +42,8 @@ function JobCardPersonal({ job }) {
   const handleViewJob = () => navigate(`/jobs/${job.id}`);
 
   return (
-    <div className="group relative w-full max-w-[300px] rounded-2xl border border-slate-100 bg-white/90 p-5 pt-6 text-gray-900 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-lg">
+    <div className="group relative w-full max-w-[300px] rounded-2xl border border-slate-100 bg-white/90 p-5 pt-6 text-gray-900 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-lg cursor-pointer"
+    onClick={handleViewJob}>
       {isNewJob ? (
         <span className="absolute right-5 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
           <Sparkles className="size-3.5" />
@@ -55,7 +56,7 @@ function JobCardPersonal({ job }) {
         </span>
       )}
 
-      <div className="flex items-start gap-3" onClick={handleViewJob}>
+      <div className="flex items-start gap-3">
         <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
           <img
             src={job.companyAvatar || cardSectionCompanyAccessed}

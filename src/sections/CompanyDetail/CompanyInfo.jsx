@@ -4,8 +4,8 @@ export default function CompanyInfo({ company }) {
   const { contacts, addresses } = company;
 
   const primaryAddress = addresses?.find(a => a.isPrimary) || addresses?.[0];
-  const emailContact = contacts?.find(c => c.contactType === "EMAIL");
-  const phoneContact = contacts?.find(c => c.contactType === "PHONE");
+  const emailContact = contacts?.find(c => (c.contactType || c.type) === "EMAIL");
+  const phoneContact = contacts?.find(c => (c.contactType || c.type) === "PHONE");
 
   return (
     <div className="space-y-6 mt-13">
@@ -23,7 +23,13 @@ export default function CompanyInfo({ company }) {
               <div>
                 <p className="text-sm font-medium text-slate-900">Trụ sở chính</p>
                 <p className="text-sm text-slate-600">
-                  {[primaryAddress.specific, primaryAddress.ward, primaryAddress.district, primaryAddress.province, primaryAddress.country]
+                  {[
+                    primaryAddress.specific || primaryAddress.street,
+                    primaryAddress.ward,
+                    primaryAddress.district,
+                    primaryAddress.province || primaryAddress.city,
+                    primaryAddress.country,
+                  ]
                     .filter(Boolean)
                     .join(", ")}
                 </p>
@@ -66,7 +72,13 @@ export default function CompanyInfo({ company }) {
               <div key={idx} className="flex items-start gap-3 pb-3 border-b border-slate-100 last:border-0 last:pb-0">
                 <MapPin size={18} className="text-slate-400 mt-1 shrink-0" />
                 <p className="text-sm text-slate-600">
-                   {[addr.specific, addr.ward, addr.district, addr.province, addr.country]
+                   {[
+                    addr.specific || addr.street,
+                    addr.ward,
+                    addr.district,
+                    addr.province || addr.city,
+                    addr.country,
+                  ]
                     .filter(Boolean)
                     .join(", ")}
                 </p>

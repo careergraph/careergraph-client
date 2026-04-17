@@ -16,6 +16,7 @@ import CVBuilder from "../pages/CVBuilder";
 import CVTemplates from "../pages/CVTemplates";
 import ProfileDashboardLayout from "~/layouts/ProfileDashboardLayout/ProfileDashboardLayout";
 import Profile from "~/pages/Profile";
+import AccountSettings from "~/pages/AccountSettings";
 import AppliedJobs from "~/pages/AppliedJobs";
 import SavedJobs from "~/pages/SavedJobs";
 import TestApi from "~/pages/TestApi";
@@ -53,6 +54,7 @@ const publicRoutes = [
 //In addition to diving private routes and public routes, you can also use the protected flag
 const privateRoutes = [
   { path: routes.profile, component: Profile, layout: ProfileDashboardLayout },
+  { path: routes.account, component: AccountSettings, layout: ProfileDashboardLayout },
   { path: routes.interviews, component: MyInterviews, layout: ProfileDashboardLayout },
   { path: routes.messages, component: MessagesPage, layout: ProfileDashboardLayout },
   { path: "/interview/room/:roomCode", component: InterviewRoom, layout: null },

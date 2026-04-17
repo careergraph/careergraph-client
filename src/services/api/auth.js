@@ -52,4 +52,36 @@ export const AuthAPI = {
       auth: false,
     })
   },
+
+  requestEmailChangeOtp(payload){
+    return http(`${apiConfig.endpoints.auth.requestEmailChangeOtp}`, {
+      method: "POST",
+      body: payload,
+      auth: true,
+    })
+  },
+
+  confirmEmailChange(payload){
+    return http(`${apiConfig.endpoints.auth.confirmEmailChange}`, {
+      method: "POST",
+      body: payload,
+      auth: true,
+    })
+  },
+
+  requestPasswordChangeOtp(payload){
+    return http(`${apiConfig.endpoints.auth.requestPasswordChangeOtp}`, {
+      method: "POST",
+      body: payload,
+      auth: true,
+    })
+  },
+
+  confirmPasswordChange(payload){
+    return http(`${apiConfig.endpoints.auth.confirmPasswordChange}`, {
+      method: "POST",
+      body: payload,
+      auth: true,
+    })
+  },
 }
