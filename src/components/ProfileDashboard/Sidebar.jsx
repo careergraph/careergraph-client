@@ -152,7 +152,7 @@ export default function SideBar({
         {/* Menu */}
         <nav className="space-y-1">
           <LinkItem to="/profile" icon={FileBadge2} label="Hồ sơ của tôi" has={false} />
-          <LinkItem to="/template-cv" icon={Palette} label="Trang trí CV" has={false} />
+          {/* <LinkItem to="/template-cv" icon={Palette} label="Trang trí CV" has={false} />  */}
           <LinkItem to="/interviews" icon={CalendarCheck} label="Lịch phỏng vấn" has={false} />
           <LinkItem
             to="/messages"

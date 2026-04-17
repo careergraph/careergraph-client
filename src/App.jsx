@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/Containers/ProtectedRoute";
 import { Toaster } from "sonner";
 import { AppInitializer } from "~/components/AppInitializer";
 import { NotificationProvider } from "~/features/notifications/context/NotificationContext";
+import MessagingRealtimeBootstrap from "~/features/messaging/components/MessagingRealtimeBootstrap";
 import NotFound from "./pages/NotFound";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -18,6 +19,7 @@ const AppRoutes = () => (
   <Router>
     <AppInitializer>
       <NotificationProvider>
+        <MessagingRealtimeBootstrap />
         <Toaster richColors/>
         <div className="App">
           <Routes>
