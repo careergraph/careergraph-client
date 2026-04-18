@@ -15,6 +15,37 @@ const toNumberSafe = (value, fallback = 0) =>
 const toBooleanSafe = (value, fallback = false) =>
   typeof value === "boolean" ? value : fallback;
 
+const HAS_TIMEZONE_SUFFIX = /(?:[zZ]|[+-]\d{2}(?::?\d{2})?)$/;
+
+const normalizeIsoTimestamp = (value, fallback = "") => {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+
+  const withSeparator = trimmed.includes("T") ? trimmed : trimmed.replace(" ", "T");
+  const withZone = HAS_TIMEZONE_SUFFIX.test(withSeparator)
+    ? withSeparator
+    : `${withSeparator}Z`;
+  const millisNormalized = withZone.replace(/\.(\d{3})\d+/, ".$1");
+
+  const parsed = new Date(millisNormalized);
+  if (Number.isNaN(parsed.getTime())) {
+    return fallback;
+  }
+
+  return parsed.toISOString();
+};
+
+const normalizeIsoTimestampOrNull = (value) => {
+  const normalized = normalizeIsoTimestamp(value, "");
+  return normalized || null;
+};
+
 const unwrapEnvelope = (payload) => {
   if (isRecord(payload) && "data" in payload) {
     return payload.data;
@@ -99,7 +130,7 @@ const normalizeThreadSummary = (payload) => {
       jobTitle: toStringSafe(jobSource.jobTitle),
       jobStatus: toStringSafe(jobSource.jobStatus),
       unreadCount: toNumberSafe(jobSource.unreadCount),
-      lastMessageAt: toStringSafe(jobSource.lastMessageAt) || null,
+      lastMessageAt: normalizeIsoTimestampOrNull(jobSource.lastMessageAt),
       hasMessages: toBooleanSafe(jobSource.hasMessages),
     };
   };
@@ -119,7 +150,7 @@ const normalizeThreadSummary = (payload) => {
     jobs,
     primaryJob,
     lastMessagePreview: toStringSafe(source.lastMessagePreview),
-    lastMessageAt: toStringSafe(source.lastMessageAt) || null,
+    lastMessageAt: normalizeIsoTimestampOrNull(source.lastMessageAt),
     unreadCount: toNumberSafe(source.unreadCount),
     isOnline: toBooleanSafe(source.isOnline, toBooleanSafe(source.online)),
     isArchived: toBooleanSafe(source.isArchived, toBooleanSafe(source.archived)),
@@ -158,9 +189,9 @@ const normalizeMessage = (payload, fallbackThreadId = "") => {
           jobStatus: toStringSafe(source.jobContext.jobStatus),
         }
       : null,
-    createdAt: toStringSafe(source.createdAt, new Date().toISOString()),
+    createdAt: normalizeIsoTimestamp(source.createdAt, new Date().toISOString()),
     isRead: toBooleanSafe(source.isRead, toBooleanSafe(source.read)),
-    readAt: toStringSafe(source.readAt) || undefined,
+    readAt: normalizeIsoTimestamp(source.readAt, "") || undefined,
     localStatus: "sent",
   };
 };
@@ -297,7 +328,7 @@ const getThreadJobs = async (threadId) => {
         jobTitle: toStringSafe(source.jobTitle),
         jobStatus: toStringSafe(source.jobStatus),
         unreadCount: toNumberSafe(source.unreadCount),
-        lastMessageAt: toStringSafe(source.lastMessageAt) || null,
+        lastMessageAt: normalizeIsoTimestampOrNull(source.lastMessageAt),
         hasMessages: toBooleanSafe(source.hasMessages),
       };
     })
