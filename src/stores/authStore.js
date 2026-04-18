@@ -169,6 +169,7 @@ export const useAuthStore = create((set, get) => ({
       removeToken();
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
+      
     }
   },
 }));
