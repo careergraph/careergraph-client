@@ -1,10 +1,11 @@
 // jsconfig.json
 {
-    "compilerOptions": {
-        "baseUrl": ".", // gốc là thư mục hiện tại
-        "paths": {
-            "~/*": ["src/*"] // alias ~ trỏ về src/
-        }
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
     },
-    "exclude": ["node_modules", "dist"]
+    "ignoreDeprecations": "6.0"
+  },
+  "exclude": ["node_modules", "dist"]
 }

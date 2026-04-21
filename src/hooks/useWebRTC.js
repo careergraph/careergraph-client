@@ -119,9 +119,14 @@ export function useWebRTC({ roomCode, token, localStream }) {
   useEffect(() => {
     if (!roomCode || !token) return;
 
+    setAdmissionStatus("idle");
+    setPeerCount(0);
+    setRoomClosingGrace(false);
+
     const socket = io(RTC_URL, {
       auth: { token },
       transports: ["websocket"],
+      autoConnect: false,
     });
     socketRef.current = socket;
 
@@ -239,6 +244,8 @@ export function useWebRTC({ roomCode, token, localStream }) {
       setPeerCount((c) => Math.max(0, c - 1));
       closePeer();
     });
+
+    socket.connect();
 
     return () => {
       closePeer();
