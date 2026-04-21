@@ -46,8 +46,7 @@ const publicRoutes = [
   { path: routes.verifyOtp, component: VerifyOtp, layout: FooterOnly},
   { path: routes.resetPassword, component: ResetPassword, layout: FooterOnly},
   
-  { path: routes.appliedJobs, component: AppliedJobs, layout: ProfileDashboardLayout },
-  { path: routes.savedJobs, component: SavedJobs, layout: ProfileDashboardLayout },
+  
   
 ];
 
@@ -58,6 +57,8 @@ const privateRoutes = [
   { path: routes.interviews, component: MyInterviews, layout: ProfileDashboardLayout },
   { path: routes.messages, component: MessagesPage, layout: ProfileDashboardLayout },
   { path: "/interview/room/:roomCode", component: InterviewRoom, layout: null },
+  { path: routes.appliedJobs, component: AppliedJobs, layout: ProfileDashboardLayout },
+  { path: routes.savedJobs, component: SavedJobs, layout: ProfileDashboardLayout },
 ];
 
 export { publicRoutes, privateRoutes };

@@ -13,6 +13,10 @@ export default function ProfileDropdown() {
   const { logout } = useAuthStore();
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
   const items = [
     {
       label: "Thông tin cá nhân",
@@ -34,8 +38,8 @@ export default function ProfileDropdown() {
     {
       label: "Đăng xuất",
       icon: <LogOut size={18} />,
-      onClick: () => logout(),
-      danger: true,
+      onClick: () => handleLogout(),
+      
     },
   ];
 
