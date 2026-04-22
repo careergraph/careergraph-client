@@ -5,12 +5,17 @@ import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import CompanyHeader from "~/sections/CompanyDetail/CompanyHeader";
 import CompanyInfo from "~/sections/CompanyDetail/CompanyInfo";
 import CompanyJobs from "~/sections/CompanyDetail/CompanyJobs";
+import { toast } from "sonner";
+import { useUserStore } from "~/stores/userStore";
 
 export default function CompanyDetail() {
   const { id } = useParams();
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const { user } = useUserStore();
 
   useEffect(() => {
     let isMounted = true;
@@ -44,6 +49,64 @@ export default function CompanyDetail() {
       isMounted = false;
     };
   }, [id]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadFollowStatus = async () => {
+      if (!id || !user) {
+        setIsFollowing(false);
+        return;
+      }
+
+      try {
+        const followed = await CompanyService.fetchFollowStatus(id);
+        if (!ignore) {
+          setIsFollowing(Boolean(followed));
+        }
+      } catch {
+        if (!ignore) {
+          setIsFollowing(false);
+        }
+      }
+    };
+
+    loadFollowStatus();
+
+    return () => {
+      ignore = true;
+    };
+  }, [id, user]);
+
+  const handleToggleFollow = async () => {
+    if (!id) return;
+    if (!user) {
+      toast.error("Bạn cần đăng nhập ứng viên để theo dõi công ty");
+      return;
+    }
+
+    try {
+      setFollowLoading(true);
+      const followed = await CompanyService.toggleFollowCompany(id);
+      setIsFollowing(Boolean(followed));
+      setCompany((prev) => {
+        if (!prev) return prev;
+
+        const currentFollowers = Number(prev.noOfFollowers || 0);
+        return {
+          ...prev,
+          noOfFollowers: followed
+            ? currentFollowers + 1
+            : Math.max(0, currentFollowers - 1),
+        };
+      });
+      toast.success(followed ? "Đã theo dõi công ty" : "Đã bỏ theo dõi công ty");
+    } catch (err) {
+      toast.error(err?.message || "Không thể cập nhật theo dõi công ty");
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   // Scroll to top on mount/id change
   useEffect(() => {
@@ -113,20 +176,22 @@ export default function CompanyDetail() {
   return (
     <div className="bg-slate-50 min-h-screen pb-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        <CompanyHeader company={company} />
+        <CompanyHeader
+          company={company}
+          isFollowing={isFollowing}
+          onToggleFollow={handleToggleFollow}
+          followLoading={followLoading}
+        />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content - Jobs List */}
           <div className="lg:col-span-2 space-y-6">
-             {/* Description if available (currently not in API response but good to have placeholder) */}
-             {/* 
              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
                 <h2 className="text-xl font-bold text-slate-900 mb-4">Giới thiệu</h2>
                 <div className="prose prose-slate max-w-none">
-                  <p>{company.description || "Chưa có mô tả về công ty."}</p>
+                  <p>{company.description || "Công ty chưa cập nhật mô tả."}</p>
                 </div>
              </div>
-             */}
 
              <CompanyJobs jobs={company.jobs} />
           </div>

@@ -34,7 +34,7 @@ export default function ProfileDropdown() {
       onClick: () => {navigate("/jobs/applied")},
     },
     { label: "Tạo CV", icon: <FileText size={18} />, onClick: () => {navigate("/template-cv")} },
-    { label: "NTD quan tâm", icon: <Heart size={18} />, onClick: () => {navigate("/saved-companies")} },
+    { label: "NTD quan tâm", icon: <Heart size={18} />, onClick: () => {navigate("/employers/following")} },
     {
       label: "Đăng xuất",
       icon: <LogOut size={18} />,

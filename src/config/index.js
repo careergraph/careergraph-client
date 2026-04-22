@@ -111,6 +111,9 @@ export const apiConfig = {
       lookup: "/companies/lookup",
       jobs: "/companies/:id/jobs",
       detail: "/companies/:id",
+      followStatus: "/companies/:id/follow-status",
+      follow: "/companies/:id/follow",
+      following: "/companies/following",
     },
     education: {
       lookup: "/educations/lookup",

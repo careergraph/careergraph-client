@@ -1,6 +1,6 @@
-import { Globe, Users, Calendar, MapPin, Building2 } from "lucide-react";
+import { Globe, Users, Calendar, Building2 } from "lucide-react";
 
-export default function CompanyHeader({ company }) {
+export default function CompanyHeader({ company, isFollowing = false, onToggleFollow, followLoading = false }) {
   const {
     name,
     avatar,
@@ -64,8 +64,17 @@ export default function CompanyHeader({ company }) {
                   Website
                 </a>
              )}
-             <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition shadow-sm">
-                Theo dõi
+             <button
+                type="button"
+                onClick={onToggleFollow}
+                disabled={followLoading}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isFollowing
+                    ? "bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-50"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700"
+                }`}
+              >
+                {followLoading ? "Đang xử lý..." : isFollowing ? "Đang theo dõi" : "Theo dõi"}
              </button>
           </div>
         </div>

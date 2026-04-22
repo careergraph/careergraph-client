@@ -14,6 +14,8 @@ import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "~/services/jobService";
+import { CompanyService } from "~/services/companyService";
+import { useLocation as useProvinceLocation } from "~/hooks/use-location";
 import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
 
 // ==================== HELPER FUNCTIONS ====================
@@ -172,12 +174,33 @@ const buildTags = (job) => {
  */
 const buildCompanyInfo = (job) => {
   return {
-    name: job.companyName || "Đang cập nhật",
+    name: job.name || job.companyName || "Đang cập nhật",
     address: job.address || job.location || "Đang cập nhật",
     size: job.companySize || "Đang cập nhật",
-    logo: job.companyAvatar || "https://placehold.co/64x64?text=Logo",
+    logo: job.avatar || job.companyAvatar || "https://placehold.co/64x64?text=Logo",
     link: job.companyId ? `/companies/${job.companyId}` : "#",
   };
+};
+
+const formatCompanyAddress = (company, provinceName = "", districtName = "") => {
+  const primaryAddress = company?.addresses?.find((address) => address?.isPrimary) || company?.addresses?.[0];
+
+  if (!primaryAddress) {
+    return null;
+  }
+
+  const provinceText = provinceName || primaryAddress.province || primaryAddress.city || "";
+  const districtText = districtName || primaryAddress.district || "";
+
+  return [
+    primaryAddress.specific || primaryAddress.street,
+    primaryAddress.ward,
+    districtText,
+    provinceText,
+    primaryAddress.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
 };
 
 // ==================== MAIN COMPONENT ====================
@@ -194,12 +217,21 @@ export default function JobDetailPage() {
   // State cho danh sách việc làm của công ty
   const [companyJobs, setCompanyJobs] = useState([]);
   const [loadingCompanyJobs, setLoadingCompanyJobs] = useState(false);
+  const [companyDetail, setCompanyDetail] = useState(null);
 
   // State cho danh sách việc làm tương tự
   const [similarJobs, setSimilarJobs] = useState([]);
   const [loadingSimilarJobs, setLoadingSimilarJobs] = useState(false);
 
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+
+
+  const companyLocation = companyDetail?.addresses?.find((address) => address?.isPrimary) || companyDetail?.addresses?.[0] || null;
+  const { provinceName, districtName } = useProvinceLocation(
+    companyLocation?.province || companyLocation?.city || "",
+    companyLocation?.district || ""
+  );
+  
   // ==================== LOAD DỮ LIỆU TỪ API ====================
   useEffect(() => {
     let isMounted = true;
@@ -239,6 +271,18 @@ export default function JobDetailPage() {
         }
       }
     };
+
+    const fetchCompanyDetail = async (companyId) => {
+      try {
+        const data = await CompanyService.fetchCompanyDetail(companyId);
+        if (!isMounted) return;
+        setCompanyDetail(data);
+      } catch (err) {
+        console.error("Error loading company detail:", err);
+        if (!isMounted) return;
+        setCompanyDetail(null);
+      }
+    };
     // Hàm chính load job detail
     const fetchJobData = async () => {
       try {
@@ -264,6 +308,7 @@ export default function JobDetailPage() {
         // 1️⃣ API lấy các job khác của công ty (dựa vào companyId)
         if (data.companyId) {
           fetchCompanyJobs(data.companyId);
+          fetchCompanyDetail(data.companyId);
         }
 
         // 2️⃣ API lấy các job tương tự (dựa vào jobId)
@@ -365,7 +410,14 @@ export default function JobDetailPage() {
   const deadlineText = formatDeadline(job.expiryDate);
   const sections = buildJobSections(job);
   const tags = buildTags(job);
-  const company = buildCompanyInfo(job);
+  const company = companyDetail ? buildCompanyInfo(companyDetail) : buildCompanyInfo(job);
+  const companyAddress = companyDetail
+    ? formatCompanyAddress(companyDetail)
+    : company.address;
+  
+  const resolvedCompanyAddress = companyDetail
+    ? formatCompanyAddress(companyDetail, provinceName, districtName)
+    : companyAddress;
 
   // Highlights - các thông tin nổi bật hiển thị dưới tiêu đề
   const highlights = [
@@ -429,7 +481,7 @@ export default function JobDetailPage() {
           <CompanyCard
             logo={company.logo}
             name={company.name}
-            address={company.address}
+            address={resolvedCompanyAddress}
             size={company.size}
             link={company.link}
             icon={<Building2 size={18} />}

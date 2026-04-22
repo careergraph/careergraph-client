@@ -1,9 +1,33 @@
 import { Mail, Phone, MapPin, Building } from "lucide-react";
+import { useLocation } from "~/hooks/use-location";
+
+const formatAddress = (address, provinceName = "", districtName = "") => {
+  if (!address) {
+    return "";
+  }
+
+  const provinceText = provinceName || address.province || address.city || "";
+  const districtText = districtName || address.district || "";
+
+  return [
+    address.specific || address.street,
+    address.ward,
+    districtText,
+    provinceText,
+    address.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
+};
 
 export default function CompanyInfo({ company }) {
   const { contacts, addresses } = company;
 
   const primaryAddress = addresses?.find(a => a.isPrimary) || addresses?.[0];
+  const { provinceName, districtName } = useLocation(
+    primaryAddress?.province || primaryAddress?.city || "",
+    primaryAddress?.district || ""
+  );
   const emailContact = contacts?.find(c => (c.contactType || c.type) === "EMAIL");
   const phoneContact = contacts?.find(c => (c.contactType || c.type) === "PHONE");
 
@@ -23,15 +47,7 @@ export default function CompanyInfo({ company }) {
               <div>
                 <p className="text-sm font-medium text-slate-900">Trụ sở chính</p>
                 <p className="text-sm text-slate-600">
-                  {[
-                    primaryAddress.specific || primaryAddress.street,
-                    primaryAddress.ward,
-                    primaryAddress.district,
-                    primaryAddress.province || primaryAddress.city,
-                    primaryAddress.country,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
+                  {formatAddress(primaryAddress, provinceName, districtName)}
                 </p>
               </div>
             </div>
@@ -72,15 +88,7 @@ export default function CompanyInfo({ company }) {
               <div key={idx} className="flex items-start gap-3 pb-3 border-b border-slate-100 last:border-0 last:pb-0">
                 <MapPin size={18} className="text-slate-400 mt-1 shrink-0" />
                 <p className="text-sm text-slate-600">
-                   {[
-                    addr.specific || addr.street,
-                    addr.ward,
-                    addr.district,
-                    addr.province || addr.city,
-                    addr.country,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
+                  {formatAddress(addr)}
                 </p>
               </div>
             ))}

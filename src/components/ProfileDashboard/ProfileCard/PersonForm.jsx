@@ -22,6 +22,30 @@ export default function PersonalForm({ defaultValues = {}, onSubmit }) {
     marital: defaultValues.marital || "Độc thân",
   });
 
+  useEffect(() => {
+    setForm({
+      firstName: defaultValues.firstName || "",
+      lastName: defaultValues.lastName || "",
+      email: defaultValues.email || "",
+      phone: defaultValues.phone || "",
+      provinceCode: defaultValues?.provinceCode || "",
+      districtCode: defaultValues?.districtCode || "",
+      birth: defaultValues.birth || "",
+      gender: defaultValues.gender || "",
+      marital: defaultValues.marital || "Độc thân",
+    });
+  }, [
+    defaultValues.firstName,
+    defaultValues.lastName,
+    defaultValues.email,
+    defaultValues.phone,
+    defaultValues.provinceCode,
+    defaultValues.districtCode,
+    defaultValues.birth,
+    defaultValues.gender,
+    defaultValues.marital,
+  ]);
+
   // =========================
   // 2. STATE CODE PHỤ (để load huyện)
   // =========================

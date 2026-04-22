@@ -20,6 +20,7 @@ import AccountSettings from "~/pages/AccountSettings";
 import AppliedJobs from "~/pages/AppliedJobs";
 import SavedJobs from "~/pages/SavedJobs";
 import TestApi from "~/pages/TestApi";
+import FollowingCompanies from "~/pages/FollowingCompanies";
 import ForgotPassword from "~/pages/ForgotPassword";
 import VerifyOtp from "~/pages/VerifyOtp";
 import ResetPassword from "~/pages/ResetPassword";
@@ -59,6 +60,7 @@ const privateRoutes = [
   { path: "/interview/room/:roomCode", component: InterviewRoom, layout: null },
   { path: routes.appliedJobs, component: AppliedJobs, layout: ProfileDashboardLayout },
   { path: routes.savedJobs, component: SavedJobs, layout: ProfileDashboardLayout },
+  { path: "/employers/following", component: FollowingCompanies, layout: ProfileDashboardLayout },
 ];
 
 export { publicRoutes, privateRoutes };

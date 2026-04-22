@@ -17,4 +17,24 @@ export const CompanyAPI = {
     });
   },
 
+  getFollowStatus(id) {
+    const url = apiConfig.endpoints.company.followStatus.replace(":id", id);
+    return http(url, {
+      method: "GET",
+    });
+  },
+
+  toggleFollow(id) {
+    const url = apiConfig.endpoints.company.follow.replace(":id", id);
+    return http(url, {
+      method: "PUT",
+    });
+  },
+
+  getFollowedCompanies() {
+    return http(apiConfig.endpoints.company.following, {
+      method: "GET",
+    });
+  },
+
 }

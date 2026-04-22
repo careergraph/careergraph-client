@@ -59,7 +59,7 @@ export default function ProfileCard() {
     email: d?.email || "",
     provinceCode: d?.primaryAddress?.province || "",
     districtCode: d?.primaryAddress?.district || "",
-    phone: d.primaryContact?.value?.trim(),
+    phone: d.primaryContact?.value?.trim() || "",
     birth: (d?.dateOfBirth || "").slice(0, 10), // giữ "YYYY-MM-DD"
     gender: d?.gender === "MALE" ? "Nam" : (d?.gender === "FEMALE" ? "Nữ" : ""),
     marital: d?.isMarried ? "Đã lập gia đình" : "Độc thân",
@@ -103,6 +103,7 @@ export default function ProfileCard() {
       data.primaryAddress = normalizeAddress(data.addresses)
       data.primaryContact = normalizeContact(data.contacts)
       useUserStore.getState().updateUserPart(data)
+      toast.success("Cập nhật hồ sơ thành công")
     } catch (e) {
       toast.error(e.message || "Cập nhật thất bại")
     }
