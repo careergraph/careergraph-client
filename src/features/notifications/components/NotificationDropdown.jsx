@@ -41,6 +41,20 @@ const toDataString = (data, key) => {
   return typeof value === "string" ? value : String(value);
 };
 
+const buildAppliedJobsPath = (applicationId) => {
+  const params = new URLSearchParams();
+
+  if (applicationId) {
+    params.set("applicationId", applicationId);
+  }
+
+  // Force a fresh fetch when opening from notification.
+  params.set("refresh", "1");
+  params.set("ts", String(Date.now()));
+
+  return `/jobs/applied?${params.toString()}`;
+};
+
 const normalizeNavigatePathForCandidate = (rawPath, data) => {
   if (!rawPath || !rawPath.startsWith("/")) {
     return null;
@@ -52,9 +66,7 @@ const normalizeNavigatePathForCandidate = (rawPath, data) => {
 
   if (rawPath.startsWith("/applications/")) {
     const applicationId = rawPath.split("/")[2] || toDataString(data, "applicationId");
-    return applicationId
-      ? `/jobs/applied?applicationId=${applicationId}`
-      : "/jobs/applied";
+    return buildAppliedJobsPath(applicationId);
   }
 
   return rawPath;
@@ -85,9 +97,7 @@ const getNavigatePath = (notification) => {
     case "APPLICATION_REJECTED":
     case "APPLICATION_INTERVIEW_SCHEDULED":
     case "APPLICATION_VIEWED":
-      return applicationId
-        ? `/jobs/applied?applicationId=${applicationId}`
-        : "/jobs/applied";
+      return buildAppliedJobsPath(applicationId);
     default:
       return null;
   }

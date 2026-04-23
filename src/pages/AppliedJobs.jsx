@@ -148,6 +148,7 @@ export default function AppliedJobs() {
 
   const applicationIdParam = searchParams.get("applicationId");
   const statusParam = searchParams.get("status") || "";
+  const refreshTsParam = searchParams.get("ts") || "";
 
   const [filter, setFilters] = useState(statusParam);
 
@@ -156,6 +157,11 @@ export default function AppliedJobs() {
     (newStatus, newApplicationId) => {
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
+
+        // Refresh hints are one-shot flags from notification navigation.
+        next.delete("refresh");
+        next.delete("ts");
+
         if (newStatus) {
           next.set("status", newStatus);
         } else {
@@ -172,15 +178,33 @@ export default function AppliedJobs() {
     [setSearchParams]
   );
 
+  useEffect(() => {
+    setFilters(statusParam);
+  }, [statusParam]);
+
   useEffect(()=> {
+    let cancelled = false;
     setIsLoading(true);
+
     const fetchAppliedJob = async () => {
-      const res = await UserAPI.getAppliedJobs(statusParam);
-      setItems(res?.data);
-      setIsLoading(false);
+      try {
+        const res = await UserAPI.getAppliedJobs(statusParam);
+        if (!cancelled) {
+          setItems(res?.data || []);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
     };
+
     fetchAppliedJob();
-  },[statusParam]);
+
+    return () => {
+      cancelled = true;
+    };
+  },[statusParam, refreshTsParam]);
 
   // After items are loaded, scroll to & highlight the target applicationId
   useEffect(() => {
@@ -279,18 +303,9 @@ const handleOpenChat = async (job) => {
     setOpeningChatJobId(null);
   }
 };
-
-
-  const handleFilter = async (status) => {
-      try {
-        setIsLoading(true);
-        setFilters(status);
-        updateSearchParams(status || null, applicationIdParam);
-        const res = await UserAPI.getAppliedJobs(status);
-        setItems(res?.data || []);
-      } finally {
-        setIsLoading(false);
-      }
+  const handleFilter = (status) => {
+    setFilters(status);
+    updateSearchParams(status || null, applicationIdParam);
   }
   const options = [
   { value: "", label: "Tất cả" },
