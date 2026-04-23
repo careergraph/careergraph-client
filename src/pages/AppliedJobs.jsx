@@ -1,11 +1,11 @@
 // AppliedJobs.jsx
 import { useState } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { UserAPI } from "~/services/api/user";
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import messagingApi from "~/features/messaging/api/messagingApi";
 import { JobService } from "~/services/jobService";
@@ -140,19 +140,84 @@ export default function AppliedJobs() {
   const [isLoading, setIsLoading] = useState(false);
   const [openingChatJobId, setOpeningChatJobId] = useState(null);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState(null);
-  useEffect(()=> {
-    setIsLoading(true)
-    const fetchAppliedJob = async () => {
-      const res = await UserAPI.getAppliedJobs();
-      console.log(res)
-      setItems(res?.data)
-      setIsLoading(false)
-    }
-    fetchAppliedJob();
-  },[])
+  const [highlightedId, setHighlightedId] = useState(null);
+  const highlightTimerRef = useRef(null);
+  const rowRefs = useRef({});
 
-const [filter, setFilters] = useState("")
+  const applicationIdParam = searchParams.get("applicationId");
+  const statusParam = searchParams.get("status") || "";
+
+  const [filter, setFilters] = useState(statusParam);
+
+  // Sync filter state → URL search params (preserve applicationId if present)
+  const updateSearchParams = useCallback(
+    (newStatus, newApplicationId) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (newStatus) {
+          next.set("status", newStatus);
+        } else {
+          next.delete("status");
+        }
+        if (newApplicationId) {
+          next.set("applicationId", newApplicationId);
+        } else {
+          next.delete("applicationId");
+        }
+        return next;
+      }, { replace: true });
+    },
+    [setSearchParams]
+  );
+
+  useEffect(()=> {
+    setIsLoading(true);
+    const fetchAppliedJob = async () => {
+      const res = await UserAPI.getAppliedJobs(statusParam);
+      setItems(res?.data);
+      setIsLoading(false);
+    };
+    fetchAppliedJob();
+  },[statusParam]);
+
+  // After items are loaded, scroll to & highlight the target applicationId
+  useEffect(() => {
+    if (!applicationIdParam || !items || items.length === 0) {
+      return;
+    }
+
+    const matched = items.find(
+      (job) => String(job.applicationId) === applicationIdParam
+    );
+
+    if (!matched) {
+      return;
+    }
+
+    setHighlightedId(applicationIdParam);
+
+    // Scroll into view after a brief render tick
+    requestAnimationFrame(() => {
+      const el = rowRefs.current[applicationIdParam];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+
+    // Remove highlight after 4s and clean up applicationId from URL
+    highlightTimerRef.current = setTimeout(() => {
+      setHighlightedId(null);
+      updateSearchParams(filter || null, null);
+    }, 4000);
+
+    return () => {
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+      }
+    };
+  }, [applicationIdParam, items, filter, updateSearchParams]);
 const handleViewJobDetail = async (jobId) => {
   if (jobId) {
       navigate(`/jobs/${jobId}`);
@@ -219,7 +284,8 @@ const handleOpenChat = async (job) => {
   const handleFilter = async (status) => {
       try {
         setIsLoading(true);
-        setFilters(status)
+        setFilters(status);
+        updateSearchParams(status || null, applicationIdParam);
         const res = await UserAPI.getAppliedJobs(status);
         setItems(res?.data || []);
       } finally {
@@ -322,8 +388,17 @@ const handleOpenChat = async (job) => {
             <tbody>
               {
                 items?.map((job) => (
-                  <tr key={job.jobId} className="rounded-xl bg-slate-50/70">
-                    {/* job title + company */}
+                  <tr
+                    key={job.applicationId || job.jobId}
+                    ref={(el) => {
+                      if (el && job.applicationId) rowRefs.current[job.applicationId] = el;
+                    }}
+                    className={`rounded-xl transition-colors duration-700 ${
+                      highlightedId && highlightedId === job.applicationId
+                        ? "bg-violet-100 ring-2 ring-violet-400 ring-inset"
+                        : "bg-slate-50/70"
+                    }`}
+                  >                    {/* job title + company */}
                     <td className="px-4 py-4 align-top hover:cursor-pointer">
                       <div className="font-medium text-slate-800"
                         onClick={() => handleViewJobDetail(job.jobId)}
