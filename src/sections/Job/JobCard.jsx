@@ -119,7 +119,7 @@ export default function JobCard({ job, onSave, onDetail }) {
                 {tags.map((tag, index) => (
                   <span
                     key={tag}
-                    className={`px-2.5 py-1.5 text-xs font-medium border rounded-full line-clamp-1 ${
+                    className={`px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide border rounded-full line-clamp-1 ${
                       TAG_COLORS[index % TAG_COLORS.length]
                     }`}
                   >

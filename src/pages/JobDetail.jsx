@@ -17,6 +17,7 @@ import { JobService } from "~/services/jobService";
 import { CompanyService } from "~/services/companyService";
 import { useLocation as useProvinceLocation } from "~/hooks/use-location";
 import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
+import { formatDateYMD } from "~/utils/dateUtils";
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -90,17 +91,7 @@ const formatEducation = (educationLevel) => {
 const formatPostedDate = (dateString) => {
   if (!dateString) return null;
 
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = Math.abs(now - date);
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "hôm nay";
-  if (diffDays === 1) return "hôm qua";
-  if (diffDays < 7) return `${diffDays} ngày trước`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} tuần trước`;
-
-  return date.toLocaleDateString("vi-VN");
+  return formatDateYMD(dateString);
 };
 
 /**
@@ -108,7 +99,7 @@ const formatPostedDate = (dateString) => {
  */
 const formatDeadline = (dateString) => {
   if (!dateString) return "Đang cập nhật";
-  return new Date(dateString).toLocaleDateString("vi-VN");
+  return formatDateYMD(dateString);
 };
 
 /**
@@ -490,7 +481,11 @@ export default function JobDetailPage() {
           {/* Việc làm công ty đang tuyển */}
           <SimilarJobsList
             title="Việc làm công ty đang tuyển"
-            items={loadingCompanyJobs ? [] : companyJobs}
+            items={
+              loadingCompanyJobs
+                ? []
+                : companyJobs.filter((companyJob) => companyJob?.id !== job?.id)
+            }
             icon={<Building2 size={16} />}
             emptyMessage={
               loadingCompanyJobs

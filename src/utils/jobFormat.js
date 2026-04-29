@@ -211,6 +211,53 @@ const normalizeLikes = (job) => {
   return 0;
 };
 
+const normalizeCount = (candidates, fallback = 0) => {
+  for (const candidate of candidates) {
+    const numeric = Number(candidate);
+    if (Number.isFinite(numeric) && numeric >= 0) {
+      return Math.round(Math.max(0, numeric));
+    }
+  }
+
+  return fallback;
+};
+
+const normalizeViews = (job) =>
+  normalizeCount([
+    job?.views,
+    job?.viewCount,
+    job?.metrics?.views,
+    job?.stats?.views,
+    job?.meta?.raw?.views,
+  ]);
+
+const normalizeApplicants = (job) =>
+  normalizeCount([
+    job?.applicants,
+    job?.applicantCount,
+    job?.metrics?.applicants,
+    job?.stats?.applicants,
+    job?.meta?.raw?.applicants,
+  ]);
+
+const normalizeSaved = (job) =>
+  normalizeCount([
+    job?.saved,
+    job?.savedCount,
+    job?.metrics?.saved,
+    job?.stats?.saved,
+    job?.meta?.raw?.saved,
+  ]);
+
+const normalizeShares = (job) =>
+  normalizeCount([
+    job?.shares,
+    job?.shareCount,
+    job?.metrics?.shares,
+    job?.stats?.shares,
+    job?.meta?.raw?.shares,
+  ]);
+
 const normalizeId = (job) => {
   const candidates = [job?.id, job?.jobId, job?.uuid, job?.slug];
   for (const candidate of candidates) {
@@ -341,6 +388,10 @@ const normalizeJob = (job = {}) => {
     address: safeText(job.specific || job.address || job.addressLine),
     salaryRange: formatSalary(job),
     likes: normalizeLikes(job),
+    views: normalizeViews(job),
+    applicants: normalizeApplicants(job),
+    saved: normalizeSaved(job),
+    shares: normalizeShares(job),
     isSaved: Boolean(job.isLiked || job.liked || job.isSaved),
     isApplied: Boolean(job.isApplied),
     detailUrl:
@@ -390,6 +441,10 @@ export {
   formatSalary,
   resolvePhotoUrl,
   normalizeLikes,
+  normalizeViews,
+  normalizeApplicants,
+  normalizeSaved,
+  normalizeShares,
   normalizeId,
   normalizeExperience,
   buildSummary,

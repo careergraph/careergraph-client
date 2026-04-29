@@ -32,7 +32,7 @@ export default function Navbar() {
         }`}
     >
       <Link to="/">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pt-4">
           <img
             className="h-9 md:h-9.5 w-auto shrink-0"
             src={logoSvg}
@@ -46,7 +46,7 @@ export default function Navbar() {
           </div>
         </div>
       </Link>
-      <div className="hidden md:flex flex-1 justify-center items-center gap-8 font-medium">
+      <div className="hidden md:flex flex-1 justify-center items-center gap-8 font-medium pt-4">
         {navLinks.map((link) => {
           const isActive = location.pathname === link.href;
           const hasSubLinks = link.subLinks && link.subLinks.length > 0;

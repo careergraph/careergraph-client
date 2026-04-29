@@ -20,6 +20,7 @@ import { InterviewAPI } from "~/services/api/interview";
 import { useWebRTC } from "~/hooks/useWebRTC";
 import { getToken } from "~/utils/storage";
 import { useUserStore } from "~/stores/userStore";
+import { formatDateTimeYMDHM } from "~/utils/dateUtils";
 
 const EARLY_JOIN_MINUTES = 15;
 
@@ -610,7 +611,7 @@ export default function InterviewRoom() {
           <div className="rounded-2xl bg-gray-800/80 p-4 space-y-2">
             <p className="text-sm text-gray-400">Lịch phỏng vấn</p>
             <p className="text-lg font-semibold text-white">
-              {new Date(interview.scheduledAt).toLocaleString("vi-VN")}
+              {formatDateTimeYMDHM(interview.scheduledAt)}
             </p>
             {interview.jobTitle && (
               <p className="text-sm text-gray-400">
@@ -650,7 +651,7 @@ export default function InterviewRoom() {
             <p className="mt-1 text-xs text-gray-500 font-mono">{roomCode}</p>
             {interview && (
               <p className="mt-2 text-sm text-gray-400">
-                {interview.jobTitle} — {new Date(interview.scheduledAt).toLocaleString("vi-VN")}
+                {interview.jobTitle} — {formatDateTimeYMDHM(interview.scheduledAt)}
               </p>
             )}
           </div>

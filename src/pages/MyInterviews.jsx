@@ -6,19 +6,11 @@ import { createPortal } from "react-dom";
 import { useInterviewStore } from "~/stores/interviewStore";
 import { toast } from "sonner";
 import noDataImg from "~/assets/icons/ai-feature.svg";
+import { formatDateYMD, formatTimeHM } from "~/utils/dateUtils";
 
-const fmtDate = (iso) =>
-  new Date(iso).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+const fmtDate = (iso) => formatDateYMD(iso);
 
-const fmtTime = (iso) =>
-  new Date(iso).toLocaleTimeString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const fmtTime = (iso) => formatTimeHM(iso);
 
 const statusMap = {
   SCHEDULED: { label: "Đã lên lịch", cls: "bg-blue-100 text-blue-700" },
