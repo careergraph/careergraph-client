@@ -16,17 +16,17 @@ export default function Register() {
 
   // State để lưu thông tin form
   const [formData, setFormData] = useState({
-    firstName:'',
+    firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
-  
+
   // State để hiển thị thông báo lỗi và thành công
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
   const { register, googleLogin, isLoading } = useAuthStore();
@@ -86,13 +86,14 @@ export default function Register() {
     // Gọi hàm register từ AuthContext
     const normalizedEmail = formData.email.trim().toLowerCase();
     const result = await register(formData.firstName, formData.lastName, normalizedEmail, formData.password);
-    
+
     if (result.success) {
       toast.success("Đăng ký thành công")
       setVerifyCurrent({
         email: normalizedEmail,
         purpose: "verify_email",
-        redirectTo: "/login",})
+        redirectTo: "/login",
+      })
       navigate('/verify-otp', {
         replace: true,
       })

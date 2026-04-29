@@ -68,7 +68,7 @@ export default function CVBuilder() {
         personal: { ...prev.personal, ...(processedData.personal || {}) },
         contact: { ...prev.contact, ...(processedData.contact || {}) },
       }));
-      
+
       userLoadedRef.current = true;
       return;
     }
@@ -81,8 +81,8 @@ export default function CVBuilder() {
       const newCvData = {
         personal: {
           fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim() || defaultCvData.personal.fullName,
-          headline: jobFromState?.title || "Ứng viên tiềm năng", 
-          summary: jobFromState 
+          headline: jobFromState?.title || "Ứng viên tiềm năng",
+          summary: jobFromState
             ? `Mong muốn ứng tuyển vị trí ${jobFromState.title} tại ${jobFromState.companyName || "quý công ty"}. Với kinh nghiệm và kỹ năng hiện có, tôi tin rằng mình có thể đóng góp tích cực vào sự phát triển của công ty.`
             : defaultCvData.personal.summary,
           location: "",
@@ -93,36 +93,36 @@ export default function CVBuilder() {
           website: defaultCvData.contact.website,
           linkedin: defaultCvData.contact.linkedin,
         },
-        experience: hasExperience 
+        experience: hasExperience
           ? (user.experiences || []).map((exp) => ({
-              id: exp.id || `exp-${Math.random()}`,
-              role: exp.jobTitle || "",
-              company: exp.companyName || "",
-              location: "",
-              startDate: exp.startDate || "",
-              endDate: exp.isCurrent ? "Hiện tại" : (exp.endDate || ""),
-              bulletPoints: exp.description ? exp.description.split('\n') : ["Đóng góp vào sự phát triển của dự án.", "Phối hợp với các thành viên trong nhóm."],
-            }))
+            id: exp.id || `exp-${Math.random()}`,
+            role: exp.jobTitle || "",
+            company: exp.companyName || "",
+            location: "",
+            startDate: exp.startDate || "",
+            endDate: exp.isCurrent ? "Hiện tại" : (exp.endDate || ""),
+            bulletPoints: exp.description ? exp.description.split('\n') : ["Đóng góp vào sự phát triển của dự án.", "Phối hợp với các thành viên trong nhóm."],
+          }))
           : defaultCvData.experience,
         education: hasEducation
           ? (user.educations || []).map((edu) => ({
-              id: edu.id || `edu-${Math.random()}`,
-              school: edu.officialName || "",
-              degree: `${edu.degreeTitle || ""} ${edu.major ? "- " + edu.major : ""}`.trim(),
-              startDate: edu.startDate || "",
-              endDate: edu.endDate || "",
-            }))
+            id: edu.id || `edu-${Math.random()}`,
+            school: edu.officialName || "",
+            degree: `${edu.degreeTitle || ""} ${edu.major ? "- " + edu.major : ""}`.trim(),
+            startDate: edu.startDate || "",
+            endDate: edu.endDate || "",
+          }))
           : defaultCvData.education,
         skills: hasSkills
           ? (user.skills || []).map((skill) => ({
-              id: skill.id || `skill-${Math.random()}`,
-              name: skill.skillName || skill.name || "",
-            }))
+            id: skill.id || `skill-${Math.random()}`,
+            name: skill.skillName || skill.name || "",
+          }))
           : (jobFromState?.skills || []).length > 0
             ? (jobFromState.skills || []).map((skill, index) => ({
-                id: `skill-${index}`,
-                name: skill.name || skill,
-              }))
+              id: `skill-${index}`,
+              name: skill.name || skill,
+            }))
             : defaultCvData.skills,
         languages: defaultCvData.languages,
         awards: defaultCvData.awards,
@@ -165,8 +165,8 @@ export default function CVBuilder() {
     const experience = cleanList(cvData.experience, (item) =>
       Boolean(
         item?.role?.trim() ||
-          item?.company?.trim() ||
-          item?.bulletPoints?.some((bullet) => Boolean(bullet?.trim()))
+        item?.company?.trim() ||
+        item?.bulletPoints?.some((bullet) => Boolean(bullet?.trim()))
       )
     ).map((item) => ({
       ...item,
@@ -179,7 +179,7 @@ export default function CVBuilder() {
       Boolean(item?.school?.trim() || item?.degree?.trim())
     );
 
-    const skills = cleanList(cvData.skills, (skill) => 
+    const skills = cleanList(cvData.skills, (skill) =>
       Boolean(skill?.name?.trim() || (typeof skill === 'string' && skill?.trim()))
     ).map((skill) => {
       // Normalize to object format
@@ -295,9 +295,8 @@ export default function CVBuilder() {
               <PdfPreview
                 TemplateComponent={TemplateComponent}
                 data={preparedData}
-                fileName={`${
-                  cvData.personal?.fullName || "cv"
-                }-${selectedTemplate}.pdf`}
+                fileName={`${cvData.personal?.fullName || "cv"
+                  }-${selectedTemplate}.pdf`}
               />
             </div>
           </div>

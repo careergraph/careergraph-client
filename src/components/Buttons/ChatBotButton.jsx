@@ -26,7 +26,10 @@ export default function ChatBotButton() {
                 animation: shine 4s ease-out infinite;
             }
             `}</style>
-      <div className="fixed bottom-6 right-6 z-50">
+      <div
+        className="fixed right-6 z-50"
+        style={{ bottom: "calc(1.5rem + var(--safe-area-bottom))" }}
+      >
         <div className="button-bg rounded-full p-0.5 hover:scale-105 transition duration-300 active:scale-100">
           <button
             onClick={() => setIsOpen(!isOpen)}

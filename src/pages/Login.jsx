@@ -13,7 +13,7 @@ export default function Login() {
     typeof googleClientId === "string" &&
     googleClientId.trim().length > 0 &&
     googleClientId.includes(".apps.googleusercontent.com");
-  
+
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const idToken = credentialResponse?.credential;
@@ -52,10 +52,10 @@ export default function Login() {
     password: '',
     rememberMe: false
   });
-  
+
   // State để hiển thị thông báo lỗi
   const [error, setError] = useState('');
-  
+
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
   const { login, googleLogin, authSubmitting, isAuthenticated } = useAuthStore();
@@ -102,10 +102,10 @@ export default function Login() {
         navigate(from, { replace: true });
       } else {
         const message = result?.error.response?.data?.message;
-        const statusCode =  result?.error.response?.status;
-        if(statusCode === 403 || statusCode === 505 || message === "Email not verified" ){
+        const statusCode = result?.error.response?.status;
+        if (statusCode === 403 || statusCode === 505 || message === "Email not verified") {
           //OTPExpiredIn: 300s
-          setVerifyCurrent({email: formData.email.trim().toLowerCase(), purpose: "verify_email", redirectTo: "/login"})
+          setVerifyCurrent({ email: formData.email.trim().toLowerCase(), purpose: "verify_email", redirectTo: "/login" })
           toast.error(errorMap[message])
           navigate("/verify-otp", {
             replace: true,
@@ -116,13 +116,13 @@ export default function Login() {
             }
           })
         }
-        else{
+        else {
           // Hiển thị lỗi
           setError(errorMap[message] || "Đã xảy ra lỗi, vui lòng thử lại.");
         }
-        
+
       }
-    }catch {
+    } catch {
       // 
     }
   };
@@ -211,9 +211,9 @@ export default function Login() {
 
           <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
             <div className="flex items-center gap-2">
-              <input 
-                className="h-5" 
-                type="checkbox" 
+              <input
+                className="h-5"
+                type="checkbox"
                 id="rememberMe"
                 name="rememberMe"
                 checked={formData.rememberMe}

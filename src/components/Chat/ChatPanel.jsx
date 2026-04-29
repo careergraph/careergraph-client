@@ -20,8 +20,8 @@ const JobRecommendationCard = ({ job }) => {
     <div className="bg-white border border-slate-200 rounded-xl p-4 mt-3 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start gap-3">
         <div>
-          <Link 
-            to={`/jobs/${job.jobId}`} 
+          <Link
+            to={`/jobs/${job.jobId}`}
             className="font-bold text-indigo-700 hover:text-indigo-900 hover:underline line-clamp-1"
             title={job.title}
           >
@@ -38,7 +38,7 @@ const JobRecommendationCard = ({ job }) => {
           </div>
         )}
       </div>
-      
+
       <div className="mt-3 space-y-1.5">
         {job.location && (
           <div className="flex items-start gap-1.5 text-slate-500 text-xs">
@@ -54,7 +54,7 @@ const JobRecommendationCard = ({ job }) => {
         )}
       </div>
 
-      <Link 
+      <Link
         to={`/jobs/${job.jobId}`}
         className="block w-full mt-3 text-center bg-indigo-50 text-indigo-600 text-xs font-semibold py-2 rounded-lg hover:bg-indigo-100 transition-colors"
       >
@@ -149,7 +149,7 @@ export default function ChatPanel({ isOpen, onClose }) {
         ...formatMessage(botMessageContent, "bot"),
         relatedJobs: relatedJobs || []
       };
-      
+
       const finalMessages = [...updatedMessages, botMessage];
       setMessages(finalMessages);
       saveChatHistory(finalMessages);
@@ -274,34 +274,32 @@ export default function ChatPanel({ isOpen, onClose }) {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.type === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${message.type === "user" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   <div className={`flex flex-col max-w-[85%] ${message.type === "user" ? "items-end" : "items-start"}`}>
                     <div
-                      className={`w-full ${
-                        message.type === "user"
+                      className={`w-full ${message.type === "user"
                           ? "bg-indigo-600 text-white rounded-2xl rounded-tr-sm"
                           : "bg-slate-100 text-slate-800 rounded-2xl rounded-tl-sm"
-                      } px-4 py-3 shadow-sm`}
+                        } px-4 py-3 shadow-sm`}
                     >
                       <div className={`text-sm leading-relaxed prose ${message.type === "user" ? "prose-invert" : "prose-slate"} max-w-none`}>
                         {message.type === "user" ? (
                           <p className="whitespace-pre-wrap break-words m-0">{message.content}</p>
                         ) : (
-                          <ReactMarkdown 
+                          <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
-                              p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc pl-4 mb-2" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal pl-4 mb-2" {...props} />,
-                              li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                              a: ({node, ...props}) => <a className="text-indigo-600 hover:underline font-medium" {...props} />,
-                              strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
-                              table: ({node, ...props}) => <div className="overflow-x-auto my-2"><table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg" {...props} /></div>,
-                              th: ({node, ...props}) => <th className="px-3 py-2 bg-slate-50 text-left text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-slate-200" {...props} />,
-                              td: ({node, ...props}) => <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500 border-b border-slate-200" {...props} />,
+                              p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                              ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2" {...props} />,
+                              ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2" {...props} />,
+                              li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                              a: ({ node, ...props }) => <a className="text-indigo-600 hover:underline font-medium" {...props} />,
+                              strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+                              table: ({ node, ...props }) => <div className="overflow-x-auto my-2"><table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg" {...props} /></div>,
+                              th: ({ node, ...props }) => <th className="px-3 py-2 bg-slate-50 text-left text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-slate-200" {...props} />,
+                              td: ({ node, ...props }) => <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-500 border-b border-slate-200" {...props} />,
                             }}
                           >
                             {message.content}
@@ -309,7 +307,7 @@ export default function ChatPanel({ isOpen, onClose }) {
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Render Related Jobs if any */}
                     {message.relatedJobs && message.relatedJobs.length > 0 && (
                       <div className="mt-2 w-full space-y-2">
@@ -323,11 +321,10 @@ export default function ChatPanel({ isOpen, onClose }) {
                     )}
 
                     <p
-                      className={`text-[10px] mt-1 px-1 ${
-                        message.type === "user"
+                      className={`text-[10px] mt-1 px-1 ${message.type === "user"
                           ? "text-slate-400 text-right"
                           : "text-slate-400"
-                      }`}
+                        }`}
                     >
                       {message.time}
                     </p>

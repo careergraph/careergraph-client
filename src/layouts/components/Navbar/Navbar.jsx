@@ -28,9 +28,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`flex items-center justify-between fixed z-50 top-0 w-full px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-slate-200 bg-white/40 ${
-        openMobileMenu ? "bg-white/80" : "backdrop-blur"
-      }`}
+      className={`flex items-center justify-between fixed z-50 top-0 w-full px-4 sm:px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-slate-200 bg-white/40 safe-top ${openMobileMenu ? "bg-white/80" : "backdrop-blur"
+        }`}
     >
       <Link to="/">
         <div className="flex items-center gap-2">
@@ -61,24 +60,22 @@ export default function Navbar() {
                 onMouseEnter={() => setOpenSubmenu(link.name)}
                 onMouseLeave={() => setOpenSubmenu(null)}
               >
-                <button className={`flex items-center gap-1 hover:text-indigo-600 transition ${
-                  isSubLinkActive ? 'text-indigo-600 font-semibold' : ''
-                }`}>
+                <button className={`flex items-center gap-1 hover:text-indigo-600 transition ${isSubLinkActive ? 'text-indigo-600 font-semibold' : ''
+                  }`}>
                   {link.name}
                   <ChevronDown size={16} className="group-hover:rotate-180 transition-transform" />
                 </button>
-                
+
                 {/* Dropdown menu */}
-                <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
+                <div className="absolute left-0 top-full mt-2 w-56 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
                   {link.subLinks.map((subLink) => {
                     const isSubActive = location.pathname === subLink.href;
                     return (
                       <NavLink
                         key={subLink.name}
                         to={subLink.href}
-                        className={`block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition ${
-                          isSubActive ? 'bg-indigo-50 text-indigo-600 font-medium border-l-3 border-indigo-600' : 'text-slate-700'
-                        }`}
+                        className={`block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition ${isSubActive ? 'bg-indigo-50 text-indigo-600 font-medium border-l-3 border-indigo-600' : 'text-slate-700'
+                          }`}
                       >
                         {subLink.name}
                       </NavLink>
@@ -93,9 +90,8 @@ export default function Navbar() {
             <NavLink
               key={link.name}
               to={link.href}
-              className={`hover:text-indigo-600 transition relative ${
-                isActive ? 'text-indigo-600 font-semibold' : ''
-              }`}
+              className={`hover:text-indigo-600 transition relative ${isActive ? 'text-indigo-600 font-semibold' : ''
+                }`}
             >
               {link.name}
               {isActive && (
@@ -105,16 +101,15 @@ export default function Navbar() {
           );
         })}
       </div>
-      
+
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 flex flex-col items-center justify-center gap-6 text-lg font-medium bg-white/40 backdrop-blur-md md:hidden transition duration-300 ${
-          openMobileMenu ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-0 flex flex-col items-center justify-center gap-6 text-lg font-medium bg-white/40 backdrop-blur-md md:hidden transition duration-300 safe-top ${openMobileMenu ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {navLinks.map((link) => {
           const hasSubLinks = link.subLinks && link.subLinks.length > 0;
-          
+
           if (hasSubLinks) {
             return (
               <div key={link.name} className="flex flex-col items-center gap-3">
@@ -125,7 +120,7 @@ export default function Navbar() {
                   {link.name}
                   <ChevronDown size={18} className={`transition-transform ${openSubmenu === link.name ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 {openSubmenu === link.name && (
                   <div className="flex flex-col gap-2 pl-4">
                     {link.subLinks.map((subLink) => {
@@ -149,8 +144,8 @@ export default function Navbar() {
 
           const isActive = location.pathname === link.href;
           return (
-            <NavLink 
-              key={link.name} 
+            <NavLink
+              key={link.name}
               to={link.href}
               onClick={() => setOpenMobileMenu(false)}
               className={isActive ? 'text-indigo-600 font-semibold' : ''}
@@ -166,41 +161,41 @@ export default function Navbar() {
         >
           Chuyển sang trang HR
         </a>
-        { !authInitializing && (
+        {!authInitializing && (
           isAuthenticated ? (
-          <>
-            <Link
-              to="/messages"
-              onClick={() => setOpenMobileMenu(false)}
-              className="relative inline-flex h-11 items-center gap-2 rounded-lg px-3 text-slate-800 transition hover:bg-slate-100"
-            >
-              <MessageSquareMore size={20} />
-              <span>Tin nhắn</span>
-              {unreadMessages > 0 ? (
-                <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                  {unreadMessages > 99 ? "99+" : unreadMessages}
-                </span>
-              ) : null}
-            </Link>
+            <>
+              <Link
+                to="/messages"
+                onClick={() => setOpenMobileMenu(false)}
+                className="relative inline-flex h-11 items-center gap-2 rounded-lg px-3 text-slate-800 transition hover:bg-slate-100"
+              >
+                <MessageSquareMore size={20} />
+                <span>Tin nhắn</span>
+                {unreadMessages > 0 ? (
+                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                ) : null}
+              </Link>
 
-            <div className="hidden md:flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <NotificationBell />
-                <UserAvatar />
+              <div className="hidden md:flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <NotificationBell />
+                  <UserAvatar />
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => navigate("/login")}
-              className="hidden md:block hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
-            >
-              Đăng nhập
-            </button>
-          </>
-        )
-      )}
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate("/login")}
+                className="hidden md:block hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
+              >
+                Đăng nhập
+              </button>
+            </>
+          )
+        )}
         <button
           className="aspect-square size-10 p-1 items-center justify-center bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md flex"
           onClick={() => setOpenMobileMenu(false)}
@@ -211,7 +206,7 @@ export default function Navbar() {
 
       {/* Desktop */}
       <div className="flex items-center gap-4">
-        {!authInitializing&& (
+        {!authInitializing && (
           isAuthenticated ? (
             <div className="hidden md:flex items-center gap-4">
               <Link
@@ -249,7 +244,7 @@ export default function Navbar() {
             </>
           )
         )}
-        
+
         <button
           onClick={() => setOpenMobileMenu(!openMobileMenu)}
           className="md:hidden"
