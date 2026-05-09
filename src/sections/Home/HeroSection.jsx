@@ -1,8 +1,7 @@
-import { ChevronRightIcon, SparklesIcon } from "lucide-react";
+import { Briefcase, BookOpen, ChevronRightIcon } from "lucide-react";
 import mainBanner from "../../assets/images/main-banner.png";
 import dotBanner from "../../assets/images/hero-section-dot-image.png";
 import { Link } from "react-router-dom";
-import { Home } from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -34,16 +33,19 @@ export default function HeroSection() {
       </p>
       <div className="flex items-center gap-5 mt-6">
         <Link
-          to="/home"
+          to="/jobs"
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-6 py-3 text-white rounded-lg font-medium transition-all shadow-lg shadow-indigo-600/30 hover:shadow-xl hover:shadow-indigo-600/40 active:scale-95"
         >
-          <Home size={20} />
-          Trang chủ
+          <Briefcase size={20} />
+          Việc làm
         </Link>
-        <button className="flex items-center gap-2 bg-white px-6 py-3 text-indigo-600 rounded-lg font-medium transition-all shadow-lg shadow-indigo-600/30 hover:shadow-x active:scale-95">
-          <SparklesIcon size={20} />
-          <span>Tính năng AI</span>
-        </button>
+        <Link
+          to="/handbook"
+          className="flex items-center gap-2 bg-white px-6 py-3 text-indigo-600 rounded-lg font-medium transition-all shadow-lg shadow-indigo-600/30 hover:shadow-x active:scale-95"
+        >
+          <BookOpen size={20} />
+          <span>Cẩm nang</span>
+        </Link>
       </div>
       <img
         className="w-5/6 max-w-lg mt-5 mb-3 drop-shadow-2xl drop-shadow-blue-500/15 mx-auto"

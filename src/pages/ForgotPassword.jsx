@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 // Nếu bạn đã có authStore hoặc service, thay thế cho hàm giả lập dưới
 // import { useAuthStore } from "~/store/authStore";
-import {AuthAPI} from "~/services/api/auth";
+import { AuthAPI } from "~/services/api/auth";
 import { toast } from "sonner";
 import { setVerifyCurrent } from "~/utils/storage";
 
@@ -27,7 +27,7 @@ export default function ForgotPassword() {
       const res = await AuthAPI.forgotPassword({ email, purpose: "reset_password" });
       if (res?.status === "OK") {
         toast.success("Đã gửi mã OTP thành công")
-        setVerifyCurrent({email: email, purpose:"reset_password", redirectTo: "/reset-password"})
+        setVerifyCurrent({ email: email, purpose: "reset_password", redirectTo: "/reset-password" })
         navigate("/verify-otp", {
           replace: true,
         });

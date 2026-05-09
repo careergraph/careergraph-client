@@ -1,5 +1,5 @@
 // SavedJobs.jsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CalendarDays,
   Heart,
@@ -10,10 +10,10 @@ import {
 import { UserAPI } from "~/services/api/user";
 import { toast } from "sonner";
 import { useUserStore } from "~/stores/userStore";
+import { formatDateYMD } from "~/utils/dateUtils";
 
 /** --- Helpers --- */
-const fmtDate = (iso) =>
-  new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+const fmtDate = (iso) => formatDateYMD(iso);
 
 /** --- Job Card --- */
 function JobCard({ job }) {
@@ -185,37 +185,7 @@ function EmptySaved() {
 /** --- Main component --- */
 export default function SavedJobs({
   userName = "Luong Quang Thinh",
-  items: itemsProp,
-  onToggleSave, // (job) => void
 }) {
-  // demo data – thay bằng dữ liệu thật (API)
-  const demo = [
-    {
-      id: "1",
-      title: "Chuyên Viên Phòng Chống Gian Lận Miền Bắc - Ise",
-      company: "Công ty Tài Chính TNHH HD SAISON",
-      logo: "/logos/hdsaison.png",
-      salary: "10 - 15 triệu",
-      salaryLink: "#",
-      locations: ["Phú Thọ", "Quảng Ninh", "Tuyên Quang"],
-      deadline: "2025-10-11",
-      href: "#",
-      saved: true,
-    },
-    {
-      id: "2",
-      title: "Kỹ Thuật Vận Hành Máy Ép Nhựa",
-      company: "Công Ty TNHH Nhựa Tân Lập Thành",
-      logo: "/logos/tanlapthanh.png",
-      salary: "Thỏa thuận",
-      locations: ["TP.HCM"],
-      deadline: "2025-10-31",
-      href: "#",
-      saved: true,
-    },
-  ];
-
-
   const [isLoading, setIsLoading] = useState(false);
   const [items, setItems] = useState([]);
   useEffect(() => {

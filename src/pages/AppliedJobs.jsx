@@ -9,9 +9,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import messagingApi from "~/features/messaging/api/messagingApi";
 import { JobService } from "~/services/jobService";
+import { formatDateYMD } from "~/utils/dateUtils";
 /* ---------- small utils ---------- */
-const fmtDate = (iso) =>
-  new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+const fmtDate = (iso) => formatDateYMD(iso);
 
 const statusStyles = {
   SUCCESS: "bg-violet-100 text-violet-700",

@@ -11,10 +11,10 @@ export default function VerifyOtp() {
   const location = useLocation();
   const state = location.state || {};
 
-  const data  = getVerifyCurrent();
+  const data = getVerifyCurrent();
   const email = (data?.email || "").trim().toLowerCase();
 
-  const purpose = data?.purpose || state.purpose || "verify_email"; 
+  const purpose = data?.purpose || state.purpose || "verify_email";
   // const initialExpiresIn = typeof state.expiresIn === "number" ? state?.expiresIn : 120;
   // const initialExpiresIn = Math.max(0, Math.floor((expiredIn - Date.now()) / 1000));
   const redirectTo = data?.redirectTo || "/";
@@ -31,16 +31,16 @@ export default function VerifyOtp() {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() =>  {
+  useEffect(() => {
     try {
-      const fetchOtpTtl  = async () => {
-        const res = await AuthAPI.getTtlOtp({email: email})
+      const fetchOtpTtl = async () => {
+        const res = await AuthAPI.getTtlOtp({ email: email })
         setTimeLeft(res?.data)
-        }
-      if(email)
+      }
+      if (email)
         fetchOtpTtl();
     }
-    catch(err){
+    catch (err) {
       console.error("Lỗi khi lấy TTL OTP:", err);
       setTimeLeft(null);
     }
@@ -108,9 +108,9 @@ export default function VerifyOtp() {
       setSubmitting(true);
       let res;
       if (purpose === "reset_password") {
-        res = await AuthAPI.verifyOTPResetPassword({ email:email, otp: otpValue });
-      }else {
-        res = await AuthAPI.verifyOTPRegister({ email:email, otp: otpValue });
+        res = await AuthAPI.verifyOTPResetPassword({ email: email, otp: otpValue });
+      } else {
+        res = await AuthAPI.verifyOTPRegister({ email: email, otp: otpValue });
       }
 
       if (res?.status === "OK") {
@@ -186,7 +186,7 @@ export default function VerifyOtp() {
             </div>
           )}
 
-          
+
 
           <div
             onPaste={handlePaste}
@@ -209,15 +209,15 @@ export default function VerifyOtp() {
 
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-500/80">
-             {timeLeft > 0 ?(
-              <div>
-                Thời gian còn lại:{" "}
-                <span className="font-semibold text-gray-900">
-                  0{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
-                </span>
+              {timeLeft > 0 ? (
+                <div>
+                  Thời gian còn lại:{" "}
+                  <span className="font-semibold text-gray-900">
+                    0{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
+                  </span>
                 </div>
-              ): (<span>OTP đã hết hạn</span>)}
-              
+              ) : (<span>OTP đã hết hạn</span>)}
+
             </div>
             <button
               type="button"
@@ -237,13 +237,13 @@ export default function VerifyOtp() {
             {submitting ? "Đang xác thực..." : "Xác thực"}
           </button>
 
-          {purpose=="reset_password" &&
+          {purpose == "reset_password" &&
             <p className="text-gray-500/90 text-sm mt-4">
-                Sai email?{" "}
-                <Link className="text-indigo-400 hover:underline" to="/forgot-password">
-                  Nhập lại email
-                </Link>
-              </p>  
+              Sai email?{" "}
+              <Link className="text-indigo-400 hover:underline" to="/forgot-password">
+                Nhập lại email
+              </Link>
+            </p>
           }
         </form>
       </div>

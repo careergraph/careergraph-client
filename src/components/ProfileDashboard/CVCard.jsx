@@ -6,6 +6,7 @@ import { MediaService } from "~/services/mediaService";
 import resolveResumeLabel from "~/utils/formatName";
 import LoadingSpinner from "../Feedback/LoadingSpinner";
 import { useUserStore } from "~/stores/userStore";
+import { formatDateTimeYMDHM } from "~/utils/dateUtils";
 
 const BYTES_5MB = 5 * 1024 * 1024;
 const ACCEPTED = [
@@ -20,16 +21,7 @@ const ACCEPTED = [
 
 function fmtDate(input) {
   if (!input) return "";
-
-  const d = input instanceof Date ? input : new Date(input);
-  if (Number.isNaN(d.getTime())) return "";
-
-  const pad = (n) => String(n).padStart(2, "0");
-
-  // 21/11/2025 • 14:23
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} • ${pad(
-    d.getHours()
-  )}:${pad(d.getMinutes())}`;
+  return formatDateTimeYMDHM(input);
 }
 
 

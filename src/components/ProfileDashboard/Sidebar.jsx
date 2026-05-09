@@ -24,14 +24,12 @@ function Toggle({ checked, onChange }) {
       type="button"
       onClick={() => onChange(!checked)}
       aria-pressed={checked}
-      className={`relative inline-flex h-7 w-[47px] items-center rounded-full transition ${
-        checked ? "bg-indigo-600" : "bg-slate-300"
-      }`}
+      className={`relative inline-flex h-7 w-[47px] items-center rounded-full transition ${checked ? "bg-indigo-600" : "bg-slate-300"
+        }`}
     >
       <span
-        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition ${
-          checked ? "translate-x-5" : "translate-x-1"
-        }`}
+        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition ${checked ? "translate-x-5" : "translate-x-1"
+          }`}
       />
     </button>
   );
@@ -43,7 +41,7 @@ export default function SideBar({
 }) {
   const { pathname } = useLocation();
 
-  const {user} = useUserStore();
+  const { user } = useUserStore();
   // Nhóm mặc định đóng. Sẽ mở nếu đang đứng trong route con của nhóm.
   const [openQLVL, setOpenQLVL] = useState(false);
   const [openNTD, setOpenNTD] = useState(false);
@@ -68,22 +66,22 @@ export default function SideBar({
     []
   );
   const clickToggleAllowSearch = async () => {
-      const res = await UserAPI.setJobSearchStatus();
-      setAllowSearch(res.data);
-      toast.success("Cập nhật thành công");
-  } 
+    const res = await UserAPI.setJobSearchStatus();
+    setAllowSearch(res.data);
+    toast.success("Cập nhật thành công");
+  }
   const clickToggleAllowJobMail = async () => {
-      const res = await UserAPI.toggleJobMail();
-      setJobMail(res.data);
-      toast.success("Cập nhật thành công");
-  } 
+    const res = await UserAPI.toggleJobMail();
+    setJobMail(res.data);
+    toast.success("Cập nhật thành công");
+  }
   useEffect(() => {
     setOpenQLVL(groupRoutes.qlvl.some((p) => pathname.startsWith(p)));
     setOpenNTD(groupRoutes.ntd.some((p) => pathname.startsWith(p)));
     setOpenSupport(groupRoutes.support.some((p) => pathname.startsWith(p)));
     setAllowSearch(user.isOpenToWork)
     setJobMail(user.isOpenToNotifyNewJob)
-  }, [pathname, groupRoutes,user]);
+  }, [pathname, groupRoutes, user]);
 
   const activeItemCls = "bg-indigo-50 text-indigo-700";
   const baseItemCls =
@@ -107,7 +105,7 @@ export default function SideBar({
               </span>
             ) : null}
           </span>
-          {has&&<ChevronRight size={18} className="text-slate-400" />}
+          {has && <ChevronRight size={18} className="text-slate-400" />}
         </>
       )}
     </NavLink>
@@ -117,8 +115,7 @@ export default function SideBar({
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `w-full block text-left pl-11 pr-3 py-2 rounded-lg hover:bg-slate-100 ${
-          isActive ? "text-indigo-700 font-medium" : "text-slate-700"
+        `w-full block text-left pl-11 pr-3 py-2 rounded-lg hover:bg-slate-100 ${isActive ? "text-indigo-700 font-medium" : "text-slate-700"
         }`
       }
     >
@@ -126,13 +123,13 @@ export default function SideBar({
     </NavLink>
   );
 
- 
+
   return (
     <aside className={`pl-2 ${classNames}`}>
       <div className="rounded-2xl bg-white shadow-sm p-4">
         {/* Header tên */}
         <h2 className="text-lg font-extrabold text-slate-900 mb-3">
-          {user?.firstName ? `${user?.lastName} ${user?.firstName} `  : "Người dùng"}
+          {user?.firstName ? `${user?.lastName} ${user?.firstName} ` : "Người dùng"}
         </h2>
 
         {/* Toggle cho phép NTD tìm */}
