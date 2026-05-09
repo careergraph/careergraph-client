@@ -12,7 +12,7 @@ export default function HeroSection() {
     >
       <a
         href="#"
-        className="flex items-center gap-2 rounded-full p-1 pr-3 mt-44 text-indigo-600 bg-indigo-50 mb-2"
+        className="flex items-center gap-2 rounded-full p-1 pr-3 mt-25 text-indigo-600 bg-indigo-50 mb-2"
       >
         <span className="bg-indigo-600 text-white text-xs px-3.5 py-1 rounded-full">
           LIVE

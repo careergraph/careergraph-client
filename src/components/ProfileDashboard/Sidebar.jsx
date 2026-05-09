@@ -213,7 +213,7 @@ export default function SideBar({
           )}
 
           {/* Hỗ trợ / tài nguyên */}
-          <button
+          {/* <button
             type="button"
             onClick={() => setOpenSupport((v) => !v)}
             aria-expanded={openSupport}
@@ -236,7 +236,7 @@ export default function SideBar({
               <SubLink to="/support/career-handbook" label="Cẩm nang nghề nghiệp" />
               <SubLink to="/support/personality" label="Trắc nghiệm tính cách" />
             </div>
-          )}
+          )} */}
 
           <LinkItem to="/account" icon={UserRound} label="Quản lý tài khoản" has={false} />
         </nav>

@@ -158,13 +158,14 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           fixed lg:relative lg:translate-x-0 z-50 lg:z-auto
           top-0 left-0 h-full w-80 max-w-[95vw]
           bg-white
-          lg:border-r-2 lg:border-slate-100
+          lg:border lg:border-gray
+          rounded-2xl
           shadow-xl lg:shadow-none
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="p-6 h-full overflow-y-auto">
+        <div className="p-6 h-full overflow-y-auto rounded-2xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-5 border-b-2 border-slate-100">
             <div className="flex items-center gap-2.5">

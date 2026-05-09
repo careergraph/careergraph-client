@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 2;
 const JOBS_PAGE_KEY = "jobs_current_page"; // Key để lưu page hiện tại
 
 const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = "" }) => {
