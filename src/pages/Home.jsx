@@ -12,8 +12,8 @@ export default function Home() {
             <TrustedCompanies />
             <PersonalJobsSection />
             <PopularJobsSection />
-            <CategorySection />
-            <TestimonialsSection />
+            {/* <CategorySection /> */}
+            {/* <TestimonialsSection /> */}
         </>
     );
 }

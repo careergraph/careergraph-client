@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import { useJobEnums } from "~/hooks/useJobEnums";
 
 const EXPERIENCE_LEVELS = [
   { value: "ENTRY", label: "Mới vào nghề" },
@@ -55,14 +56,34 @@ const JOB_CATEGORIES = [
 
 const EDUCATION_LEVELS = [
   { value: "HIGH_SCHOOL", label: "Trung học phổ thông" },
-  { value: "ASSOCIATE_DEGREE", label: "Cao đẳng" },
-  { value: "BACHELORS_DEGREE", label: "Đại học" },
-  { value: "MASTERS_DEGREE", label: "Thạc sĩ" },
+  { value: "ASSOCIATE", label: "Cao đẳng" },
+  { value: "BACHELOR", label: "Đại học" },
+  { value: "MASTER", label: "Thạc sĩ" },
   { value: "DOCTORATE", label: "Tiến sĩ" },
-  { value: "OTHER", label: "Khác" },
+  { value: "VOCATIONAL", label: "Đào tạo nghề" },
+  { value: "CERTIFICATION", label: "Chứng chỉ chuyên môn" },
+  { value: "NONE", label: "Không yêu cầu" },
 ];
 
 const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
+  const { experienceLevels, employmentTypes, educationTypes, jobCategories } =
+    useJobEnums();
+  const experienceOptions = experienceLevels?.length
+    ? experienceLevels
+    : EXPERIENCE_LEVELS;
+  const employmentOptions = employmentTypes?.length
+    ? employmentTypes
+    : EMPLOYMENT_TYPES;
+  const educationOptions = educationTypes?.length
+    ? educationTypes
+    : EDUCATION_LEVELS;
+  const categoryOptions = [
+    { value: "ALL", label: "Tất cả ngành nghề" },
+    ...((jobCategories?.length ? jobCategories : JOB_CATEGORIES).filter(
+      (item) => item.value !== "ALL"
+    )),
+  ];
+
   const [expandedSections, setExpandedSections] = useState({
     category: true,
     salary: true,
@@ -195,7 +216,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           {/* Job categories */}
           <FilterSection title="Ngành nghề" sectionKey="category">
             <div className="space-y-2.5">
-              {JOB_CATEGORIES.map(({ value, label }) => (
+              {categoryOptions.map(({ value, label }) => (
                 <label
                   key={value}
                   className="flex items-center cursor-pointer group"
@@ -225,7 +246,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           {/* Experience levels */}
           <FilterSection title="Kinh nghiệm làm việc" sectionKey="experience">
             <div className="space-y-2.5">
-              {EXPERIENCE_LEVELS.map(({ value, label }) => (
+              {experienceOptions.map(({ value, label }) => (
                 <label
                   key={value}
                   className="flex items-center cursor-pointer group"
@@ -253,7 +274,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           {/* Employment types */}
           <FilterSection title="Hình thức làm việc" sectionKey="employment">
             <div className="flex flex-wrap gap-2">
-              {EMPLOYMENT_TYPES.map(({ value, label }) => (
+              {employmentOptions.map(({ value, label }) => (
                 <button
                   key={value}
                   onClick={() => toggleMultiValue("employmentTypes", value)}
@@ -274,7 +295,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
           {/* Education levels */}
           <FilterSection title="Trình độ học vấn" sectionKey="education">
             <div className="space-y-2.5">
-              {EDUCATION_LEVELS.map(({ value, label }) => (
+              {educationOptions.map(({ value, label }) => (
                 <label
                   key={value}
                   className="flex items-center cursor-pointer group"
