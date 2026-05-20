@@ -27,6 +27,7 @@ export function JobFilterBar({ jobs = [], activeFilter = null, onFilter }) {
             className={cn("filter-tab", active && "active")}
             style={active ? { borderColor: color } : undefined}
             onClick={() => onFilter?.(job.jobId)}
+            title={job.jobTitle}
           >
             <span className="job-tag-dot" style={{ background: color }} />
             <span className="truncate">{job.jobTitle}</span>
