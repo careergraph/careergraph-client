@@ -236,13 +236,13 @@ export default function ProfileCard() {
           </div>
   
           {/* Trạng thái tìm việc */}
-          <div className="relative" data-test-id="user-profile__job-seeking-status">
+          {/* <div className="relative" data-test-id="user-profile__job-seeking-status">
             <div className="flex items-center w-max gap-2 rounded-[1024px] p-2 bg-[#F9F7FF] cursor-pointer">
               <Bolt size={14} className="text-purple-4" />
               <span className="text-14 leading-6 text-se-grey-48">Trạng thái tìm việc của bạn?</span>
               <ChevronDown size={16} className="text-se-grey-48" />
             </div>
-          </div>
+          </div> */}
   
           {/* Tên + địa chỉ */}
           <div className="flex flex-col">

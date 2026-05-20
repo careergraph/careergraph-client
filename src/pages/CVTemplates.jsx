@@ -25,7 +25,7 @@ export default function CVTemplates() {
         className="relative -mt-24 bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${dotBanner})` }}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-12">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-8 h-8 text-indigo-600" />
@@ -50,7 +50,7 @@ export default function CVTemplates() {
       </div>
 
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-6 py-4">
         {/* Filter Tabs */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
           <div>

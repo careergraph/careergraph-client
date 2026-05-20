@@ -20,6 +20,7 @@ import { InterviewAPI } from "~/services/api/interview";
 import { useWebRTC } from "~/hooks/useWebRTC";
 import { getToken } from "~/utils/storage";
 import { useUserStore } from "~/stores/userStore";
+import { formatDateTimeYMDHM } from "~/utils/dateUtils";
 
 const EARLY_JOIN_MINUTES = 15;
 
@@ -299,7 +300,11 @@ export default function InterviewRoom() {
     if (!navigator.mediaDevices?.getUserMedia) {
       toast.error("Trình duyệt không hỗ trợ truy cập thiết bị media");
       setMediaError("unsupported");
-      return "error";
+      setCameraOn(false);
+      setMicOn(false);
+      setHasCamera(false);
+      setHasMic(false);
+      return "no-devices";
     }
 
     // Step 1: Detect which device types are available
@@ -365,15 +370,23 @@ export default function InterviewRoom() {
       const deviceBusy = blockingErrors.filter((e) => e.name === "NotReadableError" || e.name === "AbortError");
 
       if (permissionDenied.length > 0 && !videoStream && !audioStream) {
-        toast.error("Bạn đã chặn quyền truy cập camera/microphone.\nHãy mở Cài đặt trình duyệt → Quyền riêng tư → Cho phép camera/microphone cho trang này, sau đó tải lại trang.", { duration: 8000 });
+        toast.warning("Bạn đã chặn quyền truy cập camera/microphone. Yêu cầu vào phòng vẫn được gửi ở chế độ không camera/mic.", { duration: 8000 });
         setMediaError("permission-denied");
-        return "error";
+        setCameraOn(false);
+        setMicOn(false);
+        setHasCamera(false);
+        setHasMic(false);
+        return "no-devices";
       }
 
       if (deviceBusy.length > 0 && !videoStream && !audioStream) {
-        toast.error("Thiết bị camera/microphone đang được sử dụng bởi ứng dụng khác.\nHãy đóng ứng dụng đó và thử lại.", { duration: 8000 });
+        toast.warning("Thiết bị camera/microphone đang bận. Yêu cầu vào phòng vẫn được gửi ở chế độ không camera/mic.", { duration: 8000 });
         setMediaError("device-busy");
-        return "error";
+        setCameraOn(false);
+        setMicOn(false);
+        setHasCamera(false);
+        setHasMic(false);
+        return "no-devices";
       }
 
       const tracks = [
@@ -610,7 +623,7 @@ export default function InterviewRoom() {
           <div className="rounded-2xl bg-gray-800/80 p-4 space-y-2">
             <p className="text-sm text-gray-400">Lịch phỏng vấn</p>
             <p className="text-lg font-semibold text-white">
-              {new Date(interview.scheduledAt).toLocaleString("vi-VN")}
+              {formatDateTimeYMDHM(interview.scheduledAt)}
             </p>
             {interview.jobTitle && (
               <p className="text-sm text-gray-400">
@@ -650,7 +663,7 @@ export default function InterviewRoom() {
             <p className="mt-1 text-xs text-gray-500 font-mono">{roomCode}</p>
             {interview && (
               <p className="mt-2 text-sm text-gray-400">
-                {interview.jobTitle} — {new Date(interview.scheduledAt).toLocaleString("vi-VN")}
+                {interview.jobTitle} — {formatDateTimeYMDHM(interview.scheduledAt)}
               </p>
             )}
           </div>
@@ -694,9 +707,9 @@ export default function InterviewRoom() {
           {mediaError && (
             <div className="mx-auto max-w-md rounded-xl bg-red-900/30 border border-red-800/50 px-4 py-3 text-center">
               <p className="text-sm text-red-300">
-                {mediaError === "permission-denied" && "Quyền camera/microphone bị chặn. Hãy cho phép trong cài đặt trình duyệt rồi tải lại trang."}
-                {mediaError === "device-busy" && "Thiết bị đang bị ứng dụng khác chiếm dụng. Hãy đóng ứng dụng đó và thử lại."}
-                {mediaError === "unsupported" && "Trình duyệt không hỗ trợ truy cập thiết bị media."}
+                {mediaError === "permission-denied" && "Quyền camera/microphone bị chặn. Bạn vẫn có thể gửi yêu cầu vào phòng ở chế độ không camera/mic."}
+                {mediaError === "device-busy" && "Thiết bị đang bị ứng dụng khác chiếm dụng. Bạn vẫn có thể gửi yêu cầu vào phòng ở chế độ không camera/mic."}
+                {mediaError === "unsupported" && "Trình duyệt không hỗ trợ truy cập thiết bị media. Bạn vẫn có thể gửi yêu cầu vào phòng ở chế độ xem."}
               </p>
             </div>
           )}
@@ -747,10 +760,7 @@ export default function InterviewRoom() {
           <div className="flex justify-center gap-3">
             <button
               onClick={handleJoin}
-              disabled={!!mediaError}
-              className={`rounded-xl px-8 py-2.5 text-sm font-medium text-white ${
-                mediaError ? "bg-gray-600 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-              }`}
+              className="rounded-xl bg-green-600 px-8 py-2.5 text-sm font-medium text-white hover:bg-green-700"
             >
               {noDevices ? "Tham gia (chế độ xem)" : "Tham gia phỏng vấn"}
             </button>

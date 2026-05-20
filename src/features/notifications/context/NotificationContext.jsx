@@ -161,12 +161,14 @@ export const NotificationProvider = ({ children }) => {
   );
 
   const ensureLoaded = useCallback(async () => {
-    if (!initialized) {
+    const shouldLoadNotifications = !initialized || (unreadCount > 0 && notifications.length === 0);
+
+    if (shouldLoadNotifications) {
       await fetchNotifications({ reset: true });
     }
 
     await refreshUnreadCounts();
-  }, [fetchNotifications, initialized, refreshUnreadCounts]);
+  }, [fetchNotifications, initialized, notifications.length, refreshUnreadCounts, unreadCount]);
 
   const markAsRead = useCallback(
     async (notificationId) => {
@@ -253,6 +255,16 @@ export const NotificationProvider = ({ children }) => {
 
     void refreshUnreadCounts();
   }, [refreshUnreadCounts, resetState, token]);
+
+  useEffect(() => {
+    if (!token || loading) {
+      return;
+    }
+
+    if (unreadCount > 0 && notifications.length === 0) {
+      void fetchNotifications({ reset: true });
+    }
+  }, [fetchNotifications, loading, notifications.length, token, unreadCount]);
 
   useEffect(() => {
     if (authInitializing || !isAuthenticated || !token) {

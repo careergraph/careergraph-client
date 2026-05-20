@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
+import LoadingSpinner from "../../components/Feedback/LoadingSpinner";
 
 const DEFAULT_PAGE_SIZE = 10;
 const JOBS_PAGE_KEY = "jobs_current_page"; // Key để lưu page hiện tại
@@ -160,27 +161,12 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
           ))}
         </div>
 
-        {transitionTarget ? (
-          <div
-            className={`pointer-events-none absolute left-1/2 top-3 z-10 w-[min(260px,100%)] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur transition-opacity duration-200 ${
-              isPageTransitioning ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              Đang chuyển trang
-            </p>
-            <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-indigo-600">
-              <span>{transitionTarget.from}</span>
-              <span className="text-slate-300">→</span>
-              <span>{transitionTarget.to}</span>
-            </div>
-            <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-indigo-100">
-              <div
-                className="h-full w-full origin-left bg-indigo-500 transition-transform duration-200 ease-out"
-                style={{ transform: `scaleX(${isPageTransitioning ? 1 : 0})` }}
-              />
-            </div>
-          </div>
+        {transitionTarget && isPageTransitioning && loading ? (
+          <LoadingSpinner
+            variant="overlay"
+            size="md"
+            message="Đang tải trang mới..."
+          />
         ) : null}
       </div>
 

@@ -103,4 +103,15 @@ const jobCategories = [
   // },
 ];
 
-export { jobResource, colorMap, jobCategories };
+const categoryImageByCode = {
+  ENGINEER: engineer,
+  BUSINESS: business,
+  ART_MUSIC: art,
+  ADMINISTRATION: admin,
+  SALES: sale,
+  EDUCATION: education,
+  CUSTOMER_SERVICE: customer,
+  MANUFACTURING: manufacture,
+};
+
+export { jobResource, colorMap, jobCategories, categoryImageByCode };

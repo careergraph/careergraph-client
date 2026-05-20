@@ -15,11 +15,21 @@ const toBooleanSafe = (value, fallback = false) =>
   typeof value === "boolean" ? value : fallback;
 
 const unwrapEnvelope = (payload) => {
-  if (isRecord(payload) && "data" in payload) {
-    return payload.data;
+  let current = payload;
+  let depth = 0;
+
+  while (isRecord(current) && "data" in current && depth < 5) {
+    const next = current.data;
+
+    if (typeof next === "undefined" || next === null) {
+      break;
+    }
+
+    current = next;
+    depth += 1;
   }
 
-  return payload;
+  return current;
 };
 
 const normalizeNotification = (payload) => {

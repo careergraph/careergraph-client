@@ -17,6 +17,8 @@ import { JobService } from "~/services/jobService";
 import { CompanyService } from "~/services/companyService";
 import { useLocation as useProvinceLocation } from "~/hooks/use-location";
 import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
+import { formatDateYMD } from "~/utils/dateUtils";
+import { useJobEnums } from "~/hooks/useJobEnums";
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -68,19 +70,9 @@ const formatExperience = (experienceData) => {
  * Format trình độ học vấn
  * Mapping các giá trị enum sang tiếng Việt
  */
-const formatEducation = (educationLevel) => {
-  if (!educationLevel) return "Không yêu cầu";
-
-  const EDUCATION_LABELS = {
-    HIGH_SCHOOL: "Trung học",
-    ASSOCIATE_DEGREE: "Cao đẳng",
-    BACHELORS_DEGREE: "Đại học",
-    MASTERS_DEGREE: "Thạc sĩ",
-    DOCTORATE: "Tiến sĩ",
-    OTHER: "Khác",
-  };
-
-  return EDUCATION_LABELS[educationLevel] || educationLevel;
+const formatEducation = (educationLevel, educationLabelMap = {}) => {
+  if (!educationLevel) return "Khong yeu cau";
+  return educationLabelMap[educationLevel] || educationLevel;
 };
 
 /**
@@ -90,17 +82,7 @@ const formatEducation = (educationLevel) => {
 const formatPostedDate = (dateString) => {
   if (!dateString) return null;
 
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = Math.abs(now - date);
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "hôm nay";
-  if (diffDays === 1) return "hôm qua";
-  if (diffDays < 7) return `${diffDays} ngày trước`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} tuần trước`;
-
-  return date.toLocaleDateString("vi-VN");
+  return formatDateYMD(dateString);
 };
 
 /**
@@ -108,7 +90,7 @@ const formatPostedDate = (dateString) => {
  */
 const formatDeadline = (dateString) => {
   if (!dateString) return "Đang cập nhật";
-  return new Date(dateString).toLocaleDateString("vi-VN");
+  return formatDateYMD(dateString);
 };
 
 /**
@@ -224,6 +206,7 @@ export default function JobDetailPage() {
   const [loadingSimilarJobs, setLoadingSimilarJobs] = useState(false);
 
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const { labelMaps } = useJobEnums();
 
 
   const companyLocation = companyDetail?.addresses?.find((address) => address?.isPrimary) || companyDetail?.addresses?.[0] || null;
@@ -405,11 +388,15 @@ export default function JobDetailPage() {
   // ==================== CHUẨN BỊ DỮ LIỆU HIỂN THỊ ====================
   const cityName = extractCityName(job.location);
   const experienceText = formatExperience(job.experience);
-  const educationText = formatEducation(job.education);
+  const educationText = formatEducation(job.education, labelMaps.education);
   const postedDateText = formatPostedDate(job.postedDate);
   const deadlineText = formatDeadline(job.expiryDate);
   const sections = buildJobSections(job);
-  const tags = buildTags(job);
+  const tags = [
+    job.department,
+    labelMaps.category[job.jobCategory] ?? job.jobCategory,
+    job.remoteJob && "Remote",
+  ].filter(Boolean);
   const company = companyDetail ? buildCompanyInfo(companyDetail) : buildCompanyInfo(job);
   const companyAddress = companyDetail
     ? formatCompanyAddress(companyDetail)
@@ -490,7 +477,11 @@ export default function JobDetailPage() {
           {/* Việc làm công ty đang tuyển */}
           <SimilarJobsList
             title="Việc làm công ty đang tuyển"
-            items={loadingCompanyJobs ? [] : companyJobs}
+            items={
+              loadingCompanyJobs
+                ? []
+                : companyJobs.filter((companyJob) => companyJob?.id !== job?.id)
+            }
             icon={<Building2 size={16} />}
             emptyMessage={
               loadingCompanyJobs
@@ -529,3 +520,5 @@ export default function JobDetailPage() {
     </div>
   );
 }
+
+

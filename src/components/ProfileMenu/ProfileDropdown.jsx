@@ -31,15 +31,15 @@ export default function ProfileDropdown() {
     {
       label: "Quản lý việc làm",
       icon: <Briefcase size={18} />,
-      onClick: () => {navigate("/jobs/applied")},
+      onClick: () => { navigate("/jobs/applied") },
     },
-    { label: "Tạo CV", icon: <FileText size={18} />, onClick: () => {navigate("/template-cv")} },
-    { label: "NTD quan tâm", icon: <Heart size={18} />, onClick: () => {navigate("/employers/following")} },
+    { label: "Tạo CV", icon: <FileText size={18} />, onClick: () => { navigate("/template-cv") } },
+    { label: "NTD quan tâm", icon: <Heart size={18} />, onClick: () => { navigate("/employers/following") } },
     {
       label: "Đăng xuất",
       icon: <LogOut size={18} />,
       onClick: () => handleLogout(),
-      
+
     },
   ];
 
@@ -51,10 +51,9 @@ export default function ProfileDropdown() {
             <button
               onClick={item.onClick}
               className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition
-                ${
-                  item.danger
-                    ? "text-red-600 hover:bg-red-50"
-                    : "text-gray-700 hover:bg-slate-50"
+                ${item.danger
+                  ? "text-red-600 hover:bg-red-50"
+                  : "text-gray-700 hover:bg-slate-50"
                 }`}
             >
               <span>{item.label}</span>

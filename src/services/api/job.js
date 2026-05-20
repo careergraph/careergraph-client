@@ -210,4 +210,12 @@ export const JobAPI = {
     });
   },
 
+  getJobEnums({ signal } = {}) {
+    return http(apiConfig.endpoints.jobs.enums, {
+      method: "GET",
+      auth: false,
+      signal,
+    });
+  },
+
 };

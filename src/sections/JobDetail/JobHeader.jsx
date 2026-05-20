@@ -24,7 +24,7 @@ export default function JobHeader({
             {tags.map((tag, i) => (
               <span
                 key={i}
-                className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-100"
+                className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-100"
               >
                 <Tag size={12} />
                 {tag}

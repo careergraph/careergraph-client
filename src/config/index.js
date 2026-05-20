@@ -86,6 +86,7 @@ export const apiConfig = {
       candidate: "/jobs/candidates",
       detail: "/jobs/:id",
       search: "/jobs/search",
+      enums: "/jobs/enums",
       categories: "/jobs/categories",
       popular: "/jobs/popular",
       personalized: "/jobs/personalized",

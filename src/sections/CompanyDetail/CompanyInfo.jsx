@@ -20,6 +20,26 @@ const formatAddress = (address, provinceName = "", districtName = "") => {
     .join(", ");
 };
 
+const normalizeContactType = (contact) =>
+  String(contact?.contactType || contact?.type || "").trim().toUpperCase();
+
+const getPrimaryContact = (contacts, type) => {
+  if (!Array.isArray(contacts) || !type) {
+    return null;
+  }
+
+  const normalizedType = String(type).toUpperCase();
+  const byType = contacts.filter(
+    (contact) => normalizeContactType(contact) === normalizedType && contact?.value
+  );
+
+  if (!byType.length) {
+    return null;
+  }
+
+  return byType.find((contact) => contact?.isPrimary) || byType[0];
+};
+
 export default function CompanyInfo({ company }) {
   const { contacts, addresses } = company;
 
@@ -28,8 +48,9 @@ export default function CompanyInfo({ company }) {
     primaryAddress?.province || primaryAddress?.city || "",
     primaryAddress?.district || ""
   );
-  const emailContact = contacts?.find(c => (c.contactType || c.type) === "EMAIL");
-  const phoneContact = contacts?.find(c => (c.contactType || c.type) === "PHONE");
+  const emailContact = getPrimaryContact(contacts, "EMAIL");
+  const phoneContact = getPrimaryContact(contacts, "PHONE");
+  const displayEmail = emailContact?.value || company?.email || "";
 
   return (
     <div className="space-y-6 mt-13">
@@ -53,14 +74,19 @@ export default function CompanyInfo({ company }) {
             </div>
           )}
 
-          {emailContact && (
+          {displayEmail && (
             <div className="flex items-center gap-3">
               <Mail size={18} className="text-slate-400 shrink-0" />
               <div>
                 <p className="text-sm font-medium text-slate-900">Email</p>
-                <a href={`mailto:${emailContact.value}`} className="text-sm text-indigo-600 hover:underline">
-                  {emailContact.value}
+                <a href={`mailto:${displayEmail}`} className="text-sm text-indigo-600 hover:underline">
+                  {displayEmail}
                 </a>
+                {!emailContact?.value && company?.email && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Email này đang lấy từ tài khoản công ty do chưa cấu hình email liên hệ tuyển dụng.
+                  </p>
+                )}
               </div>
             </div>
           )}
