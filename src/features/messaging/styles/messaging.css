@@ -116,6 +116,7 @@
   overscroll-behavior-x: contain;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+  padding-bottom: 10px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -181,6 +182,7 @@
   overscroll-behavior-x: contain;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+  padding-bottom: 10px;
   -webkit-overflow-scrolling: touch;
   background: rgba(248, 250, 252, 0.7);
 }
