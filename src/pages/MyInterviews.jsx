@@ -1,6 +1,6 @@
 // src/pages/MyInterviews.jsx
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, Video, MapPin, Calendar, Clock, CheckCircle, XCircle, CalendarPlus, Plus, Trash2, ExternalLink } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useInterviewStore } from "~/stores/interviewStore";
@@ -279,9 +279,15 @@ export default function MyInterviews() {
   const { interviews, loading, fetchMyInterviews, confirmInterview, declineInterview, proposeAlternativeTimes } =
     useInterviewStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [filter, setFilter] = useState("");
   const [declining, setDeclining] = useState(null);
   const [proposing, setProposing] = useState(null);
+  const highlightedInterviewId = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("interviewId") || "";
+  }, [location.search]);
+  const interviewCardRefs = useRef({});
 
   const { roomInterviewGroups, standaloneInterviews } = useMemo(() => {
     const toMs = (value) => {
@@ -346,6 +352,26 @@ export default function MyInterviews() {
   useEffect(() => {
     fetchMyInterviews(filter || undefined);
   }, [filter, fetchMyInterviews]);
+
+  useEffect(() => {
+    if (highlightedInterviewId && filter) {
+      setFilter("");
+    }
+  }, [filter, highlightedInterviewId]);
+
+  useEffect(() => {
+    if (loading || !highlightedInterviewId) {
+      return;
+    }
+
+    const target = interviewCardRefs.current[highlightedInterviewId];
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    target.focus({ preventScroll: true });
+  }, [highlightedInterviewId, interviews, loading]);
 
   const filterOptions = [
     { value: "", label: "Tất cả" },
@@ -440,11 +466,28 @@ export default function MyInterviews() {
                     : isKicked
                       ? "KICKED"
                       : interview.interviewStatus;
+                  const isHighlighted =
+                    highlightedInterviewId &&
+                    room.timeline.some((item) => item.id === highlightedInterviewId);
 
                   return (
                     <div
                       key={room.roomCode}
-                      className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 hover:shadow-sm transition-shadow"
+                      ref={(node) => {
+                        room.timeline.forEach((item) => {
+                          if (node) {
+                            interviewCardRefs.current[item.id] = node;
+                          } else {
+                            delete interviewCardRefs.current[item.id];
+                          }
+                        });
+                      }}
+                      tabIndex={-1}
+                      className={`rounded-xl border bg-slate-50/70 p-5 transition-shadow hover:shadow-sm focus:outline-none ${
+                        isHighlighted
+                          ? "border-violet-500 shadow-[0_0_0_3px_rgba(139,92,246,0.18)]"
+                          : "border-slate-200"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
@@ -576,21 +619,37 @@ export default function MyInterviews() {
 
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {standaloneInterviews.map((interview) => (
-                  <InterviewCard
+                  <div
                     key={interview.id}
-                    interview={interview}
-                    onCancel={handleCancel}
-                    onComplete={handleComplete}
-                    onFeedback={(iv) =>
-                      setFeedbackInterview({
-                        interviewId: iv.id,
-                        candidateName: iv.candidateName,
-                      })
-                    }
-                    onAcceptReschedule={handleAcceptProposal}
-                    onRejectReschedule={handleRejectProposal}
-                    onClick={(iv) => navigate(`/interviews/${iv.id}`)}
-                  />
+                    ref={(node) => {
+                      if (node) {
+                        interviewCardRefs.current[interview.id] = node;
+                      } else {
+                        delete interviewCardRefs.current[interview.id];
+                      }
+                    }}
+                    tabIndex={-1}
+                    className={`rounded-xl focus:outline-none ${
+                      highlightedInterviewId === interview.id
+                        ? "border border-violet-500 shadow-[0_0_0_3px_rgba(139,92,246,0.18)]"
+                        : ""
+                    }`}
+                  >
+                    <InterviewCard
+                      interview={interview}
+                      onCancel={handleCancel}
+                      onComplete={handleComplete}
+                      onFeedback={(iv) =>
+                        setFeedbackInterview({
+                          interviewId: iv.id,
+                          candidateName: iv.candidateName,
+                        })
+                      }
+                      onAcceptReschedule={handleAcceptProposal}
+                      onRejectReschedule={handleRejectProposal}
+                      onClick={(iv) => navigate(`/interviews/${iv.id}`)}
+                    />
+                  </div>
                 ))}
               </div>
             </section>

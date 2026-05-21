@@ -95,9 +95,19 @@ const getNavigatePath = (notification) => {
     case "APPLICATION_STATUS_CHANGED":
     case "APPLICATION_SHORTLISTED":
     case "APPLICATION_REJECTED":
-    case "APPLICATION_INTERVIEW_SCHEDULED":
     case "APPLICATION_VIEWED":
       return buildAppliedJobsPath(applicationId);
+    case "APPLICATION_INTERVIEW_SCHEDULED": {
+      const interviewId = toDataString(notification.data, "interviewId");
+      if (!interviewId) {
+        return buildAppliedJobsPath(applicationId);
+      }
+      const params = new URLSearchParams();
+      params.set("interviewId", interviewId);
+      params.set("refresh", "1");
+      params.set("ts", String(Date.now()));
+      return `/interviews?${params.toString()}`;
+    }
     default:
       return null;
   }
