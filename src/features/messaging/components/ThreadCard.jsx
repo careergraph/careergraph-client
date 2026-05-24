@@ -72,6 +72,9 @@ const getAvatarFallback = (displayName) => {
 export function ThreadCard({ thread, isSelected, onClick }) {
   const companyName = toDisplayName(thread.otherUser);
   const status = thread.application?.status || "";
+  const visibleJobs = thread.jobs?.slice(0, 2) || [];
+  const hiddenJobs = thread.jobs?.slice(2) || [];
+  const hiddenJobTitle = hiddenJobs.map((job) => job.jobTitle).join("\n");
 
   return (
     <button
@@ -134,7 +137,7 @@ export function ThreadCard({ thread, isSelected, onClick }) {
 
         {thread.jobs?.length ? (
           <div className="thread-job-chips mt-1">
-            {thread.jobs.slice(0, 2).map((job) => (
+            {visibleJobs.map((job) => (
               <span
                 key={job.jobId}
                 className={cn("job-chip", job.unreadCount > 0 && "has-unread")}
@@ -143,6 +146,15 @@ export function ThreadCard({ thread, isSelected, onClick }) {
                 <span className="truncate">{job.jobTitle}</span>
               </span>
             ))}
+            {hiddenJobs.length > 0 ? (
+              <span
+                className="job-chip border border-dashed border-slate-300 bg-white text-slate-600"
+                title={hiddenJobTitle}
+                aria-label={`${hiddenJobs.length} vị trí khác`}
+              >
+                +{hiddenJobs.length} vị trí
+              </span>
+            ) : null}
           </div>
         ) : null}
 

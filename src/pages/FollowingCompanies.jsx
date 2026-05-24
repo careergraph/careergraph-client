@@ -3,23 +3,52 @@ import { Heart, Building2, MapPin } from "lucide-react";
 import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import CompanyCard from "~/sections/JobDetail/CompanyCard";
 import { CompanyService } from "~/services/companyService";
+import { useLocation } from "~/hooks/use-location";
 
-const formatAddress = (company) => {
+const formatAddress = (company, provinceName = "", districtName = "") => {
   const primaryAddress = company?.addresses?.find((address) => address?.isPrimary) || company?.addresses?.[0];
 
   if (!primaryAddress) {
     return "Đang cập nhật";
   }
 
+  const provinceText = provinceName || primaryAddress.province || primaryAddress.city || "";
+  const districtText = districtName || primaryAddress.district || "";
+
   return [
+    primaryAddress.specific || primaryAddress.street,
     primaryAddress.ward,
-    primaryAddress.district,
-    primaryAddress.province,
+    districtText,
+    provinceText,
     primaryAddress.country,
   ]
     .filter(Boolean)
     .join(", ");
 };
+
+function FollowedCompanyCard({ company }) {
+  const primaryAddress = company?.addresses?.find((address) => address?.isPrimary) || company?.addresses?.[0];
+  const { provinceName, districtName } = useLocation(
+    primaryAddress?.province || primaryAddress?.city || "",
+    primaryAddress?.district || ""
+  );
+
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <CompanyCard
+        logo={company.avatar || "https://placehold.co/64x64?text=Logo"}
+        name={company.name || "Đang cập nhật"}
+        address={formatAddress(company, provinceName, districtName)}
+        size={company.size || "Đang cập nhật"}
+        link={`/companies/${company.companyId || company.id}`}
+        icon={<MapPin size={14} />}
+      />
+      {company.description ? (
+        <p className="mt-4 line-clamp-3 text-sm text-slate-600">{company.description}</p>
+      ) : null}
+    </div>
+  );
+}
 
 export default function FollowingCompanies() {
   const [companies, setCompanies] = useState([]);
@@ -94,19 +123,7 @@ export default function FollowingCompanies() {
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {companies.map((company) => (
-            <div key={company.companyId || company.id} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <CompanyCard
-                logo={company.avatar || "https://placehold.co/64x64?text=Logo"}
-                name={company.name || "Đang cập nhật"}
-                address={formatAddress(company)}
-                size={company.size || "Đang cập nhật"}
-                link={`/companies/${company.companyId || company.id}`}
-                icon={<MapPin size={14} />}
-              />
-              {company.description ? (
-                <p className="mt-4 line-clamp-3 text-sm text-slate-600">{company.description}</p>
-              ) : null}
-            </div>
+            <FollowedCompanyCard key={company.companyId || company.id} company={company} />
           ))}
         </div>
       )}

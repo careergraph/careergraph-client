@@ -281,6 +281,7 @@ export default function MyInterviews() {
   const navigate = useNavigate();
   const location = useLocation();
   const [filter, setFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [declining, setDeclining] = useState(null);
   const [proposing, setProposing] = useState(null);
   const highlightedInterviewId = useMemo(() => {
@@ -288,6 +289,21 @@ export default function MyInterviews() {
     return params.get("interviewId") || "";
   }, [location.search]);
   const interviewCardRefs = useRef({});
+
+  const filteredInterviews = useMemo(() => {
+    if (!dateFilter) return interviews || [];
+
+    const toDateKey = (value) => {
+      const parsed = new Date(value || 0);
+      if (!Number.isFinite(parsed.getTime())) return "";
+      const yyyy = parsed.getFullYear();
+      const mm = String(parsed.getMonth() + 1).padStart(2, "0");
+      const dd = String(parsed.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    };
+
+    return (interviews || []).filter((iv) => toDateKey(iv.scheduledAt) === dateFilter);
+  }, [dateFilter, interviews]);
 
   const { roomInterviewGroups, standaloneInterviews } = useMemo(() => {
     const toMs = (value) => {
@@ -297,7 +313,7 @@ export default function MyInterviews() {
 
     const rooms = new Map();
 
-    (interviews || [])
+    (filteredInterviews || [])
       .filter((iv) => iv.type === "ONLINE" && !!iv.meetingLink)
       .forEach((iv) => {
         const key = iv.meetingLink;
@@ -344,10 +360,10 @@ export default function MyInterviews() {
         return timeB - timeA;
       });
 
-    const standaloneInterviews = (interviews || []).filter((iv) => !(iv.type === "ONLINE" && !!iv.meetingLink));
+    const standaloneInterviews = (filteredInterviews || []).filter((iv) => !(iv.type === "ONLINE" && !!iv.meetingLink));
 
     return { roomInterviewGroups, standaloneInterviews };
-  }, [interviews]);
+  }, [filteredInterviews]);
 
   useEffect(() => {
     fetchMyInterviews(filter || undefined);
@@ -357,7 +373,10 @@ export default function MyInterviews() {
     if (highlightedInterviewId && filter) {
       setFilter("");
     }
-  }, [filter, highlightedInterviewId]);
+    if (highlightedInterviewId && dateFilter) {
+      setDateFilter("");
+    }
+  }, [dateFilter, filter, highlightedInterviewId]);
 
   useEffect(() => {
     if (loading || !highlightedInterviewId) {
@@ -371,7 +390,7 @@ export default function MyInterviews() {
 
     target.scrollIntoView({ behavior: "smooth", block: "center" });
     target.focus({ preventScroll: true });
-  }, [highlightedInterviewId, interviews, loading]);
+  }, [highlightedInterviewId, filteredInterviews, loading]);
 
   const filterOptions = [
     { value: "", label: "Tất cả" },
@@ -414,11 +433,28 @@ export default function MyInterviews() {
 
   return (
     <div className="w-full max-w-6xl mx-6 rounded-2xl bg-white shadow-sm border border-slate-200 p-6">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900">Lịch phỏng vấn của tôi</h2>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex flex-wrap items-center justify-end gap-2 text-sm text-slate-600">
           <span className="mr-1">Bộ lọc:</span>
           <FilterSelect value={filter} onChange={setFilter} options={filterOptions} />
+          <label className="sr-only" htmlFor="interview-date-filter">Ngày phỏng vấn</label>
+          <input
+            id="interview-date-filter"
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none hover:bg-slate-50 focus:border-violet-400 focus:ring-1 focus:ring-violet-400"
+          />
+          {dateFilter && (
+            <button
+              type="button"
+              onClick={() => setDateFilter("")}
+              className="h-10 rounded-xl border border-slate-200 px-3 text-xs font-medium text-slate-600 hover:bg-slate-50"
+            >
+              Xóa ngày
+            </button>
+          )}
         </div>
       </div>
 
@@ -427,9 +463,11 @@ export default function MyInterviews() {
           <div className="h-10 w-10 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
           <p className="text-base font-medium text-slate-800">Đang tải lịch phỏng vấn...</p>
         </div>
-      ) : !interviews || interviews.length === 0 ? (
+      ) : !filteredInterviews || filteredInterviews.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center py-16">
-          <p className="text-2xl font-bold text-slate-950 mb-6">Chưa có lịch phỏng vấn nào</p>
+          <p className="text-2xl font-bold text-slate-950 mb-6">
+            {dateFilter ? "Không có lịch phỏng vấn trong ngày đã chọn" : "Chưa có lịch phỏng vấn nào"}
+          </p>
           <img src={noDataImg} alt="No interviews" className="w-[260px] h-auto opacity-90" />
         </div>
       ) : (

@@ -1,6 +1,6 @@
 // AppliedJobs.jsx
 import { useState } from "react";
-import { ChevronDown, MessageCircle } from "lucide-react";
+import { ChevronDown, ExternalLink, FileText, MessageCircle } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { UserAPI } from "~/services/api/user";
@@ -435,15 +435,23 @@ const handleOpenChat = async (job) => {
 
                     {/* CV */}
                     <td className="px-4 py-4 align-top">
-                      <a
-                        href={job.linkResume}
-                        className="text-sm text-violet-700 hover:underline break-all"
-                        title={job.linkResume}
-                      >
-                        {job?.linkResume?.length > 18
-                          ? job.linkResume.slice(0, 9) + "..." + job.linkResume.slice(-9)
-                          : job.linkResume}
-                      </a>
+                      {job.linkResume ? (
+                        <a
+                          href={job.linkResume}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex h-10 items-center gap-2 rounded-xl border border-violet-200 bg-white px-3 text-sm font-medium text-violet-700 transition hover:border-violet-300 hover:bg-violet-50"
+                          title={job.linkResume}
+                        >
+                          <FileText size={16} />
+                          Xem CV
+                          <ExternalLink size={14} className="text-violet-500" />
+                        </a>
+                      ) : (
+                        <span className="inline-flex h-10 items-center rounded-xl bg-slate-100 px-3 text-sm text-slate-500">
+                          Chưa có CV
+                        </span>
+                      )}
                     </td>
 
                     {/* dates */}
