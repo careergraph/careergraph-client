@@ -154,7 +154,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
       <div
         className={`transition-all duration-200 ${
           expandedSections[sectionKey]
-            ? "max-h-[500px] opacity-100"
+            ? "max-h-[700px] opacity-100"
             : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
