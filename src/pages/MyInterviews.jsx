@@ -24,6 +24,55 @@ const statusMap = {
   KICKED_PERMANENT: { label: "Không thể tham gia", cls: "bg-red-100 text-red-600" },
 };
 
+const ACTIVE_ROOM_STATUSES = new Set(["SCHEDULED", "CONFIRMED", "PENDING_RESCHEDULE", "IN_PROGRESS"]);
+
+const ROOM_REPRESENTATIVE_PRIORITY = {
+  IN_PROGRESS: 1,
+  PENDING_RESCHEDULE: 2,
+  CONFIRMED: 3,
+  SCHEDULED: 4,
+  COMPLETED: 5,
+  NO_SHOW: 6,
+  CANCELLED: 7,
+};
+
+const toMs = (value) => {
+  const parsed = new Date(value || 0).getTime();
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getInterviewVersionMs = (interview) =>
+  toMs(interview?.lastModifiedDate || interview?.createdDate || interview?.scheduledAt);
+
+const pickCurrentRoomInterview = (interviews) => {
+  if (!Array.isArray(interviews) || interviews.length === 0) {
+    return null;
+  }
+
+  const referencedIds = new Set(
+    interviews.map((item) => item?.rescheduledFromId).filter(Boolean)
+  );
+
+  const leafVersions = interviews.filter((item) => !referencedIds.has(item.id));
+  const latestVersions = leafVersions.length > 0 ? leafVersions : interviews;
+  const activeVersions = latestVersions.filter((item) => ACTIVE_ROOM_STATUSES.has(item.interviewStatus));
+  const representativePool = activeVersions.length > 0 ? activeVersions : latestVersions;
+
+  return [...representativePool].sort((a, b) => {
+    const statusA = ROOM_REPRESENTATIVE_PRIORITY[a.interviewStatus] || 999;
+    const statusB = ROOM_REPRESENTATIVE_PRIORITY[b.interviewStatus] || 999;
+    if (statusA !== statusB) return statusA - statusB;
+
+    const versionDelta = getInterviewVersionMs(b) - getInterviewVersionMs(a);
+    if (versionDelta !== 0) return versionDelta;
+
+    const scheduledDelta = toMs(b.scheduledAt) - toMs(a.scheduledAt);
+    if (scheduledDelta !== 0) return scheduledDelta;
+
+    return toMs(b.endAt) - toMs(a.endAt);
+  })[0];
+};
+
 /** Check localStorage for kicked status for an interview */
 function getKickedStatus(interviewId) {
   try {
@@ -306,11 +355,6 @@ export default function MyInterviews() {
   }, [dateFilter, interviews]);
 
   const { roomInterviewGroups, standaloneInterviews } = useMemo(() => {
-    const toMs = (value) => {
-      const parsed = new Date(value || 0).getTime();
-      return Number.isFinite(parsed) ? parsed : 0;
-    };
-
     const rooms = new Map();
 
     (filteredInterviews || [])
@@ -330,8 +374,8 @@ export default function MyInterviews() {
             const scheduledB = toMs(b.scheduledAt);
             if (scheduledA !== scheduledB) return scheduledA - scheduledB;
 
-            const versionA = toMs(a.lastModifiedDate || a.createdDate || a.scheduledAt);
-            const versionB = toMs(b.lastModifiedDate || b.createdDate || b.scheduledAt);
+            const versionA = getInterviewVersionMs(a);
+            const versionB = getInterviewVersionMs(b);
             if (versionA !== versionB) return versionA - versionB;
 
             return toMs(a.endAt) - toMs(b.endAt);
@@ -346,7 +390,7 @@ export default function MyInterviews() {
             );
           });
 
-        const currentInterview = timeline[timeline.length - 1] || list[list.length - 1] || null;
+        const currentInterview = pickCurrentRoomInterview(timeline);
         return {
           roomCode,
           timeline,
