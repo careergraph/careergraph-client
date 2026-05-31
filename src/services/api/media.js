@@ -48,6 +48,29 @@ export const MediaAPI = {
     });
   },
 
+  deleteByFileId({ fileId }) {
+    if (!fileId) {
+      return Promise.reject(new Error("Missing fileId to delete"));
+    }
+
+    return http(`${apiConfig.endpoints.user.media}?fileId=${encodeURIComponent(fileId)}`, {
+      method: "DELETE",
+      auth: true,
+    });
+  },
+
+  toggleShareToFindJob({ fileId, enabled }) {
+    if (!fileId) {
+      return Promise.reject(new Error("Missing fileId to update"));
+    }
+
+    return http(`${apiConfig.endpoints.user.media}/${encodeURIComponent(fileId)}/share-to-find-job`, {
+      method: "PUT",
+      body: { enabled: Boolean(enabled) },
+      auth: true,
+    });
+  },
+
   rename({ fileId, newName }) {
     if (!fileId) {
       return Promise.reject(new Error("Missing fileId to rename"));

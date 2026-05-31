@@ -32,6 +32,7 @@ export const MediaService = {
       originalFileName: data?.originalFileName || data?.fileName || data?.name || "CV",
       name: data?.fileName || data?.originalFileName || data?.name || "CV",
       uploadedAt: data?.createdAt, 
+      shareToFindJob: Boolean(data?.shareToFindJob ?? data?.shareToFileJob),
     };
   },
 
@@ -54,11 +55,16 @@ export const MediaService = {
       originalFileName: record?.originalFileName || record?.fileName || record?.name || "CV",
       name: record?.fileName || record?.originalFileName || record?.name || "CV",
       uploadedAt: record?.createdAt, 
+      shareToFindJob: Boolean(record?.shareToFindJob ?? record?.shareToFileJob),
     })).filter((item) => Boolean(item.url));
   },
 
-   async deleteResume({ publicId }) {
-    if (!publicId) throw new Error("Missing publicId to delete");
+   async deleteResume({ fileId, publicId }) {
+    if (fileId) {
+      const resp = await MediaAPI.deleteByFileId({ fileId });
+      return resp?.data ?? resp;
+    }
+    if (!publicId) throw new Error("Missing fileId/publicId to delete");
 
     const resp = await MediaAPI.delete({ publicId });
     const data = resp?.data ?? resp;
@@ -81,7 +87,24 @@ export const MediaService = {
       originalFileName: data?.originalFileName || newName.trim(),
       name: data?.fileName || data?.name || newName.trim(),
       uploadedAt: data?.createdAt,
+      shareToFindJob: Boolean(data?.shareToFindJob ?? data?.shareToFileJob),
     };
+  },
+
+  async toggleShareToFindJob({ fileId, enabled }) {
+    const resp = await MediaAPI.toggleShareToFindJob({ fileId, enabled });
+    const records = Array.isArray(resp?.data) ? resp.data : Array.isArray(resp) ? resp : [];
+
+    return records.map((record, index) => ({
+      id: record?.id || `${record?.url || "resume"}-${index}`,
+      publicId: record?.publicId,
+      url: record?.filePath || record?.url,
+      fileName: record?.fileName || record?.originalFileName || record?.name || "CV",
+      originalFileName: record?.originalFileName || record?.fileName || record?.name || "CV",
+      name: record?.fileName || record?.originalFileName || record?.name || "CV",
+      uploadedAt: record?.createdAt,
+      shareToFindJob: Boolean(record?.shareToFindJob ?? record?.shareToFileJob),
+    })).filter((item) => Boolean(item.url));
   },
 
   

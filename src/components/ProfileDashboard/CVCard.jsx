@@ -1,6 +1,6 @@
 // CVCards.jsx
 import { useRef, useState, useMemo, useEffect } from "react";
-import { Upload, MoreHorizontal, FileText, Trash2, X, Share2, Loader, Pencil } from "lucide-react";
+import { Upload, MoreHorizontal, FileText, Trash2, X, Share2, Loader, Pencil, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { MediaService } from "~/services/mediaService";
 import resolveResumeLabel from "~/utils/formatName";
@@ -226,6 +226,7 @@ export default function CVCards() {
   const [renameTarget, setRenameTarget] = useState(null);
   const [renameValue, setRenameValue] = useState("");
   const [renamingId, setRenamingId] = useState(null);
+  const [sharingId, setSharingId] = useState(null);
   const inputRef = useRef(null);
 
   const acceptAttr = useMemo(() => ".pdf,.doc,.docx", []);
@@ -352,12 +353,41 @@ export default function CVCards() {
     }
   };
 
+  const handleUseForJobSearch = async (resume) => {
+    if (!resume?.id || sharingId) return;
+
+    const previous = existingResumes;
+    const nextEnabled = !resume.shareToFindJob;
+    setSharingId(resume.id);
+    setExistingResumes((prev) =>
+      prev.map((item) => ({
+        ...item,
+        shareToFindJob: nextEnabled ? item.id === resume.id : false,
+      }))
+    );
+
+    try {
+      const updated = await MediaService.toggleShareToFindJob({
+        fileId: resume.id,
+        enabled: nextEnabled,
+      });
+      setExistingResumes(updated);
+      toast.success(nextEnabled ? "Đã chọn CV tìm việc chính." : "Đã tắt CV tìm việc chính.");
+    } catch (error) {
+      console.error("Cập nhật CV tìm việc thất bại:", error);
+      setExistingResumes(previous);
+      toast.error(error?.message || "Không thể cập nhật CV tìm việc. Vui lòng thử lại.");
+    } finally {
+      setSharingId(null);
+    }
+  };
+
 
   async function handleDeleteResume(resume) {
     try {
       setDeletingId(resume.id);
       setPendingDelete(null);
-      await MediaService.deleteResume({ publicId: resume.publicId });
+      await MediaService.deleteResume({ fileId: resume.id, publicId: resume.publicId });
       setExistingResumes((prev) => prev.filter((r) => r.id !== resume.id));
       toast.success("Đã xóa CV thành công.");
     } catch (err) {
@@ -380,6 +410,11 @@ export default function CVCards() {
           </div>
       ) : (
       <div className="mt-4 space-y-3">
+        {existingResumes.length > 0 && !existingResumes.some((item) => item.shareToFindJob) && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] font-medium text-amber-800">
+            Chưa chọn CV tìm việc chính
+          </div>
+        )}
         {existingResumes.map((item) => (
           <div
             key={item?.id}
@@ -401,6 +436,33 @@ export default function CVCards() {
                   <p className="text-[12px] text-slate-500">
                     Đã tải lên {fmtDate(item?.uploadedAt)}
                   </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {item.shareToFindJob ? (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[12px] font-semibold text-emerald-700">
+                        <CheckCircle2 size={14} />
+                        Đang dùng để tìm việc
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[12px] font-medium text-slate-500">
+                        <Circle size={14} />
+                        Chưa dùng cho tìm việc
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      disabled={sharingId === item.id}
+                      title="CV này sẽ được dùng để cá nhân hóa việc làm, email gợi ý việc làm và giúp Nhà tuyển dụng tìm thấy bạn chính xác hơn."
+                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[12px] font-semibold transition ${
+                        item.shareToFindJob
+                          ? "border-slate-200 text-slate-600 hover:bg-slate-50"
+                          : "border-violet-200 text-violet-700 hover:bg-violet-50"
+                      } disabled:cursor-not-allowed disabled:opacity-60`}
+                      onClick={() => handleUseForJobSearch(item)}
+                    >
+                      {sharingId === item.id ? <Loader size={14} className="animate-spin" /> : null}
+                      {item.shareToFindJob ? "Tắt CV chính" : "Dùng CV này"}
+                    </button>
+                  </div>
                   <button
                     type="button"
                     className="mt-1 text-[13px] font-medium text-violet-600 hover:underline"
@@ -431,8 +493,7 @@ export default function CVCards() {
                   }}
                   onShareWithRecruiter={() => {
                     setOpenMenuId(null);
-                    toast.success("CV đã được cho phép nhà tuyển dụng tìm kiếm.");
-                    // TODO: Gọi API để cập nhật trạng thái CV
+                    handleUseForJobSearch(item);
                   }}
                 />
               </div>
