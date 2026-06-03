@@ -19,7 +19,7 @@ function JobCardPersonal({ job }) {
     return loc;
   };
 
-  const companyLabel = job.experienceLevel || "Đang cập nhật";
+  const companyLabel = job.department || "Đang cập nhật";
   const summary =
     job.summary || job.description || "Mô tả công việc đang cập nhật.";
   const isNewJob = (() => {
