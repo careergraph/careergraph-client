@@ -60,7 +60,6 @@ export default function Jobs() {
           </button>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-5 lg:gap-6">
-          {/* Sidebar */}
           <aside className="col-span-12 md:col-auto">
             <div className="md:sticky md:top-24"> 
               <JobsSidebar
@@ -78,9 +77,7 @@ export default function Jobs() {
             </div>
           </aside>
 
-          {/* Search + Job List */}
           <section className="col-span-12 md:col-auto space-y-4 md:space-y-6">
-            {/* Search Bar */}
             <div className="bg-white rounded-lg shadow-sm p-4">
               <SearchBar
                 onSearch={({ keyword = "", location = "", locationCode = "" }) =>
@@ -103,7 +100,7 @@ export default function Jobs() {
               />
             </div>
 
-            {/* Job List */}
+
             <JobsList
               filters={filters}
               searchQuery={searchState.keyword}

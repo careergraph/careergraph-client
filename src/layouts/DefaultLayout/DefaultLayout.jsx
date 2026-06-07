@@ -19,7 +19,7 @@ function DefaultLayout({ children }) {
                     {children}
                 </div>
             </div>
-            {!isMessagesPage ? <Footer /> : null}
+            {/* {!isMessagesPage ? <Footer /> : null} */}
             {!isMessagesPage ? <ChatBotButton /> : null}
             {showBottomNav ? <BottomNav /> : null}
         </div>

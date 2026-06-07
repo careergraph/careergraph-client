@@ -3,7 +3,7 @@ import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
 import LoadingSpinner from "../../components/Feedback/LoadingSpinner";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 5;
 const JOBS_PAGE_KEY = "jobs_current_page"; // Key để lưu page hiện tại
 
 const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = "" }) => {
