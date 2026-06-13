@@ -1,7 +1,7 @@
 export default function SectionTitle({ text1, text2, text3 }) {
   return (
     <>
-      <p className="text-center uppercase font-medium text-indigo-600 mt-28">
+      <p className="text-center uppercase font-medium text-indigo-600">
         {text1}
       </p>
       <h3 className="text-3xl font-semibold text-center mx-auto mt-2">

@@ -164,7 +164,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
                 <Filter size={18} className="text-indigo-600" />
               </div>
               <h3 className="text-base font-bold text-slate-800 sm:text-lg">
-                Bộ lọc tìm kiếm
+                Bộ lọc
               </h3>
             </div>
 
@@ -172,7 +172,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
               <button
                 type="button"
                 onClick={clearAllFilters}
-                className="text-sm font-medium text-indigo-600 transition-colors hover:text-indigo-700"
+                className="text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-700"
               >
                 Xoá tất cả
               </button>

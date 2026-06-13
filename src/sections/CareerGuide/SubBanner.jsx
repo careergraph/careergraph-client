@@ -4,7 +4,7 @@ import { BookOpen, TrendingUp, Sparkles } from "lucide-react";
 export default function SubBanner() {
   return (
     <div className="bg-white border-b border-slate-200">
-      <Container className="py-16">
+      <Container className="py-4">
         <div className="text-center">
           <div className="mb-6 flex items-center justify-center gap-3">
             <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-3 shadow-lg">
