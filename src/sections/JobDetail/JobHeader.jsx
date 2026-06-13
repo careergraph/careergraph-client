@@ -10,6 +10,7 @@ export default function JobHeader({
   onApply,
   jobId,
   applyDisabled,
+  applyDisabledLabel,
   isSaved,
 }) {
   return (
@@ -86,7 +87,13 @@ export default function JobHeader({
       )}
 
       {/* Apply bar */}
-      <ApplyBar onApply={onApply} jobId={jobId} disabled={applyDisabled} isSaved = {isSaved}/>
+      <ApplyBar
+        onApply={onApply}
+        jobId={jobId}
+        disabled={applyDisabled}
+        disabledLabel={applyDisabledLabel}
+        isSaved={isSaved}
+      />
     </div>
   );
 }

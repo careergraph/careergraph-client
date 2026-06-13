@@ -19,6 +19,8 @@ import { useLocation as useProvinceLocation } from "~/hooks/use-location";
 import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
 import { formatDateYMD } from "~/utils/dateUtils";
 import { useJobEnums } from "~/hooks/useJobEnums";
+import { isJobExpired } from "~/utils/jobFormat";
+import { toast } from "sonner";
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -391,6 +393,13 @@ export default function JobDetailPage() {
   const educationText = formatEducation(job.education, labelMaps.education);
   const postedDateText = formatPostedDate(job.postedDate);
   const deadlineText = formatDeadline(job.expiryDate);
+  const isApplyDeadlinePassed = isJobExpired(job.expiryDate);
+  const applyDisabled = Boolean(job.isApplied || isApplyDeadlinePassed);
+  const applyDisabledLabel = job.isApplied
+    ? "Đã ứng tuyển"
+    : isApplyDeadlinePassed
+      ? "Đã hết hạn ứng tuyển"
+      : "";
   const sections = buildJobSections(job);
   const tags = [
     job.department,
@@ -452,9 +461,15 @@ export default function JobDetailPage() {
             highlights={highlights}
             stats={stats}
             tags={tags}
-            onApply={() => setIsApplyDialogOpen(true)}
-
-            applyDisabled={job.isApplied}
+            onApply={() => {
+              if (applyDisabled) {
+                toast.info(applyDisabledLabel || "Không thể ứng tuyển cho công việc này.");
+                return;
+              }
+              setIsApplyDialogOpen(true);
+            }}
+            applyDisabled={applyDisabled}
+            applyDisabledLabel={applyDisabledLabel}
             isSaved={job.isSaved}
           />
 
