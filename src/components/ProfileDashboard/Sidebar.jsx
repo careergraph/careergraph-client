@@ -180,8 +180,8 @@ export default function SideBar({
             <div className="mb-1">
               <SubLink to="/jobs/applied" label="Việc làm đã ứng tuyển" />
               <SubLink to="/jobs/saved" label="Việc làm đã lưu" />
-              <SubLink to="/jobs/waiting" label="Việc làm chờ ứng tuyển" />
-              <SubLink to="/jobs/alerts" label="Thông báo việc làm" />
+              {/* <SubLink to="/jobs/waiting" label="Việc làm chờ ứng tuyển" /> */}
+              {/* <SubLink to="/jobs/alerts" label="Thông báo việc làm" /> */}
             </div>
           )}
 
@@ -204,7 +204,7 @@ export default function SideBar({
           </button>
           {openNTD && (
             <div className="mb-1">
-              <SubLink to="/employers/views" label="Nhà tuyển dụng xem hồ sơ bạn" />
+              {/* <SubLink to="/employers/views" label="Nhà tuyển dụng xem hồ sơ bạn" /> */}
               <SubLink to="/employers/following" label="Nhà tuyển dụng đang theo dõi" />
             </div>
           )}
