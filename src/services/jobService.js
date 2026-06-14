@@ -54,14 +54,16 @@ const normalizeFilterArray = (values) => {
   return result;
 };
 
-const mapClientFilters = (filters = {}, city) => {
+const mapClientFilters = (filters = {}, locationOptions = {}) => {
   const jobCategory =
     filters.jobCategory && filters.jobCategory !== "ALL"
       ? normalizeFilterArray(filters.jobCategory)
       : [];
 
   const payload = {
-    city: trimText(city) || "",
+    location: trimText(locationOptions.location ?? locationOptions.city) || "",
+    provinceSlug: trimText(locationOptions.provinceSlug ?? locationOptions.locationSlug) || "",
+    provinceCode: trimText(locationOptions.provinceCode) || "",
     jobCategories: jobCategory,
     employmentTypes: normalizeFilterArray(filters.employmentTypes),
     experienceLevels: normalizeFilterArray(filters.experienceLevels),
@@ -73,8 +75,8 @@ const mapClientFilters = (filters = {}, city) => {
     const value = payload[key];
     if (Array.isArray(value)) {
       result[key] = value;
-    } else {
-      result[key] = value ?? null;
+    } else if (value) {
+      result[key] = value;
     }
     return result;
   }, {});
@@ -84,7 +86,11 @@ const mapSearchRequest = (options = {}) => {
   const page = toPositiveNumber(options.page) ?? DEFAULT_PAGE;
   const size = toPositiveNumber(options.size) ?? DEFAULT_PAGE_SIZE;
   const query = trimText(options.keyword ?? options.query ?? "");
-  const filter = mapClientFilters(options.filters, options.city ?? options.location);
+  const filter = mapClientFilters(options.filters, {
+    location: options.location ?? options.city,
+    provinceSlug: options.provinceSlug ?? options.locationSlug,
+    provinceCode: options.provinceCode,
+  });
 
   return {
     page,
@@ -301,8 +307,11 @@ export const JobService = {
       filters,
       keyword,
       query,
-      city,
       location,
+      city,
+      locationSlug,
+      provinceSlug,
+      provinceCode,
       page: requestedPageValue,
       size: requestedSizeValue,
       ...rest
@@ -311,7 +320,9 @@ export const JobService = {
     const mapped = mapSearchRequest({
       filters,
       keyword: keyword ?? query,
-      city: city ?? location,
+      location: location ?? city,
+      provinceSlug: provinceSlug ?? locationSlug,
+      provinceCode,
       page: requestedPageValue,
       size: requestedSizeValue,
     });

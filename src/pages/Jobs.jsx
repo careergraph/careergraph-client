@@ -1,23 +1,79 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import JobsSidebar from "~/sections/Job/JobsSidebar";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
 import SearchBar from "~/components/Search/SearchBar";
 import BannerSlider from "~/sections/Job/BannerSlider";
 import JobsList from "~/sections/Job/JobsList";
+import {
+  buildJobSearchParams,
+  parseJobSearchParams,
+} from "~/utils/jobSearchParams";
 
 export default function Jobs() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { keyword, locationSlug, page, filters } = useMemo(
+    () => parseJobSearchParams(searchParams),
+    [searchParams]
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    jobCategory: "ALL",
-    experienceLevels: [],
-    employmentTypes: [],
-    educationLevels: [],
-  });
-  const [searchState, setSearchState] = useState({
-    keyword: "",
-    location: "",
-    locationCode: "",
-  });
+  const [locationName, setLocationName] = useState("");
+  const [provinceCode, setProvinceCode] = useState("");
+
+  const updateJobSearchParams = useCallback(
+    (updates) => {
+      setSearchParams((prev) => buildJobSearchParams(prev, updates), {
+        replace: true,
+      });
+    },
+    [setSearchParams]
+  );
+
+  const handleFilterChange = useCallback(
+    (next) => {
+      updateJobSearchParams({ filters: next, page: 1 });
+    },
+    [updateJobSearchParams]
+  );
+
+  const handleSearch = useCallback(
+    ({
+      keyword: nextKeyword = "",
+      location = "",
+      locationSlug: nextLocationSlug = "",
+      provinceCode: nextProvinceCode = "",
+    }) => {
+      setLocationName(location);
+      setProvinceCode(nextProvinceCode);
+
+      const trimmedKeyword = (nextKeyword || "").trim();
+      const hasSearchChange =
+        trimmedKeyword !== (keyword || "").trim() ||
+        (nextLocationSlug || "") !== (locationSlug || "");
+
+      updateJobSearchParams({
+        keyword: nextKeyword,
+        locationSlug: nextLocationSlug,
+        ...(hasSearchChange ? { page: 1 } : {}),
+      });
+    },
+    [updateJobSearchParams, keyword, locationSlug]
+  );
+
+  const handlePageChange = useCallback(
+    (nextPage) => {
+      updateJobSearchParams({ page: nextPage });
+    },
+    [updateJobSearchParams]
+  );
+
+  useEffect(() => {
+    if (!searchParams.has("page")) {
+      setSearchParams((prev) => buildJobSearchParams(prev, { page: 1 }), {
+        replace: true,
+      });
+    }
+  }, [searchParams, setSearchParams]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -76,45 +132,28 @@ export default function Jobs() {
             <JobsSidebar
               isOpen={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
-              onFilterChange={(next) =>
-                setFilters((prev) => {
-                  if (prev === next) {
-                    return prev;
-                  }
-                  return next ?? prev;
-                })
-              }
+              filters={filters}
+              onFilterChange={handleFilterChange}
             />
           </aside>
 
           <section className="space-y-4 sm:space-y-5 lg:space-y-6">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
               <SearchBar
-                onSearch={({ keyword = "", location = "", locationCode = "" }) =>
-                  setSearchState((prev) => {
-                    if (
-                      prev.keyword === keyword &&
-                      prev.location === location &&
-                      prev.locationCode === locationCode
-                    ) {
-                      return prev;
-                    }
-
-                    return {
-                      keyword,
-                      location,
-                      locationCode,
-                    };
-                  })
-                }
+                keyword={keyword}
+                locationSlug={locationSlug}
+                onSearch={handleSearch}
               />
             </div>
 
             <JobsList
               filters={filters}
-              searchQuery={searchState.keyword}
-              city={searchState.location}
-              locationCode={searchState.locationCode}
+              searchQuery={keyword}
+              location={locationName}
+              locationSlug={locationSlug}
+              provinceCode={provinceCode}
+              page={page}
+              onPageChange={handlePageChange}
             />
           </section>
         </div>

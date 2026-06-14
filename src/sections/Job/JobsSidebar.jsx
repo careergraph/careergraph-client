@@ -51,7 +51,7 @@ const DEFAULT_FILTERS = {
   educationLevels: [],
 };
 
-const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
+const JobsSidebar = ({ isOpen, onClose, filters = DEFAULT_FILTERS, onFilterChange }) => {
   const { experienceLevels, employmentTypes, educationTypes, jobCategories } =
     useJobEnums();
   const experienceOptions = experienceLevels?.length
@@ -78,8 +78,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
     education: true,
   });
 
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
-
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -88,7 +86,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
   };
 
   const updateFilters = (next) => {
-    setFilters(next);
     onFilterChange?.(next);
   };
 
