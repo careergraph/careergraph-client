@@ -529,7 +529,7 @@ export default function JobDetailPage() {
         jobTitle={job.title}
         coverLetterRequired={Boolean(job.applicationRequirements?.coverLetter)}
         onAppliedSuccess={() => {
-          setJob(prev => ({ ...prev, isApplied: true })); // 🔥 cập nhật ngay
+          setJob(prev => ({ ...prev, isApplied: false }));
         }}
       />
     </div>
