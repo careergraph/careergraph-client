@@ -19,69 +19,76 @@ export default function Jobs() {
     locationCode: "",
   });
 
-  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
-  const computedSidebarOpen = sidebarOpen || isDesktop;
   return (
-    <div className="min-h-screen">
-      {/* Hero background with title */}
-      <div
-        className="relative -mt-24 bg-cover bg-no-repeat"
+    <div className="min-h-screen bg-slate-50">
+      <section
+        className="relative -mt-24 overflow-hidden bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${dotBanner})` }}
       >
-        <div className="mx-auto max-w-7xl px-2 sm:px-4 md:px-6 lg:px-8 pt-28 pb-8">
-          <h1
-            className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-semibold drop-shadow bg-clip-text text-transparent"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, #6a5af9, #7b6cf9, #a78bfa)",
-            }}
-          >
-            Tìm việc làm tốt nhất, nhanh nhất
-          </h1>
-          <p className="mt-2 sm:mt-3 text-base sm:text-lg text-slate-400">
-            Hơn 1,000+ tin tuyển dụng được cập nhật hàng ngày
-          </p>
+        <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/60" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-10 sm:pb-12">
+          <div className="max-w-3xl">
+            <h1
+              className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight bg-clip-text text-transparent"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, #4f46e5, #6366f1, #8b5cf6)",
+              }}
+            >
+              Tìm việc làm tốt nhất, nhanh nhất
+            </h1>
+            <p className="mt-3 text-sm sm:text-base md:text-lg text-slate-500 max-w-2xl">
+              Hơn 1,000+ tin tuyển dụng được cập nhật hàng ngày
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Banner quảng cáo - Full width */}
       <BannerSlider />
 
-      {/* Row: sidebar (4) + content (8) */}
-      <div className="mx-auto max-w-7xl mb-10">
-        {/* Nút mở sidebar trên mobile */}
-        <div className="md:hidden flex justify-end mb-4 px-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <div className="flex justify-end lg:hidden mb-4">
           <button
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition"
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700"
             onClick={() => setSidebarOpen(true)}
           >
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
             Bộ lọc
           </button>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-5 lg:gap-6">
-          {/* Sidebar */}
-          <aside className="col-span-12 md:col-auto">
-            <div className="md:sticky md:top-24"> 
-              <JobsSidebar
-                isOpen={computedSidebarOpen}
-                onClose={() => setSidebarOpen(false)}
-                onFilterChange={(next) =>
-                  setFilters((prev) => {
-                    if (prev === next) {
-                      return prev;
-                    }
-                    return next ?? prev;
-                  })
-                }
-              />
-            </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:gap-8">
+          <aside className="lg:sticky lg:top-24 self-start">
+            <JobsSidebar
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              onFilterChange={(next) =>
+                setFilters((prev) => {
+                  if (prev === next) {
+                    return prev;
+                  }
+                  return next ?? prev;
+                })
+              }
+            />
           </aside>
 
-          {/* Search + Job List */}
-          <section className="col-span-12 md:col-auto space-y-4 md:space-y-6">
-            {/* Search Bar */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
+          <section className="space-y-4 sm:space-y-5 lg:space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
               <SearchBar
                 onSearch={({ keyword = "", location = "", locationCode = "" }) =>
                   setSearchState((prev) => {
@@ -103,7 +110,6 @@ export default function Jobs() {
               />
             </div>
 
-            {/* Job List */}
             <JobsList
               filters={filters}
               searchQuery={searchState.keyword}

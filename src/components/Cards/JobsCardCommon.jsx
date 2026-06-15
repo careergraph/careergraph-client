@@ -16,9 +16,9 @@ function JobsCardCommon({ job }) {
       return parts.slice(-2).join(", ");
     }
     return loc;
-  };
+  };  
 
-  const companyLabel = job.experienceLevel || "Đang cập nhật";
+  const companyLabel = job.department || "Đang cập nhật";
   const summary =
     job.summary || job.description || "Mô tả công việc đang cập nhật.";
   const isNewJob = (() => {

@@ -10,7 +10,7 @@ function SubLayout({ children }) {
             <div className='md:px-16 lg:px-24 xl:px-32'>
                 <div>{children}</div>
             </div>
-            <Footer/>
+            {/* <Footer/> */}
         </div>
     );
 }

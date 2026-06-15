@@ -1,18 +1,21 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
 import LoadingSpinner from "../../components/Feedback/LoadingSpinner";
 
-const DEFAULT_PAGE_SIZE = 10;
-const JOBS_PAGE_KEY = "jobs_current_page"; // Key để lưu page hiện tại
+const DEFAULT_PAGE_SIZE = 5;
+const JOBS_PAGE_KEY = "jobs_current_page";
 
-const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = "" }) => {
-  // Khởi tạo page từ sessionStorage (nếu có) hoặc mặc định là 1
+const JobsList = ({
+  filters = {},
+  searchQuery = "",
+  city = "",
+  locationCode = "",
+}) => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState(() => {
-    // Restore page từ sessionStorage khi quay lại trang
     const savedPage = sessionStorage.getItem(JOBS_PAGE_KEY);
     return savedPage ? parseInt(savedPage, 10) : 1;
   });
@@ -36,7 +39,6 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
     sessionStorage.setItem(JOBS_PAGE_KEY, "1");
   }, [filters, searchQuery, city, locationCode]);
 
-  // Trigger a page change while recording the transition target for UI feedback.
   const handlePageChange = (nextPage) => {
     if (nextPage === page) return;
     if (nextPage < 1) return;
@@ -44,11 +46,9 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
     setTransitionTarget({ from: page, to: nextPage });
     setIsPageTransitioning(true);
     setPage(nextPage);
-    // Lưu page mới vào sessionStorage
     sessionStorage.setItem(JOBS_PAGE_KEY, nextPage.toString());
   };
 
-  // Fetch jobs whenever the requested page or page size changes.
   useEffect(() => {
     const controller = new AbortController();
     let isMounted = true;
@@ -58,12 +58,10 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
         setLoading(true);
         setError("");
 
-        // Scroll về đầu danh sách khi chuyển trang (nhưng không scroll khi lần đầu load)
         const savedPage = sessionStorage.getItem(JOBS_PAGE_KEY);
         const isFirstLoad = savedPage && parseInt(savedPage, 10) === page;
         if (!isFirstLoad && page > 1) {
-          // Scroll smooth về vị trí danh sách job
-          window.scrollTo({ top: 300, behavior: "smooth" });
+          window.scrollTo({ top: 280, behavior: "smooth" });
         }
 
         const { jobs: data, pagination } = await JobService.searchJobs({
@@ -96,9 +94,7 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
         if (pagination?.page) {
           setTransitionTarget((prev) => {
             if (!prev) return prev;
-            return prev.to === pagination.page
-              ? prev
-              : { ...prev, to: pagination.page };
+            return prev.to === pagination.page ? prev : { ...prev, to: pagination.page };
           });
         }
       } catch (err) {
@@ -125,7 +121,6 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
     };
   }, [page, pageSize, filters, searchQuery, city, locationCode]);
 
-  // Hide the overlay once the new page has finished loading.
   useEffect(() => {
     if (!isPageTransitioning) return undefined;
     if (loading) return undefined;
@@ -139,7 +134,7 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
   }, [isPageTransitioning, loading]);
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4">
+    <div className="flex flex-col gap-4 md:gap-5">
       {loading && !jobs.length ? (
         <p className="text-sm text-slate-500">Đang tải danh sách việc làm...</p>
       ) : null}
@@ -147,12 +142,14 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
 
       {!loading && !error && !jobs.length ? (
-        <p className="text-sm text-slate-500">Hiện chưa có việc làm nào.</p>
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-500 shadow-sm">
+          Hiện chưa có việc làm nào.
+        </div>
       ) : null}
 
       <div className="relative">
         <div
-          className={`flex flex-col gap-3 md:gap-4 transition-opacity duration-200 ${
+          className={`flex flex-col gap-4 md:gap-5 transition-opacity duration-200 ${
             isPageTransitioning ? "opacity-60" : "opacity-100"
           }`}
         >
@@ -170,34 +167,32 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
         ) : null}
       </div>
 
-      {/* Always show pagination when we have jobs, unless it's the initial loading */}
       {jobs.length > 0 && !error ? (
-        <div className="mt-4 pt-4 border-t-2 border-slate-100">
+        <div className="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-slate-500">Tổng</span>
-              <span className="text-md font-semibold text-indigo-600">
+            <div className="flex items-center gap-1.5 text-sm">
+              <span className="font-medium text-slate-500">Tổng</span>
+              <span className="font-semibold text-indigo-600">
                 {meta.totalItems}
               </span>
-              <span className="text-sm font-medium text-slate-500">việc làm</span>
+              <span className="font-medium text-slate-500">việc làm</span>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 bg-white border-2 border-slate-200 rounded-lg p-1">
+            <div className="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 p-1 sm:w-auto sm:justify-start">
               <button
                 type="button"
-                className="px-3.5 py-1.5 text-sm font-medium rounded-md transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:text-slate-400
-                  enabled:text-slate-700 enabled:hover:bg-slate-100 enabled:hover:text-slate-900"
+                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:text-slate-400 enabled:text-slate-700 enabled:hover:bg-white enabled:hover:text-slate-900 sm:flex-none"
                 onClick={() => handlePageChange(page - 1)}
                 disabled={!canGoPrev || loading}
               >
                 ← Trước
               </button>
 
-              <div className="px-3 py-1.5 mx-1">
+              <div className="flex min-w-[88px] items-center justify-center px-3 py-2">
                 <span className="text-sm font-semibold text-indigo-600">
                   {page}
                 </span>
-                <span className="text-sm text-slate-400 mx-1">/</span>
+                <span className="mx-1 text-sm text-slate-400">/</span>
                 <span className="text-sm font-medium text-slate-600">
                   {totalPages}
                 </span>
@@ -205,8 +200,7 @@ const JobsList = ({ filters = {}, searchQuery = "", city = "", locationCode = ""
 
               <button
                 type="button"
-                className="px-3.5 py-1.5 text-sm font-medium rounded-md transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:text-slate-400
-                  enabled:text-slate-700 enabled:hover:bg-slate-100 enabled:hover:text-slate-900"
+                className="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:text-slate-400 enabled:text-slate-700 enabled:hover:bg-white enabled:hover:text-slate-900 sm:flex-none"
                 onClick={() => handlePageChange(page + 1)}
                 disabled={!canGoNext || loading}
               >
