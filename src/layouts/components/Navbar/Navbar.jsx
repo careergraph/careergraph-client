@@ -1,13 +1,73 @@
-import { MenuIcon, XIcon, ChevronDown, MessageSquareMore } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { navLinks } from "../../../data/navLinks";
+import {
+  BriefcaseBusiness,
+  ChevronDown,
+  Info,
+  LogIn,
+  LogOut,
+  MenuIcon,
+  MessageSquareMore,
+  PanelTopOpen,
+  UserRound,
+  XIcon,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  primaryNavLinks,
+  secondaryNavLinks,
+} from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
 import { useAuthStore } from "~/stores/authStore";
 import NotificationBell from "./NotificationBell";
 import UserAvatar from "./UserAvatar";
 import { useMessagingUnread } from "~/features/messaging/hooks/useMessagingUnread";
 
+const secondaryNavIcons = {
+  "Cẩm nang": BriefcaseBusiness,
+  "Giới thiệu": Info,
+};
+
+function isLinkActive(pathname, link) {
+  if (link.href) {
+    return pathname === link.href || pathname.startsWith(`${link.href}/`);
+  }
+
+  if (link.subLinks?.length) {
+    return link.subLinks.some(
+      (subLink) => pathname === subLink.href || pathname.startsWith(`${subLink.href}/`)
+    );
+  }
+
+  return false;
+}
+
+function SecondaryMenu({ links, pathname, onNavigate }) {
+  return (
+    <div className="absolute right-0 top-full mt-3 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/8">
+      {links.map((link) => {
+        const Icon = secondaryNavIcons[link.name] || PanelTopOpen;
+        const active = isLinkActive(pathname, link);
+
+        return (
+          <NavLink
+            key={link.name}
+            to={link.href}
+            onClick={onNavigate}
+            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+              active
+                ? "bg-indigo-50 font-semibold text-indigo-700"
+                : "text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <Icon size={17} className={active ? "text-indigo-600" : "text-slate-400"} />
+            <span>{link.name}</span>
+          </NavLink>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Navbar() {
   const hrSiteUrl = import.meta.env.VITE_HR_SITE_URL || "https://hr.thinz.io.vn";
@@ -15,243 +75,395 @@ export default function Navbar() {
   const location = useLocation();
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState(null);
+  const [openMoreMenu, setOpenMoreMenu] = useState(false);
 
-  const { isAuthenticated, authInitializing } = useAuthStore();
-  const { unreadCount: unreadMessages } = useMessagingUnread({ autoStart: isAuthenticated });
+  const { isAuthenticated, authInitializing, logout } = useAuthStore();
+  const { unreadCount: unreadMessages } = useMessagingUnread({
+    autoStart: isAuthenticated,
+  });
+
+  const mobilePrimaryLinks = useMemo(
+    () => [...primaryNavLinks, ...secondaryNavLinks],
+    []
+  );
+
   useEffect(() => {
-    if (openMobileMenu) {
-      document.body.classList.add("max-md:overflow-hidden");
-    } else {
-      document.body.classList.remove("max-md:overflow-hidden");
-    }
+    document.body.classList.toggle("overflow-hidden", openMobileMenu);
+    return () => document.body.classList.remove("overflow-hidden");
   }, [openMobileMenu]);
 
-  return (
-    <nav
-      className={`flex items-center justify-between fixed z-50 top-0 w-full px-4 sm:px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-slate-200 bg-white/40 safe-top ${openMobileMenu ? "bg-white/80" : "backdrop-blur"
-        }`}
-    >
-      <Link to="/">
-        <div className="flex items-center gap-2 pt-4">
-          <img
-            className="h-9 md:h-9.5 w-auto shrink-0"
-            src={logoSvg}
-            alt="Logo"
-            width={140}
-            height={40}
-            fetchPriority="high"
-          />
-          <div className="font-bold text-2xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
-            Career Graph
-          </div>
-        </div>
-      </Link>
-      <div className="hidden md:flex flex-1 justify-center items-center gap-8 font-medium pt-4">
-        {navLinks.map((link) => {
-          const isActive = location.pathname === link.href;
-          const hasSubLinks = link.subLinks && link.subLinks.length > 0;
-          const isSubLinkActive = hasSubLinks && link.subLinks.some(sub => location.pathname === sub.href);
+  useEffect(() => {
+    if (!openMobileMenu) {
+      return undefined;
+    }
 
-          if (hasSubLinks) {
-            return (
-              <div
-                key={link.name}
-                className="relative group"
-                onMouseEnter={() => setOpenSubmenu(link.name)}
-                onMouseLeave={() => setOpenSubmenu(null)}
-              >
-                <button className={`flex items-center gap-1 hover:text-indigo-600 transition ${isSubLinkActive ? 'text-indigo-600 font-semibold' : ''
-                  }`}>
-                  {link.name}
-                  <ChevronDown size={16} className="group-hover:rotate-180 transition-transform" />
-                </button>
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setOpenMobileMenu(false);
+      }
+    };
 
-                {/* Dropdown menu */}
-                <div className="absolute left-0 top-full mt-2 w-56 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
-                  {link.subLinks.map((subLink) => {
-                    const isSubActive = location.pathname === subLink.href;
-                    return (
-                      <NavLink
-                        key={subLink.name}
-                        to={subLink.href}
-                        className={`block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition ${isSubActive ? 'bg-indigo-50 text-indigo-600 font-medium border-l-3 border-indigo-600' : 'text-slate-700'
-                          }`}
-                      >
-                        {subLink.name}
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [openMobileMenu]);
 
-          return (
-            <NavLink
-              key={link.name}
-              to={link.href}
-              className={`hover:text-indigo-600 transition relative ${isActive ? 'text-indigo-600 font-semibold' : ''
-                }`}
+  useEffect(() => {
+    setOpenMobileMenu(false);
+    setOpenSubmenu(null);
+    setOpenMoreMenu(false);
+  }, [location.pathname]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
+
+  const mobileMenu =
+    typeof document !== "undefined"
+      ? createPortal(
+          <div
+            className={`fixed inset-0 z-[120] md:hidden ${
+              openMobileMenu ? "pointer-events-auto" : "pointer-events-none"
+            }`}
+            aria-hidden={!openMobileMenu}
+          >
+            <div
+              className={`absolute inset-0 bg-white transition-opacity duration-200 ${
+                openMobileMenu ? "opacity-100" : "opacity-0"
+              }`}
+            />
+            <div
+              className={`absolute inset-0 flex flex-col bg-white px-5 pb-6 pt-5 transition-transform duration-300 ${
+                openMobileMenu ? "translate-x-0" : "translate-x-full"
+              }`}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu điều hướng trên điện thoại"
             >
-              {link.name}
-              {isActive && (
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-indigo-600 rounded-full" />
-              )}
-            </NavLink>
-          );
-        })}
-      </div>
-
-      {/* Mobile menu */}
-      <div
-        className={`fixed inset-0 flex flex-col items-center justify-center gap-6 text-lg font-medium bg-white/40 backdrop-blur-md md:hidden transition duration-300 safe-top ${openMobileMenu ? "translate-x-0" : "-translate-x-full"
-          }`}
-      >
-        {navLinks.map((link) => {
-          const hasSubLinks = link.subLinks && link.subLinks.length > 0;
-
-          if (hasSubLinks) {
-            return (
-              <div key={link.name} className="flex flex-col items-center gap-3">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">Điều hướng</div>
+                  <div className="text-xs text-slate-500">
+                    Ưu tiên các tác vụ chính trên mobile
+                  </div>
+                </div>
                 <button
-                  onClick={() => setOpenSubmenu(openSubmenu === link.name ? null : link.name)}
-                  className="flex items-center gap-2 text-slate-800 font-medium"
+                  type="button"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:bg-slate-100"
+                  onClick={() => setOpenMobileMenu(false)}
+                  aria-label="Đóng menu"
                 >
-                  {link.name}
-                  <ChevronDown size={18} className={`transition-transform ${openSubmenu === link.name ? 'rotate-180' : ''}`} />
+                  <XIcon size={20} />
                 </button>
+              </div>
 
-                {openSubmenu === link.name && (
-                  <div className="flex flex-col gap-2 pl-4">
+              <div className="mt-5 flex-1 space-y-2 overflow-y-auto">
+                {mobilePrimaryLinks.map((link) => {
+                  const hasSubLinks = link.subLinks?.length > 0;
+                  const active = isLinkActive(location.pathname, link);
+
+                  if (hasSubLinks) {
+                    return (
+                      <div key={link.name} className="rounded-2xl border border-slate-200 bg-white">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenSubmenu(openSubmenu === link.name ? null : link.name)
+                          }
+                          className={`flex w-full items-center justify-between px-4 py-3.5 text-left text-sm font-semibold transition ${
+                            active ? "text-indigo-700" : "text-slate-800"
+                          }`}
+                        >
+                          <span>{link.name}</span>
+                          <ChevronDown
+                            size={18}
+                            className={`transition-transform ${
+                              openSubmenu === link.name ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        {openSubmenu === link.name ? (
+                          <div className="space-y-1 border-t border-slate-200 bg-white px-2 py-2">
+                            {link.subLinks.map((subLink) => {
+                              const subActive =
+                                location.pathname === subLink.href ||
+                                location.pathname.startsWith(`${subLink.href}/`);
+
+                              return (
+                                <NavLink
+                                  key={subLink.name}
+                                  to={subLink.href}
+                                  className={`block rounded-xl px-3 py-3 text-sm transition ${
+                                    subActive
+                                      ? "bg-indigo-50 font-semibold text-indigo-700"
+                                      : "text-slate-700 hover:bg-slate-50"
+                                  }`}
+                                >
+                                  {subLink.name}
+                                </NavLink>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <NavLink
+                      key={link.name}
+                      to={link.href}
+                      className={`block rounded-2xl border bg-white px-4 py-3.5 text-sm font-semibold transition ${
+                        active
+                          ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                          : "border-slate-200 text-slate-800 hover:bg-slate-50"
+                      }`}
+                    >
+                      {link.name}
+                    </NavLink>
+                  );
+                })}
+              </div>
+
+              <div className="mt-5 space-y-3 border-t border-slate-200 bg-white pt-5">
+                {!authInitializing &&
+                  (isAuthenticated ? (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          to="/messages"
+                          className="relative flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800"
+                        >
+                          <MessageSquareMore size={18} />
+                          <span>Tin nhắn</span>
+                          {unreadMessages > 0 ? (
+                            <span className="rounded-full bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                              {unreadMessages > 99 ? "99+" : unreadMessages}
+                            </span>
+                          ) : null}
+                        </Link>
+                        <Link
+                          to="/profile"
+                          className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800"
+                        >
+                          <UserRound size={18} />
+                          <span>Hồ sơ</span>
+                        </Link>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700"
+                      >
+                        <LogOut size={18} />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <a
+                        href={hrSiteUrl}
+                        className="flex h-11 w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                      >
+                        Chuyển sang trang HR
+                      </a>
+                      <button
+                        onClick={() => navigate("/login")}
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                      >
+                        <LogIn size={18} />
+                        <span>Đăng nhập</span>
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
+
+  return (
+    <>
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl safe-top">
+        <div className="mx-auto flex w-full max-w-[1440px] items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <Link to="/home" className="min-w-0 shrink-0">
+            <div className="flex items-center gap-3">
+              <img
+                className="h-9 w-auto shrink-0 sm:h-10"
+                src={logoSvg}
+                alt="Logo"
+                width={140}
+                height={40}
+                fetchPriority="high"
+              />
+              <div className="hidden text-lg font-bold leading-none text-slate-900 sm:block lg:text-xl">
+                Career Graph
+              </div>
+            </div>
+          </Link>
+
+        <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex lg:gap-2">
+          {primaryNavLinks.map((link) => {
+            const hasSubLinks = link.subLinks?.length > 0;
+            const active = isLinkActive(location.pathname, link);
+
+            if (hasSubLinks) {
+              return (
+                <div
+                  key={link.name}
+                  className="relative"
+                  onMouseEnter={() => setOpenSubmenu(link.name)}
+                  onMouseLeave={() => setOpenSubmenu(null)}
+                >
+                  <button
+                    type="button"
+                    className={`flex h-10 items-center gap-1 rounded-full px-3 text-sm font-medium whitespace-nowrap transition lg:px-4 ${
+                      active
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {link.name}
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform ${
+                        openSubmenu === link.name ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <div
+                    className={`absolute left-0 top-full mt-3 w-60 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/8 transition ${
+                      openSubmenu === link.name
+                        ? "visible translate-y-0 opacity-100"
+                        : "invisible -translate-y-1 opacity-0"
+                    }`}
+                  >
                     {link.subLinks.map((subLink) => {
-                      const isSubActive = location.pathname === subLink.href;
+                      const subActive =
+                        location.pathname === subLink.href ||
+                        location.pathname.startsWith(`${subLink.href}/`);
+
                       return (
                         <NavLink
                           key={subLink.name}
                           to={subLink.href}
-                          onClick={() => setOpenMobileMenu(false)}
-                          className={`text-base ${isSubActive ? 'text-indigo-600 font-semibold' : 'text-slate-600'}`}
+                          className={`block rounded-xl px-4 py-3 text-sm transition ${
+                            subActive
+                              ? "bg-indigo-50 font-semibold text-indigo-700"
+                              : "text-slate-700 hover:bg-slate-50"
+                          }`}
                         >
                           {subLink.name}
                         </NavLink>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            );
-          }
-
-          const isActive = location.pathname === link.href;
-          return (
-            <NavLink
-              key={link.name}
-              to={link.href}
-              onClick={() => setOpenMobileMenu(false)}
-              className={isActive ? 'text-indigo-600 font-semibold' : ''}
-            >
-              {link.name}
-            </NavLink>
-          );
-        })}
-        <a
-          href={hrSiteUrl}
-          className="text-slate-700 underline"
-          onClick={() => setOpenMobileMenu(false)}
-        >
-          Chuyển sang trang HR
-        </a>
-        {!authInitializing && (
-          isAuthenticated ? (
-            <>
-              <Link
-                to="/messages"
-                onClick={() => setOpenMobileMenu(false)}
-                className="relative inline-flex h-11 items-center gap-2 rounded-lg px-3 text-slate-800 transition hover:bg-slate-100"
-              >
-                <MessageSquareMore size={20} />
-                <span>Tin nhắn</span>
-                {unreadMessages > 0 ? (
-                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                    {unreadMessages > 99 ? "99+" : unreadMessages}
-                  </span>
-                ) : null}
-              </Link>
-
-              <div className="hidden md:flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <NotificationBell />
-                  <UserAvatar />
                 </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => navigate("/login")}
-                className="hidden md:block hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
-              >
-                Đăng nhập
-              </button>
-            </>
-          )
-        )}
-        <button
-          className="aspect-square size-10 p-1 items-center justify-center bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md flex"
-          onClick={() => setOpenMobileMenu(false)}
-        >
-          <XIcon />
-        </button>
-      </div>
+              );
+            }
 
-      {/* Desktop */}
-      <div className="flex items-center gap-4">
-        {!authInitializing && (
-          isAuthenticated ? (
-            <div className="hidden md:flex items-center gap-4">
-              <Link
-                to="/messages"
-                className="relative inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-3 text-slate-700 transition hover:bg-slate-100"
+            return (
+              <NavLink
+                key={link.name}
+                to={link.href}
+                className={({ isActive }) =>
+                  `flex h-10 items-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition lg:px-4 ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-slate-700 hover:bg-slate-100"
+                  }`
+                }
               >
-                <MessageSquareMore size={19} />
-                {unreadMessages > 0 ? (
-                  <span className="absolute -right-1.5 -top-1.5 rounded-full bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                    {unreadMessages > 99 ? "99+" : unreadMessages}
-                  </span>
-                ) : null}
-              </Link>
+                {link.name}
+              </NavLink>
+            );
+          })}
 
-              <div className="flex items-center gap-3">
-                <NotificationBell />
-                <UserAvatar />
-              </div>
+          <div
+            className="relative"
+            onMouseEnter={() => setOpenMoreMenu(true)}
+            onMouseLeave={() => setOpenMoreMenu(false)}
+          >
+            <button
+              type="button"
+              className={`flex h-10 items-center gap-1 rounded-full px-3 text-sm font-medium whitespace-nowrap transition lg:px-4 ${
+                secondaryNavLinks.some((link) => isLinkActive(location.pathname, link))
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              Khám phá
+              <ChevronDown
+                size={16}
+                className={`transition-transform ${openMoreMenu ? "rotate-180" : ""}`}
+              />
+            </button>
+            <div
+              className={`transition ${
+                openMoreMenu
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible -translate-y-1 opacity-0"
+              }`}
+            >
+              <SecondaryMenu
+                links={secondaryNavLinks}
+                pathname={location.pathname}
+                onNavigate={() => setOpenMoreMenu(false)}
+              />
             </div>
-          ) : (
-            <>
-              <button
-                onClick={() => navigate("/login")}
-                className="hidden md:block h-9 hover:bg-slate-100 transition px-4 py-2 border border-indigo-600 rounded-md"
-              >
-                Đăng nhập
-              </button>
+          </div>
+        </div>
 
-              <a
-                href={hrSiteUrl}
-                className="hidden lg:inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 mr-3 "
-              >
-                Dành cho HR
-              </a>
-            </>
-          )
-        )}
+        <div className="ml-auto hidden items-center gap-2 md:flex lg:gap-3">
+          {!authInitializing &&
+            (isAuthenticated ? (
+              <>
+                <Link
+                  to="/messages"
+                  className="relative inline-flex h-10 items-center justify-center rounded-full border border-slate-200 px-3 text-slate-700 transition hover:bg-slate-100"
+                >
+                  <MessageSquareMore size={18} />
+                  {unreadMessages > 0 ? (
+                    <span className="absolute -right-1 -top-1 rounded-full bg-indigo-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      {unreadMessages > 99 ? "99+" : unreadMessages}
+                    </span>
+                  ) : null}
+                </Link>
+                <NotificationBell />
+                <UserAvatar compact />
+              </>
+            ) : (
+              <>
+                <a
+                  href={hrSiteUrl}
+                  className="inline-flex h-10 items-center rounded-full border border-slate-300 px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                >
+                  Sang trang HR
+                </a>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="inline-flex h-10 items-center rounded-full border border-indigo-600 px-4 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50"
+                >
+                  Đăng nhập
+                </button>
+              </>
+            ))}
+        </div>
 
         <button
-          onClick={() => setOpenMobileMenu(!openMobileMenu)}
-          className="md:hidden"
+          type="button"
+          className="inline-flex size-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:bg-slate-100 md:hidden"
+          onClick={() => setOpenMobileMenu(true)}
+          aria-label="Mở menu điều hướng"
         >
-          <MenuIcon size={26} className="active:scale-90 transition" />
+          <MenuIcon size={20} />
         </button>
-      </div>
-    </nav>
+        </div>
+      </nav>
+      {mobileMenu}
+    </>
   );
 }

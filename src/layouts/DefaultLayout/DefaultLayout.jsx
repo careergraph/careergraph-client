@@ -14,7 +14,7 @@ function DefaultLayout({ children }) {
     return (
         <div className="min-h-dvh bg-slate-50">
             <Navbar />
-            <div className={isMessagesPage ? "px-4 md:px-16 pt-[4.5rem]" : "px-4 md:px-16 pt-25"}>
+            <div className={isMessagesPage ? "px-4 pt-[4.5rem] md:px-8 lg:px-16" : "px-4 pb-20 pt-[5.5rem] md:px-8 md:pb-8 lg:px-16"}>
                 <div className={`${isMessagesPage ? "h-[calc(100dvh-6.5rem)] min-h-0" : ""} ${showBottomNav ? "has-bottom-nav" : ""}`}>
                     {children}
                 </div>
