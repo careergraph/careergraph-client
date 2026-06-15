@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import aiFeatureLogin from "../assets/icons/ai-feature.svg";
-// Nếu bạn đã có authStore hoặc service, thay thế cho hàm giả lập dưới
-// import { useAuthStore } from "~/store/authStore";
+import { Home } from "lucide-react";
 import { AuthAPI } from "~/services/api/auth";
 import { toast } from "sonner";
 import { setVerifyCurrent } from "~/utils/storage";
+import AuthSplitLayout from "~/components/Auth/AuthSplitLayout";
 
 
 export default function ForgotPassword() {
@@ -34,7 +33,7 @@ export default function ForgotPassword() {
       } else {
         setError(res?.message || "Không thể gửi OTP. Vui lòng thử lại!");
       }
-    } catch (err) {
+    } catch {
       setError("Có lỗi xảy ra. Vui lòng thử lại!");
     } finally {
       setSubmitting(false);
@@ -42,38 +41,36 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex h-[700px] w-full gap-30">
-      <div className="w-1/2 hidden md:flex justify-end items-center">
-        <img
-          className="object-contain max-h-[600px] w-auto"
-          src={aiFeatureLogin}
-          alt="leftSideImage"
-        />
-      </div>
-
-      <div className="w-1/2 flex flex-col items-start justify-center">
-        <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
-          <h2 className="text-xl text-gray-900 font-medium">
-            Quên mật khẩu?
-          </h2>
-          <p className="text-sm text-gray-500/90 mt-3">
-            Nhập email để nhận mã xác thực (OTP).
-          </p>
+    <AuthSplitLayout>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col">
+        <Link
+          to="/"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+        >
+          <Home size={16} />
+          Về trang chủ
+        </Link>
+        <h2 className="text-2xl font-medium text-gray-900 sm:text-3xl">
+          Quên mật khẩu?
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
+          Nhập email để nhận mã xác thực (OTP).
+        </p>
 
           {error && (
-            <div className="w-full mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            <div className="mt-5 w-full rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2 focus-within:border-indigo-500 transition mt-6">
+          <div className="mt-6 flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:h-[52px] sm:px-5">
             <input
               type="email"
               name="email"
               placeholder="Email của bạn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+              className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
               required
             />
           </div>
@@ -81,19 +78,18 @@ export default function ForgotPassword() {
           <button
             type="submit"
             disabled={submitting}
-            className="mt-8 w-full h-11 rounded-full font-bold text-white bg-indigo-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 h-12 w-full rounded-2xl bg-indigo-600 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-7 sm:text-base"
           >
             {submitting ? "Đang gửi OTP..." : "Gửi mã OTP"}
           </button>
 
-          <p className="text-gray-500/90 text-sm mt-4">
+          <p className="mt-4 text-sm text-slate-500">
             Nhớ mật khẩu rồi?{" "}
-            <Link className="text-indigo-400 hover:underline" to="/login">
+            <Link className="font-medium text-indigo-600 hover:underline" to="/login">
               Đăng nhập
             </Link>
           </p>
-        </form>
-      </div>
-    </div>
+      </form>
+    </AuthSplitLayout>
   );
 }

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Home } from 'lucide-react';
-import aiFeatureLogin from "../assets/icons/ai-feature.svg";
 import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
+import AuthSplitLayout from '~/components/Auth/AuthSplitLayout';
 
 export default function Register() {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -103,119 +103,110 @@ export default function Register() {
   };
 
   return (
-    <div className="flex h-[700px] w-full gap-30">
-      <div className="w-1/2 hidden md:flex justify-end items-center">
-        <img
-          className="object-contain max-h-[600px] w-auto"
-          src={aiFeatureLogin}
-          alt="rightSideImage"
-        />
-      </div>
-
-      <div className="w-1/2 flex flex-col items-start justify-center">
-        <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
-          <Link
-            to="/"
-            className="mb-4 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
-          >
-            <Home size={16} />
-            Về trang chủ
-          </Link>
-          <h2 className="text-xl text-gray-900 font-medium">
-            Đăng ký{"  "}
-            <span className="font-bold text-4xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
-              Career Graph
-            </span>
-          </h2>
+    <AuthSplitLayout>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col">
+        <Link
+          to="/"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+        >
+          <Home size={16} />
+          Về trang chủ
+        </Link>
+        <h2 className="text-2xl font-medium text-gray-900 sm:text-3xl">
+          Đăng ký{"  "}
+          <span className="bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text font-bold text-transparent">
+            Career Graph
+          </span>
+        </h2>
 
           {hasGoogleClientId && (
-            <div className="w-full mt-6 mb-4 flex justify-center">
+            <div className="mb-3 mt-6 flex w-full justify-center sm:justify-start">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 shape="pill"
                 size="large"
-                width="384"
+                width="360"
                 text="continue_with"
               />
             </div>
           )}
 
-          <p className="text-sm text-gray-500/90 mt-3">
+          <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
             Tham gia ngay! Vui lòng điền thông tin để đăng ký tài khoản.
           </p>
 
           {/* Hiển thị thông báo lỗi */}
           {error && (
-            <div className="w-full mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            <div className="mt-5 w-full rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
           {/* Hiển thị thông báo thành công */}
           {success && (
-            <div className="w-full mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
+            <div className="mt-5 w-full rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
               {success}
             </div>
           )}
 
-          <div className='flex gap-2'>
-            <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:h-[52px] sm:px-5">
               <input
                 type="text"
                 name="lastName"
                 placeholder="Họ"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+                className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
                 required
               />
             </div>
-            <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+            <div className="flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:h-[52px] sm:px-5">
               <input
                 type="text"
                 name="firstName"
                 placeholder="Tên"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+                className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
                 required
               />
             </div>
           </div>
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="mt-4 flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:mt-5 sm:h-[52px] sm:px-5">
             <input
               type="email"
               name="email"
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+              className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
               required
             />
           </div>
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="mt-4 flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:mt-5 sm:h-[52px] sm:px-5">
             <input
               type="password"
               name="password"
               placeholder="Mật khẩu"
               value={formData.password}
               onChange={handleChange}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+              className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
               required
             />
           </div>
 
-          <div className="flex items-center w-full border border-gray-300/60 h-12 rounded-lg overflow-hidden pl-6 mt-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="mt-4 flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:mt-5 sm:h-[52px] sm:px-5">
             <input
               type="password"
               name="confirmPassword"
               placeholder="Xác nhận mật khẩu"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+              className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
               required
             />
           </div>
@@ -223,18 +214,17 @@ export default function Register() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-8 w-full h-11 rounded-full font-bold text-white bg-pink-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 h-12 w-full rounded-2xl bg-pink-500 text-sm font-semibold text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-7 sm:text-base"
           >
             {isLoading ? 'Đang đăng ký...' : 'Đăng ký'}
           </button>
-          <p className="text-gray-500/90 text-sm mt-4">
+          <p className="mt-4 text-sm text-slate-500">
             Đã có tài khoản?{" "}
-            <Link className="text-indigo-400 hover:underline" to="/login">
+            <Link className="font-medium text-indigo-600 hover:underline" to="/login">
               Đăng nhập
             </Link>
           </p>
-        </form>
-      </div>
-    </div>
+      </form>
+    </AuthSplitLayout>
   );
 }

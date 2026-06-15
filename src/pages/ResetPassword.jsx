@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import aiFeatureLogin from "../assets/icons/ai-feature.svg";
+import { Home } from "lucide-react";
 import { AuthAPI } from "~/services/api/auth";
 import { toast } from "sonner";
+import AuthSplitLayout from "~/components/Auth/AuthSplitLayout";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -28,11 +29,12 @@ export default function ResetPassword() {
     }
   }, [email, navigate]);
 
+  const minimumPasswordLength = 6;
   const matched = password === confirm && password.length > 0;
   const canSubmit =
     !submitting &&
     email &&
-    password.length >= 6 &&
+    password.length >= minimumPasswordLength &&
     matched;
 
   const handleSubmit = async (e) => {
@@ -41,7 +43,7 @@ export default function ResetPassword() {
     setSuccessMsg("");
 
     if (!canSubmit) {
-      setError("Mật khẩu tối thiểu 6 ký tự và xác nhận phải khớp.");
+      setError(`Mật khẩu tối thiểu ${minimumPasswordLength} ký tự và xác nhận phải khớp.`);
       return;
     }
 
@@ -68,75 +70,73 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex h-[700px] w-full gap-30">
-      <div className="w-1/2 hidden md:flex justify-end items-center">
-        <img
-          className="object-contain max-h-[600px] w-auto"
-          src={aiFeatureLogin}
-          alt="leftSideImage"
-        />
-      </div>
-
-      <div className="w-1/2 flex flex-col items-start justify-center">
-        <form onSubmit={handleSubmit} className="md:w-96 w-80 flex flex-col">
-          <h2 className="text-xl text-gray-900 font-medium">
-            Đặt lại mật khẩu{" "}
-            <span className="font-bold text-4xl bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent">
-              Career Graph
-            </span>
-          </h2>
-          <p className="text-sm text-gray-500/90 mt-3">
-            Thiết lập mật khẩu mới cho <span className="font-medium">{email}</span>
-          </p>
+    <AuthSplitLayout>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col">
+        <Link
+          to="/"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+        >
+          <Home size={16} />
+          Về trang chủ
+        </Link>
+        <h2 className="text-2xl font-medium text-gray-900 sm:text-3xl">
+          Đặt lại mật khẩu{" "}
+          <span className="bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text font-bold text-transparent">
+            Career Graph
+          </span>
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
+          Thiết lập mật khẩu mới cho <span className="font-medium">{email}</span>
+        </p>
 
           {error && (
-            <div className="w-full mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            <div className="mt-5 w-full rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
           {successMsg && (
-            <div className="w-full mt-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded-lg text-sm">
+            <div className="mt-5 w-full rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
               {successMsg}
             </div>
           )}
 
           {/* New Password */}
-          <div className="flex items-center mt-6 w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="mt-6 flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:h-[52px] sm:px-5">
             <input
               type={showPwd ? "text" : "password"}
               name="newPassword"
               placeholder="Mật khẩu mới"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+              className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
               required
               autoComplete="new-password"
             />
             <button
               type="button"
               onClick={() => setShowPwd((s) => !s)}
-              className="px-4 text-sm text-gray-500/80 hover:text-gray-700"
+              className="shrink-0 text-sm font-medium text-slate-500 transition hover:text-slate-700"
             >
               {showPwd ? "Ẩn" : "Hiện"}
             </button>
           </div>
 
           {/* Confirm Password */}
-          <div className="flex items-center mt-4 w-full border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2 focus-within:border-indigo-500 transition">
+          <div className="mt-4 flex h-12 w-full items-center gap-2 rounded-2xl border border-slate-300/80 px-4 transition focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 sm:mt-5 sm:h-[52px] sm:px-5">
             <input
               type={showConfirm ? "text" : "password"}
               name="confirmPassword"
               placeholder="Xác nhận mật khẩu mới"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none text-sm w-full h-full"
+              className="h-full w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 sm:text-[15px]"
               required
               autoComplete="new-password"
             />
             <button
               type="button"
               onClick={() => setShowConfirm((s) => !s)}
-              className="px-4 text-sm text-gray-500/80 hover:text-gray-700"
+              className="shrink-0 text-sm font-medium text-slate-500 transition hover:text-slate-700"
             >
               {showConfirm ? "Ẩn" : "Hiện"}
             </button>
@@ -146,26 +146,27 @@ export default function ResetPassword() {
             <div className="mt-2 text-xs text-red-600">Mật khẩu xác nhận không khớp.</div>
           )}
 
-          {password.length > 0 && password.length < 8 && (
-            <div className="mt-2 text-xs text-red-600">Mật khẩu tối thiểu 8 ký tự.</div>
+          {password.length > 0 && password.length < minimumPasswordLength && (
+            <div className="mt-2 text-xs text-red-600">
+              Mật khẩu tối thiểu {minimumPasswordLength} ký tự.
+            </div>
           )}
 
           <button
             type="submit"
             disabled={!canSubmit}
-            className="mt-6 w-full h-11 rounded-full font-bold text-white bg-indigo-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-6 h-12 w-full rounded-2xl bg-indigo-600 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-7 sm:text-base"
           >
             {submitting ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
           </button>
 
-          <p className="text-gray-500/90 text-sm mt-4">
+          <p className="mt-4 text-sm text-slate-500">
             Nhớ mật khẩu?{" "}
-            <Link className="text-indigo-400 hover:underline" to="/login">
+            <Link className="font-medium text-indigo-600 hover:underline" to="/login">
               Đăng nhập
             </Link>
           </p>
-        </form>
-      </div>
-    </div>
+      </form>
+    </AuthSplitLayout>
   );
 }

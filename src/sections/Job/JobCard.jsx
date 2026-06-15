@@ -18,7 +18,7 @@ const TAG_COLORS = [
   "bg-indigo-50 text-indigo-700 border-indigo-200",
 ];
 
-export default function JobCard({ job, onSave, onDetail }) {
+export default function JobCard({ job, onDetail }) {
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
 
@@ -53,11 +53,6 @@ export default function JobCard({ job, onSave, onDetail }) {
     }
   };
 
-  const handleSave = (event) => {
-    event.stopPropagation();
-    onSave?.(job);
-  };
-
   const handleDetail = (event) => {
     event.stopPropagation();
     handleNavigate();
@@ -83,7 +78,7 @@ export default function JobCard({ job, onSave, onDetail }) {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-5"
+      className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-4 md:p-5"
       onClick={handleNavigate}
     >
       {job.isNew ? (
@@ -96,81 +91,90 @@ export default function JobCard({ job, onSave, onDetail }) {
         </span>
       )}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
-        <div className="flex-shrink-0">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-[72px_minmax(0,1fr)_220px] md:gap-5">
+        <div className="flex shrink-0 items-start">
           <img
             src={avatarSrc}
             alt={job.companyName || "Company Logo"}
-            className="h-16 w-16 rounded-xl border border-slate-200 object-cover sm:h-20 sm:w-20"
+            className="h-14 w-14 rounded-xl border border-slate-200 object-cover sm:h-16 sm:w-16 md:h-[72px] md:w-[72px]"
             onError={handleImageError}
           />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex h-full flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 flex-1 space-y-2">
-              <div>
-                <h3 className="line-clamp-2 text-base font-semibold leading-6 text-slate-900 md:text-lg">
-                  {job.title}
-                </h3>
-                <p className="mt-1 truncate text-sm text-slate-600">
-                  {job.companyName || "Đang cập nhật"}
-                </p>
-              </div>
+        <div className="min-w-0 space-y-2.5 sm:space-y-3">
+          <div>
+            <h3 className="line-clamp-2 text-[15px] font-semibold leading-6 text-slate-900 sm:text-base md:text-lg">
+              {job.title}
+            </h3>
+            <p className="mt-1 truncate text-sm text-slate-600">
+              {job.companyName || "Đang cập nhật"}
+            </p>
+          </div>
 
-              {tags.length ? (
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag, index) => (
-                    <span
-                      key={`${tag}-${index}`}
-                      className={`rounded-full border px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide ${
-                        TAG_COLORS[index % TAG_COLORS.length]
-                      }`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-
-              {job.summary ? (
-                <p className="line-clamp-2 text-sm leading-6 text-slate-500">
-                  {job.summary}
-                </p>
-              ) : null}
+          {tags.length ? (
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {tags.map((tag, index) => (
+                <span
+                  key={`${tag}-${index}`}
+                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide sm:px-3 sm:py-1.5 ${
+                    index > 1 ? "hidden sm:inline-flex" : "inline-flex"
+                  } ${TAG_COLORS[index % TAG_COLORS.length]}`}
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
+          ) : null}
 
-            <div className="flex flex-col gap-2 text-sm sm:min-w-[220px] sm:items-end">
-              <div className="flex items-center gap-2 font-medium text-indigo-600 sm:justify-end">
+          {job.summary ? (
+            <p className="line-clamp-2 text-sm leading-6 text-slate-500">
+              {job.summary}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-slate-100 pt-3 text-sm md:border-l md:border-t-0 md:border-slate-100 md:pl-5 md:pt-0">
+          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-1">
+            <div className="rounded-2xl bg-indigo-50/70 px-3 py-2.5 md:px-3.5">
+              <div className="flex items-center gap-2 font-medium text-indigo-600">
                 <CircleDollarSign className="h-4 w-4 shrink-0" />
-                <span className="max-w-full break-words sm:max-w-[220px] sm:text-right">
-                  {job.salaryRange || "Thoả thuận"}
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-500">
+                  Lương
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-slate-600 sm:justify-end">
-                <MapPin className="h-4 w-4 shrink-0" />
-                <span className="max-w-full truncate sm:max-w-[220px] sm:text-right">
-                  {locationLabel}
-                </span>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-1 sm:justify-end">
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-100"
-                  onClick={handleSave}
-                >
-                  Lưu
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-100"
-                  onClick={handleDetail}
-                >
-                  Chi tiết
-                </button>
-              </div>
+              <p className="mt-1 text-sm font-semibold leading-5 text-indigo-700">
+                {job.salaryRange || "Thoả thuận"}
+              </p>
             </div>
+
+            <div className="rounded-2xl bg-slate-50 px-3 py-2.5 md:px-3.5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <MapPin className="h-4 w-4 shrink-0" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Địa điểm
+                </span>
+              </div>
+              <p className="mt-1 truncate text-sm font-medium text-slate-700">
+                {locationLabel}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 md:mt-auto md:justify-end">
+            {/* <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-100"
+              onClick={handleSave}
+            >
+              Lưu
+            </button> */}
+            <button
+              type="button"
+              className="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-100 sm:w-auto md:min-w-[124px]"
+              onClick={handleDetail}
+            >
+              Chi tiết
+            </button>
           </div>
         </div>
       </div>

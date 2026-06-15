@@ -298,7 +298,7 @@ export default function Navbar() {
                 height={40}
                 fetchPriority="high"
               />
-              <div className="hidden text-lg font-bold leading-none text-slate-900 sm:block lg:text-xl">
+              <div className="hidden text-lg font-bold leading-none text-slate-900 xs:block lg:text-xl">
                 Career Graph
               </div>
             </div>
