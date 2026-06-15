@@ -58,9 +58,22 @@ export default function CVBuilder() {
         experience: ensureIds(aiData.experience, "exp"),
         education: ensureIds(aiData.education, "edu"),
         skills: ensureIds(aiData.skills, "skill"),
-        languages: ensureIds(aiData.languages, "lang"),
-        awards: ensureIds(aiData.awards, "award"),
       };
+
+      if (Array.isArray(aiData.languages) && aiData.languages.length > 0) {
+        processedData.languages = ensureIds(aiData.languages, "lang").map((lang) => ({
+          ...lang,
+          name: lang.name || lang.language || "",
+        }));
+      } else {
+        delete processedData.languages;
+      }
+
+      if (Array.isArray(aiData.awards) && aiData.awards.length > 0) {
+        processedData.awards = ensureIds(aiData.awards, "award");
+      } else {
+        delete processedData.awards;
+      }
 
       setCvData((prev) => ({
         ...prev,
