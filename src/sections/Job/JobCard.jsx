@@ -1,6 +1,8 @@
 import { Zap, MapPin, CircleDollarSign, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useJobEnums } from "~/hooks/useJobEnums";
+import { translateJobTag } from "~/utils/jobEnums";
 
 const limitTags = (input, max = 3) => {
   if (!Array.isArray(input) || !input.length) return [];
@@ -21,6 +23,7 @@ const TAG_COLORS = [
 export default function JobCard({ job, onDetail }) {
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
+  const { labelMaps } = useJobEnums();
 
   if (!job) {
     return null;
@@ -28,14 +31,18 @@ export default function JobCard({ job, onDetail }) {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const tags = useMemo(() => {
-    if (job.skills?.length) return limitTags(job.skills);
-    const fallback = [
-      job.experience?.level,
-      job.employmentType,
-      job.jobCategory,
-    ].filter(Boolean);
-    return limitTags(fallback);
-  }, [job.employmentType, job.experience?.level, job.jobCategory, job.skills]);
+    const rawTags = job.skills?.length
+      ? limitTags(job.skills)
+      : limitTags(
+          [job.experience?.level, job.employmentType, job.jobCategory].filter(Boolean)
+        );
+
+    return rawTags
+      .map((tag) => translateJobTag(tag, labelMaps))
+      .filter(Boolean)
+      .filter((tag, index, items) => items.indexOf(tag) === index)
+      .slice(0, 3);
+  }, [job.employmentType, job.experience?.level, job.jobCategory, job.skills, labelMaps]);
 
   const handleNavigate = () => {
     if (onDetail) {
@@ -160,7 +167,7 @@ export default function JobCard({ job, onDetail }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 md:mt-auto md:justify-end">
+          <div className="flex flex-wrap gap-2 md:mt-auto md:justify-start">
             {/* <button
               type="button"
               className="inline-flex items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-100"

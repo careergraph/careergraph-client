@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react";
-import { X, Send, Headset, Trash2, Loader2, MapPin, Building2, DollarSign, Briefcase } from "lucide-react";
+import { X, Send, Trash2, MapPin, Building2, DollarSign } from "lucide-react";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import chatBotAIIcon from "~/assets/logo.svg";
 import * as chatService from "~/services/chatService";
@@ -13,7 +13,71 @@ import {
   clearChatHistory,
   formatMessage,
 } from "~/services/geminiService";
-import { toast } from "sonner";
+function ConfirmClearHistoryModal({ open, onCancel, onConfirm }) {
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        onCancel?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  return (
+    <div className="absolute inset-0 z-[60] flex items-center justify-center p-4">
+      <button
+        type="button"
+        aria-label="Đóng xác nhận xóa lịch sử chat"
+        className="absolute inset-0 bg-slate-900/45 backdrop-blur-[2px]"
+        onClick={onCancel}
+      />
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-slate-200 bg-white shadow-2xl">
+        <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">
+              Xóa lịch sử chat
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Toàn bộ tin nhắn trong phiên hiện tại sẽ bị xóa.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          >
+            ×
+          </button>
+        </div>
+        <div className="px-5 py-4 text-sm text-slate-600">
+          Bạn có chắc muốn làm mới cuộc trò chuyện và bắt đầu lại từ đầu không?
+        </div>
+        <div className="flex justify-end gap-3 border-t border-slate-100 px-5 py-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
+          >
+            Xóa lịch sử
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const JobRecommendationCard = ({ job }) => {
   return (
@@ -69,6 +133,7 @@ export default function ChatPanel({ isOpen, onClose }) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
+  const [isClearHistoryModalOpen, setIsClearHistoryModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Reset conversationId khi component mount (refresh trang)
@@ -198,21 +263,22 @@ export default function ChatPanel({ isOpen, onClose }) {
   };
 
   const handleClearHistory = () => {
-    if (confirm("Bạn có chắc muốn xóa toàn bộ lịch sử chat?")) {
-      // Xóa cache local
-      clearChatHistory();
-      // Reset conversationId để tạo conversation mới khi gửi tin nhắn tiếp theo
-      setConversationId(null);
-      localStorage.removeItem("conversationId");
+    setIsClearHistoryModalOpen(true);
+  };
 
-      // Hiển thị tin nhắn chào mừng
-      const welcomeMessage = formatMessage(
-        "Lịch sử đã được xóa. Bạn cần giúp gì hôm nay? 😊",
-        "bot"
-      );
-      setMessages([welcomeMessage]);
-      saveChatHistory([welcomeMessage]);
-    }
+  const handleConfirmClearHistory = () => {
+    clearChatHistory();
+    setConversationId(null);
+    localStorage.removeItem("conversationId");
+
+    const welcomeMessage = formatMessage(
+      "Lịch sử đã được xóa. Bạn cần giúp gì hôm nay? 😊",
+      "bot"
+    );
+
+    setMessages([welcomeMessage]);
+    saveChatHistory([welcomeMessage]);
+    setIsClearHistoryModalOpen(false);
   };
 
   if (!isOpen) return null;
@@ -402,6 +468,12 @@ export default function ChatPanel({ isOpen, onClose }) {
             </button>
           </div>
         </div>
+
+        <ConfirmClearHistoryModal
+          open={isClearHistoryModalOpen}
+          onCancel={() => setIsClearHistoryModalOpen(false)}
+          onConfirm={handleConfirmClearHistory}
+        />
       </div>
     </>
   );

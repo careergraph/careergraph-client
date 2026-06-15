@@ -1,57 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { JobAPI } from "~/services/api/job";
-
-const VI_LABELS = {
-  experienceLevels: {
-    ENTRY: "Mới vào nghề",
-    INTERN: "Thực tập sinh",
-    MIDDLE: "Chuyên viên",
-    FRESHER: "Mới tốt nghiệp",
-    JUNIOR: "Nhân viên Junior",
-    SENIOR: "Nhân viên Senior",
-    LEADER: "Trưởng nhóm",
-    CTO: "Giám đốc công nghệ",
-    CFO: "Giám đốc tài chính",
-  },
-  employmentTypes: {
-    FULL_TIME: "Toàn thời gian",
-    PART_TIME: "Bán thời gian",
-    CONTRACT: "Hợp đồng",
-    INTERNSHIP: "Thực tập",
-    FREELANCE: "Làm tự do",
-    TEMPORARY: "Tạm thời",
-  },
-  educationTypes: {
-    HIGH_SCHOOL: "Trung học phổ thông",
-    ASSOCIATE_DEGREE: "Cao đẳng",
-    ASSOCIATE: "Cao đẳng",
-    BACHELORS_DEGREE: "Đại học",
-    BACHELOR: "Đại học",
-    MASTERS_DEGREE: "Thạc sĩ",
-    MASTER: "Thạc sĩ",
-    DOCTORATE: "Tiến sĩ",
-    VOCATIONAL: "Đào tạo nghề",
-    CERTIFICATION: "Chứng chỉ chuyên môn",
-    OTHER: "Không yêu cầu",
-    NONE: "Không yêu cầu",
-  },
-  jobCategories: {
-    ENGINEER: "Kỹ thuật",
-    BUSINESS: "Kinh doanh",
-    ART_MUSIC: "Nghệ thuật & Âm nhạc",
-    ADMINISTRATION: "Hành chính",
-    SALES: "Bán hàng",
-    EDUCATION: "Giáo dục",
-    CUSTOMER_SERVICE: "Chăm sóc khách hàng",
-    MANUFACTURING: "Sản xuất",
-    TECHNOLOGY: "Công nghệ",
-    MARKETING: "Marketing",
-    FINANCE: "Tài chính",
-    HEALTHCARE: "Y tế",
-    HUMAN_RESOURCES: "Nhân sự",
-    DESIGN: "Thiết kế",
-  },
-};
+import { VI_LABELS, normalizeEnumItems, toMap } from "~/utils/jobEnums";
 
 const DEFAULT_ENUMS = {
   experienceLevels: [
@@ -101,23 +50,12 @@ const DEFAULT_ENUMS = {
   ],
 };
 
-const toMap = (items) =>
-  (items || []).reduce((acc, item) => {
-    acc[item.value] = item.label;
-    return acc;
-  }, {});
-
-const normalizeEnumItems = (items, labelMap) =>
-  (items || []).map((item) => ({
-    value: item.code,
-    label: labelMap[item.code] || item.name || item.code,
-  }));
-
 export const useJobEnums = () => {
   const [enumOptions, setEnumOptions] = useState(DEFAULT_ENUMS);
 
   useEffect(() => {
     let mounted = true;
+
     const load = async () => {
       try {
         const response = await JobAPI.getJobEnums();
@@ -142,6 +80,7 @@ export const useJobEnums = () => {
         console.error("Failed to load job enums:", error);
       }
     };
+
     load();
     return () => {
       mounted = false;

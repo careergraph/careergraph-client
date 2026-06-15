@@ -20,6 +20,7 @@ import ApplyDialog from "~/sections/JobDetail/ApplyDialog";
 import { formatDateYMD } from "~/utils/dateUtils";
 import { useJobEnums } from "~/hooks/useJobEnums";
 import { isJobExpired } from "~/utils/jobFormat";
+import { getJobEnumLabel } from "~/utils/jobEnums";
 import { toast } from "sonner";
 
 // ==================== HELPER FUNCTIONS ====================
@@ -40,19 +41,11 @@ const extractCityName = (fullAddress) => {
  * - Nếu không có level, hiển thị số năm (min-max hoặc min+)
  * - Trả về "Không yêu cầu" nếu không có thông tin
  */
-const formatExperience = (experienceData) => {
+const formatExperience = (experienceData, experienceLabelMap = {}) => {
   const { min, max, level } = experienceData || {};
 
-  // Mapping level sang tiếng Việt
   if (level) {
-    const LEVEL_LABELS = {
-      FRESHER: "Fresher",
-      JUNIOR: "Junior",
-      MIDDLE: "Middle",
-      SENIOR: "Senior",
-      LEADER: "Leader",
-    };
-    return LEVEL_LABELS[level] || level;
+    return experienceLabelMap[level] || getJobEnumLabel("experience", level);
   }
 
   // Hiển thị range năm kinh nghiệm
@@ -145,10 +138,10 @@ const buildJobSections = (job) => {
 /**
  * Tạo danh sách tags (nhãn) từ thông tin job
  */
-const buildTags = (job) => {
+const buildTags = (job, labelMaps = {}) => {
   return [
-    job.department, // Phòng ban
-    job.jobCategory, // Danh mục công việc
+    // job.department, // Phòng ban
+    labelMaps.category?.[job.jobCategory] || getJobEnumLabel("category", job.jobCategory),
     job.remoteJob && "Remote", // Remote nếu có
   ].filter(Boolean);
 };
@@ -389,7 +382,7 @@ export default function JobDetailPage() {
 
   // ==================== CHUẨN BỊ DỮ LIỆU HIỂN THỊ ====================
   const cityName = extractCityName(job.location);
-  const experienceText = formatExperience(job.experience);
+  const experienceText = formatExperience(job.experience, labelMaps.experience);
   const educationText = formatEducation(job.education, labelMaps.education);
   const postedDateText = formatPostedDate(job.postedDate);
   const deadlineText = formatDeadline(job.expiryDate);
@@ -401,11 +394,7 @@ export default function JobDetailPage() {
       ? "Đã hết hạn ứng tuyển"
       : "";
   const sections = buildJobSections(job);
-  const tags = [
-    job.department,
-    labelMaps.category[job.jobCategory] ?? job.jobCategory,
-    job.remoteJob && "Remote",
-  ].filter(Boolean);
+  const tags = buildTags(job, labelMaps);
   const company = companyDetail ? buildCompanyInfo(companyDetail) : buildCompanyInfo(job);
   const companyAddress = companyDetail
     ? formatCompanyAddress(companyDetail)
