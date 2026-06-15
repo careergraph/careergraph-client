@@ -1,5 +1,6 @@
 // src/services/locationService.js
 import { LocationAPI } from "./api/location";
+import { toProvinceSlug } from "~/utils/provinceLocationMap";
 
 /**
  * Normalize một province object từ API công khai
@@ -16,6 +17,11 @@ const normalizeProvince = (province) => {
     shortName: province.name
       ?.replace(/^(Thành phố|Tỉnh)\s+/i, "")
       .trim() || province.name,
+    slug: toProvinceSlug(
+      province.name
+        ?.replace(/^(Thành phố|Tỉnh)\s+/i, "")
+        .trim() || province.name
+    ),
   };
 };
 

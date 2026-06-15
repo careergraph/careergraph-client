@@ -51,7 +51,7 @@ const DEFAULT_FILTERS = {
   educationLevels: [],
 };
 
-const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
+const JobsSidebar = ({ isOpen, onClose, filters = DEFAULT_FILTERS, onFilterChange }) => {
   const { experienceLevels, employmentTypes, educationTypes, jobCategories } =
     useJobEnums();
   const experienceOptions = experienceLevels?.length
@@ -78,8 +78,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
     education: true,
   });
 
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
-
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -88,7 +86,6 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
   };
 
   const updateFilters = (next) => {
-    setFilters(next);
     onFilterChange?.(next);
   };
 
@@ -164,7 +161,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
                 <Filter size={18} className="text-indigo-600" />
               </div>
               <h3 className="text-base font-bold text-slate-800 sm:text-lg">
-                Bộ lọc tìm kiếm
+                Bộ lọc
               </h3>
             </div>
 
@@ -172,7 +169,7 @@ const JobsSidebar = ({ isOpen, onClose, onFilterChange }) => {
               <button
                 type="button"
                 onClick={clearAllFilters}
-                className="text-sm font-medium text-indigo-600 transition-colors hover:text-indigo-700"
+                className="text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-700"
               >
                 Xoá tất cả
               </button>

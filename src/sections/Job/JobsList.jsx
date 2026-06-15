@@ -1,24 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 import { JobService } from "../../services/jobService";
 import LoadingSpinner from "../../components/Feedback/LoadingSpinner";
 
-const DEFAULT_PAGE_SIZE = 5;
-const JOBS_PAGE_KEY = "jobs_current_page";
+const DEFAULT_PAGE_SIZE = 10;
 
 const JobsList = ({
   filters = {},
   searchQuery = "",
-  city = "",
-  locationCode = "",
+  location = "",
+  locationSlug = "",
+  provinceCode = "",
+  page = 1,
+  onPageChange,
 }) => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(() => {
-    const savedPage = sessionStorage.getItem(JOBS_PAGE_KEY);
-    return savedPage ? parseInt(savedPage, 10) : 1;
-  });
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [meta, setMeta] = useState({ totalItems: 0, totalPages: 1 });
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
@@ -27,17 +25,17 @@ const JobsList = ({
   const totalPages = meta.totalPages ?? 1;
   const canGoPrev = page > 1;
   const canGoNext = page < totalPages;
-  const initialFiltersSyncRef = useRef(true);
-
-  useEffect(() => {
-    if (initialFiltersSyncRef.current) {
-      initialFiltersSyncRef.current = false;
-      return;
-    }
-
-    setPage(1);
-    sessionStorage.setItem(JOBS_PAGE_KEY, "1");
-  }, [filters, searchQuery, city, locationCode]);
+  const canSearch = !locationSlug || Boolean(location);
+  const isWaitingForLocation = Boolean(locationSlug && !location);
+  const hasJobs = jobs.length > 0;
+  const isListBusy = loading || isWaitingForLocation;
+  const showInitialLoading = loading && !hasJobs && !isWaitingForLocation;
+  const showListOverlay = isListBusy && hasJobs;
+  const loadingMessage = isPageTransitioning
+    ? "Đang tải trang mới..."
+    : isWaitingForLocation
+      ? "Đang tải địa điểm..."
+      : "Đang tìm việc làm...";
 
   const handlePageChange = (nextPage) => {
     if (nextPage === page) return;
@@ -45,22 +43,23 @@ const JobsList = ({
     if (totalPages && nextPage > totalPages) return;
     setTransitionTarget({ from: page, to: nextPage });
     setIsPageTransitioning(true);
-    setPage(nextPage);
-    sessionStorage.setItem(JOBS_PAGE_KEY, nextPage.toString());
+    onPageChange?.(nextPage);
   };
 
   useEffect(() => {
+    if (!canSearch) {
+      return undefined;
+    }
+
+    setLoading(true);
+    setError("");
+
     const controller = new AbortController();
     let isMounted = true;
 
     const loadJobs = async () => {
       try {
-        setLoading(true);
-        setError("");
-
-        const savedPage = sessionStorage.getItem(JOBS_PAGE_KEY);
-        const isFirstLoad = savedPage && parseInt(savedPage, 10) === page;
-        if (!isFirstLoad && page > 1) {
+        if (page > 1) {
           window.scrollTo({ top: 280, behavior: "smooth" });
         }
 
@@ -68,8 +67,9 @@ const JobsList = ({
           signal: controller.signal,
           filters,
           keyword: searchQuery,
-          city,
-          location: locationCode,
+          location,
+          locationSlug,
+          provinceCode,
           page,
           size: pageSize,
         });
@@ -88,7 +88,7 @@ const JobsList = ({
         }
 
         if (pagination?.page && pagination.page !== page) {
-          setPage(pagination.page);
+          onPageChange?.(pagination.page);
         }
 
         if (pagination?.page) {
@@ -119,7 +119,17 @@ const JobsList = ({
       isMounted = false;
       controller.abort();
     };
-  }, [page, pageSize, filters, searchQuery, city, locationCode]);
+  }, [
+    page,
+    pageSize,
+    filters,
+    searchQuery,
+    location,
+    locationSlug,
+    provinceCode,
+    canSearch,
+    onPageChange,
+  ]);
 
   useEffect(() => {
     if (!isPageTransitioning) return undefined;
@@ -135,39 +145,59 @@ const JobsList = ({
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      {loading && !jobs.length ? (
-        <p className="text-sm text-slate-500">Đang tải danh sách việc làm...</p>
+      {showInitialLoading ? (
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-12 shadow-sm">
+          <LoadingSpinner
+            variant="inline"
+            size="md"
+            message="Đang tải danh sách việc làm..."
+          />
+        </div>
+      ) : null}
+
+      {isWaitingForLocation && !hasJobs ? (
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-12 shadow-sm">
+          <LoadingSpinner
+            variant="inline"
+            size="md"
+            message="Đang tải địa điểm..."
+          />
+        </div>
       ) : null}
 
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
 
-      {!loading && !error && !jobs.length ? (
+      {!isListBusy && !error && !jobs.length ? (
         <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-500 shadow-sm">
           Hiện chưa có việc làm nào.
         </div>
       ) : null}
 
-      <div className="relative">
+      {hasJobs ? (
         <div
-          className={`flex flex-col gap-4 md:gap-5 transition-opacity duration-200 ${
-            isPageTransitioning ? "opacity-60" : "opacity-100"
-          }`}
+          className={`relative ${showListOverlay ? "min-h-[240px]" : ""}`}
         >
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
+          <div
+            className={`flex flex-col gap-4 md:gap-5 transition-opacity duration-200 ${
+              showListOverlay ? "pointer-events-none opacity-60" : "opacity-100"
+            }`}
+          >
+            {jobs.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
+          </div>
+
+          {showListOverlay ? (
+            <LoadingSpinner
+              variant="overlay"
+              size="md"
+              message={loadingMessage}
+            />
+          ) : null}
         </div>
+      ) : null}
 
-        {transitionTarget && isPageTransitioning && loading ? (
-          <LoadingSpinner
-            variant="overlay"
-            size="md"
-            message="Đang tải trang mới..."
-          />
-        ) : null}
-      </div>
-
-      {jobs.length > 0 && !error ? (
+      {hasJobs && !error ? (
         <div className="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm sm:px-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-1.5 text-sm">
@@ -183,7 +213,7 @@ const JobsList = ({
                 type="button"
                 className="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:text-slate-400 enabled:text-slate-700 enabled:hover:bg-white enabled:hover:text-slate-900 sm:flex-none"
                 onClick={() => handlePageChange(page - 1)}
-                disabled={!canGoPrev || loading}
+                disabled={!canGoPrev || isListBusy}
               >
                 ← Trước
               </button>
@@ -202,7 +232,7 @@ const JobsList = ({
                 type="button"
                 className="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:text-slate-400 enabled:text-slate-700 enabled:hover:bg-white enabled:hover:text-slate-900 sm:flex-none"
                 onClick={() => handlePageChange(page + 1)}
-                disabled={!canGoNext || loading}
+                disabled={!canGoNext || isListBusy}
               >
                 Sau →
               </button>

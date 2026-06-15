@@ -360,6 +360,31 @@ const normalizeApplicationRequirements = (job) => {
   };
 };
 
+const isDateOnlyString = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+const getLocalYmd = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const isJobExpired = (expiryDate, now = new Date()) => {
+  const deadline = safeText(expiryDate);
+  if (!deadline) return false;
+
+  if (isDateOnlyString(deadline)) {
+    return getLocalYmd(now) > deadline;
+  }
+
+  const parsed = new Date(deadline);
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  return now.getTime() > parsed.getTime();
+};
+
 const normalizeJob = (job = {}) => {
   const title = safeText(job.title || job.name) || "Đang cập nhật";
   const department = safeText(job.department || job.departmentName);
@@ -407,6 +432,7 @@ const normalizeJob = (job = {}) => {
     experience: normalizeExperience(job),
     postedDate: safeText(job.postedDate || job.createdAt),
     expiryDate: safeText(job.expiryDate || job.deadline),
+    isExpired: isJobExpired(job.expiryDate || job.deadline),
     numberOfPositions: parseOptionalNumber(
       job?.numberOfPositions ??
         job?.vacancies ??
@@ -449,4 +475,5 @@ export {
   normalizeExperience,
   buildSummary,
   normalizeTags,
+  isJobExpired,
 };

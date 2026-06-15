@@ -242,7 +242,7 @@ export default function ChatPanel({ isOpen, onClose }) {
             </div>
           </div>
           <div className="flex items-center align-baseline gap-1">
-            <button
+            {/* <button
               onClick={() =>
                 toast.info("CareerGraph sẽ liên hệ với bạn sớm nhất có thể!")
               }
@@ -250,7 +250,7 @@ export default function ChatPanel({ isOpen, onClose }) {
               title="Liên hệ hỗ trợ"
             >
               <Headset className="w-4 h-4 text-white" />
-            </button>
+            </button> */}
             <button
               onClick={handleClearHistory}
               className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"

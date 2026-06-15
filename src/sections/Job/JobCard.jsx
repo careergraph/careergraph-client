@@ -160,14 +160,14 @@ export default function JobCard({ job, onSave, onDetail }) {
                   className="inline-flex items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition-all duration-200 hover:border-indigo-300 hover:bg-indigo-100"
                   onClick={handleSave}
                 >
-                  Save
+                  Lưu
                 </button>
                 <button
                   type="button"
                   className="inline-flex items-center justify-center rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-100"
                   onClick={handleDetail}
                 >
-                  Detail
+                  Chi tiết
                 </button>
               </div>
             </div>

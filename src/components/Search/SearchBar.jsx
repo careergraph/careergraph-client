@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { MapPin, Search } from "lucide-react";
 import { LocationService } from "~/services/locationService";
+import { resolveLocationSlug } from "~/utils/provinceLocationMap";
 import {
   Select,
   SelectContent,
@@ -9,23 +10,25 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-const SEARCH_KEYWORD_KEY = "jobs_search_keyword";
-const SEARCH_LOCATION_KEY = "jobs_search_location";
-
 export default function SearchBar({
+  keyword: keywordProp = "",
+  locationSlug: locationSlugProp = "",
   keywordPlaceholder = "Tìm kiếm việc làm, công ty, từ khoá...",
-  onSearch
+  onSearch,
 }) {
-  const [keyword, setKeyword] = useState(() => {
-    return sessionStorage.getItem(SEARCH_KEYWORD_KEY) || "";
-  });
-  const [location, setLocation] = useState(() => {
-    return sessionStorage.getItem(SEARCH_LOCATION_KEY) || "";
-  });
+  const [keyword, setKeyword] = useState(keywordProp);
+  const [location, setLocation] = useState(locationSlugProp);
   const [provinces, setProvinces] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Load danh sách tỉnh thành khi component mount
+  useEffect(() => {
+    setKeyword(keywordProp);
+  }, [keywordProp]);
+
+  useEffect(() => {
+    setLocation(locationSlugProp);
+  }, [locationSlugProp]);
+
   useEffect(() => {
     const loadProvinces = async () => {
       setLoading(true);
@@ -42,17 +45,26 @@ export default function SearchBar({
     loadProvinces();
   }, []);
 
-  // Lưu keyword vào sessionStorage khi thay đổi
   useEffect(() => {
-    sessionStorage.setItem(SEARCH_KEYWORD_KEY, keyword);
-  }, [keyword]);
+    if (!provinces.length || !locationSlugProp) {
+      return;
+    }
 
-  // Lưu location vào sessionStorage khi thay đổi
-  useEffect(() => {
-    sessionStorage.setItem(SEARCH_LOCATION_KEY, location);
-  }, [location]);
+    const resolvedSlug = resolveLocationSlug(provinces, locationSlugProp);
+    if (resolvedSlug && resolvedSlug !== locationSlugProp) {
+      const selectedProvince = provinces.find(
+        (province) => province.slug === resolvedSlug
+      );
 
-  // Tự động search khi keyword hoặc location thay đổi (với debounce)
+      onSearch?.({
+        keyword: keywordProp,
+        location: selectedProvince?.shortName || "",
+        locationSlug: resolvedSlug,
+        provinceCode: selectedProvince?.code || "",
+      });
+    }
+  }, [provinces, locationSlugProp, keywordProp, onSearch]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!onSearch) {
@@ -60,13 +72,14 @@ export default function SearchBar({
       }
 
       const selectedProvince = provinces.find(
-        (province) => province.code === location
+        (province) => province.slug === location
       );
 
       onSearch({
         keyword,
         location: selectedProvince?.shortName || "",
-        locationCode: location || "",
+        locationSlug: selectedProvince?.slug || location || "",
+        provinceCode: selectedProvince?.code || "",
       });
     }, 300);
 
@@ -75,7 +88,6 @@ export default function SearchBar({
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
-      {/* Keyword Input */}
       <div className="flex-1 flex items-center bg-white border-2 border-slate-200 h-11 overflow-hidden focus-within:border-indigo-500 focus-within:shadow-md transition-all rounded-lg">
         <div className="pl-3 pr-2">
           <Search className="text-slate-400" size={18} />
@@ -85,11 +97,10 @@ export default function SearchBar({
           placeholder={keywordPlaceholder}
           className="flex-1 h-full pr-3 outline-none text-slate-900 placeholder-slate-400 text-sm"
           value={keyword}
-          onChange={e => setKeyword(e.target.value)}
+          onChange={(e) => setKeyword(e.target.value)}
         />
       </div>
 
-      {/* Location Select */}
       <div className="relative w-full sm:w-52">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" size={18} />
         <Select
@@ -103,7 +114,7 @@ export default function SearchBar({
           <SelectContent>
             <SelectItem value="all">Tất cả địa điểm</SelectItem>
             {provinces.map((province) => (
-              <SelectItem key={province.code} value={province.code}>
+              <SelectItem key={province.code} value={province.slug}>
                 {province.shortName || province.name}
               </SelectItem>
             ))}

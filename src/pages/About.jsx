@@ -9,7 +9,7 @@ export default function About() {
     <>
       <FeaturesSection />
       <BlogListSection />
-      <SectionPricing />
+      {/* <SectionPricing /> */}
       <FaqSection />
       <NewsLetterSection />
     </>
