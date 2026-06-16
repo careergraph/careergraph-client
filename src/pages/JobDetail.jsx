@@ -66,7 +66,7 @@ const formatExperience = (experienceData, experienceLabelMap = {}) => {
  * Mapping các giá trị enum sang tiếng Việt
  */
 const formatEducation = (educationLevel, educationLabelMap = {}) => {
-  if (!educationLevel) return "Khong yeu cau";
+  if (!educationLevel) return "Không yêu cầu";
   return educationLabelMap[educationLevel] || educationLevel;
 };
 
