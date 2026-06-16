@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FileText, Crown } from "lucide-react";
 import dotBanner from "../assets/images/hero-section-dot-image.png";
 import { cvTemplates } from "../data/templatesConfig";
@@ -7,6 +7,7 @@ import TemplateCard from "../sections/CVBuilder/components/TemplateCard";
 
 export default function CVTemplates() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeFilter, setActiveFilter] = useState("all");
 
   const filteredTemplates = useMemo(() => {
@@ -15,7 +16,9 @@ export default function CVTemplates() {
   }, [activeFilter]);
 
   const handleSelectTemplate = (templateId) => {
-    navigate(`/build-cv?template=${templateId}`);
+    navigate(`/build-cv?template=${templateId}`, {
+      state: location.state || undefined,
+    });
   };
 
   return (

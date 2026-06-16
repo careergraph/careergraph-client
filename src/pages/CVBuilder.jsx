@@ -149,7 +149,7 @@ export default function CVBuilder() {
       }));
       userLoadedRef.current = true;
     }
-  }, [user, jobFromState]);
+  }, [user, jobFromState, suggestedCv]);
 
   useEffect(() => {
     if ((provinceName || districtName) && userLoadedRef.current) {
