@@ -3,16 +3,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { JobService } from "~/services/jobService";
 import { toast } from "sonner";
+import { useUserStore } from "~/stores/userStore";
 
 // A richer CTA banner: shows optional company logo, short benefits, and a tiny testimonial
 export default function CtaBanner({ job }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useUserStore();
   const title = job?.title || "vị trí này";
   const companyLogo = job?.companyAvatar || job?.companyLogo || null;
 
   const handleViewCvTemplate = async () => {
     if (!job?.id) return;
+
+    if (!user || !user.candidateId) {
+      toast.info("Đăng nhập với tài khoản Ứng viên để nhận gợi ý CV cá nhân hóa từ AI.");
+      navigate("/build-cv?template=harvard", { state: { job } });
+      return;
+    }
 
     try {
       setIsLoading(true);
