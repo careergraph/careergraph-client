@@ -324,6 +324,136 @@ function ProposeTimeModal({ open, onClose, onSubmit }) {
   );
 }
 
+function StandaloneInterviewCard({
+  interview,
+  highlighted,
+  onConfirm,
+  onDecline,
+  onPropose,
+  onJoin,
+}) {
+  const endAtMs = interview.endAt
+    ? new Date(interview.endAt).getTime()
+    : new Date(interview.scheduledAt).getTime();
+  const isPastByTime = Number.isFinite(endAtMs) && Date.now() > endAtMs;
+  const canRespondScheduled = interview.interviewStatus === "SCHEDULED";
+  const canJoinInterview =
+    interview.type === "ONLINE" &&
+    ["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(interview.interviewStatus) &&
+    interview.meetingLink &&
+    !isPastByTime;
+  const showJoinButton =
+    interview.type === "ONLINE" &&
+    ["SCHEDULED", "CONFIRMED", "IN_PROGRESS"].includes(interview.interviewStatus) &&
+    interview.meetingLink;
+  const showPastWarning =
+    isPastByTime && !["COMPLETED", "CANCELLED", "NO_SHOW"].includes(interview.interviewStatus);
+  const interviewerNames = Array.isArray(interview.interviewers)
+    ? interview.interviewers
+        .filter((item) => item?.role === "INTERVIEWER" && item?.name)
+        .map((item) => item.name)
+    : [];
+
+  return (
+    <div
+      className={`rounded-xl border bg-slate-50/70 p-5 transition-shadow hover:shadow-sm ${
+        highlighted
+          ? "border-violet-500 shadow-[0_0_0_3px_rgba(139,92,246,0.18)]"
+          : "border-slate-200"
+      }`}
+    >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-base font-semibold text-slate-900">{interview.jobTitle}</h3>
+          <p className="mt-1 text-sm text-slate-500">{interview.companyName}</p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
+            <span className="flex items-center gap-1.5">
+              <Calendar size={14} className="text-slate-400" />
+              {fmtDate(interview.scheduledAt)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Clock size={14} className="text-slate-400" />
+              {fmtTime(interview.scheduledAt)} – {fmtTime(interview.endAt)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              {interview.type === "ONLINE" ? (
+                <Video size={14} className="text-blue-500" />
+              ) : (
+                <MapPin size={14} className="text-orange-500" />
+              )}
+              {interview.type === "ONLINE"
+                ? "Trực tuyến"
+                : interview.location || "Phỏng vấn trực tiếp"}
+            </span>
+          </div>
+
+          {interviewerNames.length > 0 ? (
+            <p className="mt-2 text-xs text-slate-500">
+              Người phỏng vấn: {interviewerNames.join(", ")}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="flex w-full flex-col gap-2 lg:w-auto lg:min-w-[240px] lg:items-end">
+          <div className="flex justify-start lg:justify-end">
+            <StatusBadge value={interview.interviewStatus} />
+          </div>
+
+          {canRespondScheduled ? (
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-end">
+              <button
+                onClick={() => onConfirm(interview.id)}
+                disabled={isPastByTime}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+              >
+                <CheckCircle size={14} /> Xác nhận
+              </button>
+              <button
+                onClick={() => onPropose(interview.id)}
+                disabled={isPastByTime}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-violet-200 px-3 py-2 text-xs font-medium text-violet-600 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+              >
+                <CalendarPlus size={14} /> Đề xuất giờ khác
+              </button>
+              <button
+                onClick={() => onDecline(interview.id)}
+                disabled={isPastByTime}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 lg:w-auto"
+              >
+                <XCircle size={14} /> Từ chối
+              </button>
+            </div>
+          ) : null}
+
+          {interview.interviewStatus === "PENDING_RESCHEDULE" ? (
+            <p className="mt-2 text-xs font-medium text-purple-600">
+              Đã gửi đề xuất, đang chờ HR xác nhận
+            </p>
+          ) : null}
+
+          {showJoinButton ? (
+            <button
+              onClick={() => onJoin(interview)}
+              disabled={!canJoinInterview}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+            >
+              <ExternalLink size={14} />
+              {canJoinInterview ? "Tham gia phỏng vấn" : "Đã quá giờ phỏng vấn"}
+            </button>
+          ) : null}
+
+          {showPastWarning ? (
+            <p className="mt-2 max-w-full text-left text-xs font-medium text-amber-600 lg:max-w-[240px] lg:text-right">
+              Lịch phỏng vấn này đã quá thời gian, vui lòng liên hệ HR nếu cần hỗ trợ.
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MyInterviews() {
   const { interviews, loading, fetchMyInterviews, confirmInterview, declineInterview, proposeAlternativeTimes } =
     useInterviewStore();
@@ -548,6 +678,11 @@ export default function MyInterviews() {
                     : isKicked
                       ? "KICKED"
                       : interview.interviewStatus;
+                  const interviewerNames = Array.isArray(interview.interviewers)
+                    ? interview.interviewers
+                        .filter((item) => item?.role === "INTERVIEWER" && item?.name)
+                        .map((item) => item.name)
+                    : [];
                   const isHighlighted =
                     highlightedInterviewId &&
                     room.timeline.some((item) => item.id === highlightedInterviewId);
@@ -595,8 +730,8 @@ export default function MyInterviews() {
                             </span>
                           </div>
 
-                          {interview.interviewerNames?.length > 0 && (
-                            <p className="mt-2 text-xs text-slate-500">Người phỏng vấn: {interview.interviewerNames.join(", ")}</p>
+                          {interviewerNames.length > 0 && (
+                            <p className="mt-2 text-xs text-slate-500">Người phỏng vấn: {interviewerNames.join(", ")}</p>
                           )}
 
                           {room.timeline.length > 1 && (
@@ -695,11 +830,11 @@ export default function MyInterviews() {
           {standaloneInterviews.length > 0 && (
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Phỏng vấn độc lập</h3>
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Phỏng vấn offline</h3>
                 <span className="text-xs text-gray-500 dark:text-gray-400">{standaloneInterviews.length} lịch</span>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3">
                 {standaloneInterviews.map((interview) => (
                   <div
                     key={interview.id}
@@ -717,19 +852,16 @@ export default function MyInterviews() {
                         : ""
                     }`}
                   >
-                    <InterviewCard
+                    <StandaloneInterviewCard
                       interview={interview}
-                      onCancel={handleCancel}
-                      onComplete={handleComplete}
-                      onFeedback={(iv) =>
-                        setFeedbackInterview({
-                          interviewId: iv.id,
-                          candidateName: iv.candidateName,
-                        })
-                      }
-                      onAcceptReschedule={handleAcceptProposal}
-                      onRejectReschedule={handleRejectProposal}
-                      onClick={(iv) => navigate(`/interviews/${iv.id}`)}
+                      highlighted={highlightedInterviewId === interview.id}
+                      onConfirm={handleConfirm}
+                      onDecline={setDeclining}
+                      onPropose={setProposing}
+                      onJoin={(iv) => {
+                        if (!iv.meetingLink) return;
+                        navigate(`/interview/room/${iv.meetingLink}`);
+                      }}
                     />
                   </div>
                 ))}
