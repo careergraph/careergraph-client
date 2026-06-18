@@ -6,6 +6,20 @@ const NOTIFY_SOCKET_URL = import.meta.env.VITE_RTC_BASE_URL || "http://localhost
 const canUseBrowserNotifications = () =>
   typeof window !== "undefined" && "Notification" in window;
 
+const toDataNavigatePath = (payload) => {
+  const navigateTo = payload?.data?.navigateTo;
+  return typeof navigateTo === "string" && navigateTo.startsWith("/") ? navigateTo : null;
+};
+
+const appendRefreshParams = (rawPath) => {
+  const [pathname, queryString = ""] = rawPath.split("?");
+  const params = new URLSearchParams(queryString);
+  params.set("refresh", "1");
+  params.set("ts", String(Date.now()));
+  const serialized = params.toString();
+  return serialized ? `${pathname}?${serialized}` : pathname;
+};
+
 export const requestBrowserNotificationPermission = async () => {
   if (!canUseBrowserNotifications()) {
     return;
@@ -67,6 +81,10 @@ export function useNotifySocket({
         nativeNotification.onclick = () => {
           window.focus();
           nativeNotification.close();
+          const navigatePath = toDataNavigatePath(payload);
+          if (navigatePath) {
+            window.location.assign(appendRefreshParams(navigatePath));
+          }
         };
       }
     });

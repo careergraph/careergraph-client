@@ -6,13 +6,14 @@ import {
   Briefcase,
   CalendarCheck2,
   CheckCheck,
+  CheckCircle2,
   Eye,
   MessageSquareText,
+  RotateCcw,
   SearchCheck,
   UserRoundPlus,
   XCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useNotifications } from "~/features/notifications/hooks/useNotifications";
 
 const toRelativeTime = (value) => {
@@ -53,6 +54,25 @@ const buildAppliedJobsPath = (applicationId) => {
   params.set("ts", String(Date.now()));
 
   return `/jobs/applied?${params.toString()}`;
+};
+
+const appendRefreshParams = (rawPath) => {
+  if (!rawPath || !rawPath.startsWith("/")) {
+    return null;
+  }
+
+  const [pathname, queryString = ""] = rawPath.split("?");
+  const params = new URLSearchParams(queryString);
+  params.set("refresh", "1");
+  params.set("ts", String(Date.now()));
+  const serialized = params.toString();
+  return serialized ? `${pathname}?${serialized}` : pathname;
+};
+
+const redirectWithRefresh = (rawPath) => {
+  const nextPath = appendRefreshParams(rawPath);
+  if (!nextPath) return;
+  window.location.assign(nextPath);
 };
 
 const normalizeNavigatePathForCandidate = (rawPath, data) => {
@@ -102,11 +122,13 @@ const getNavigatePath = (notification) => {
       if (!interviewId) {
         return buildAppliedJobsPath(applicationId);
       }
-      const params = new URLSearchParams();
-      params.set("interviewId", interviewId);
-      params.set("refresh", "1");
-      params.set("ts", String(Date.now()));
-      return `/interviews?${params.toString()}`;
+      return `/interviews?interviewId=${interviewId}`;
+    }
+    case "INTERVIEW_CANCELLED":
+    case "INTERVIEW_RESCHEDULE_ACCEPTED":
+    case "INTERVIEW_RESCHEDULE_REJECTED": {
+      const interviewId = toDataString(notification.data, "interviewId");
+      return interviewId ? `/interviews?interviewId=${interviewId}` : "/interviews";
     }
     default:
       return null;
@@ -145,6 +167,24 @@ const getNotificationTypeMeta = (type) => {
         iconClass:
           "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300",
       };
+    case "INTERVIEW_RESCHEDULE_ACCEPTED":
+      return {
+        icon: <CheckCircle2 size={16} />,
+        iconClass:
+          "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300",
+      };
+    case "INTERVIEW_RESCHEDULE_REJECTED":
+      return {
+        icon: <RotateCcw size={16} />,
+        iconClass:
+          "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300",
+      };
+    case "INTERVIEW_CANCELLED":
+      return {
+        icon: <XCircle size={16} />,
+        iconClass:
+          "bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-300",
+      };
     case "APPLICATION_REJECTED":
       return {
         icon: <XCircle size={16} />,
@@ -164,7 +204,6 @@ export default function NotificationDropdown({
   onClose,
   dropdownId = "candidate-notification-dropdown",
 }) {
-  const navigate = useNavigate();
   const {
     notifications,
     unreadCount,
@@ -198,7 +237,7 @@ export default function NotificationDropdown({
     onClose();
 
     if (navigatePath) {
-      navigate(navigatePath);
+      redirectWithRefresh(navigatePath);
     }
   };
 
@@ -326,7 +365,7 @@ export default function NotificationDropdown({
           type="button"
           onClick={() => {
             onClose();
-            navigate("/messages");
+            redirectWithRefresh("/messages");
           }}
           className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
         >
