@@ -5,12 +5,15 @@ import { getMessagingIdentity } from "~/features/messaging/utils/identity";
 import { useUserStore } from "~/stores/userStore";
 
 const CHAT_SOCKET_URL = import.meta.env.VITE_RTC_BASE_URL || "http://localhost:4000";
+const logChatSocket = (...args) => {
+  console.info("[chat socket][candidate]", ...args);
+};
 
 let sharedSocket = null;
 let sharedToken = null;
 let activeConsumers = 0;
 let listenersAttached = false;
-const subscribedThreadIds = new Set();
+const subscribedThreadIds = new Map();
 
 const isRecord = (value) =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -300,7 +303,7 @@ const emitLeaveThread = (threadId) => {
 };
 
 const rejoinSubscribedThreads = () => {
-  for (const threadId of subscribedThreadIds) {
+  for (const threadId of subscribedThreadIds.keys()) {
     emitJoinThread(threadId);
   }
 };
@@ -327,7 +330,16 @@ const ensureSocket = (token) => {
   });
 
   sharedSocket.on("connect", () => {
+    logChatSocket("connected", {
+      id: sharedSocket?.id,
+      url: `${CHAT_SOCKET_URL}/chat`,
+      subscribedThreads: subscribedThreadIds.size,
+    });
     rejoinSubscribedThreads();
+  });
+
+  sharedSocket.on("disconnect", (reason) => {
+    logChatSocket("disconnected", { reason });
   });
 
   sharedToken = token;
@@ -373,13 +385,23 @@ export const useChatSocket = (token) => {
 
   const joinThread = useCallback((threadId) => {
     if (!threadId) return;
-    subscribedThreadIds.add(threadId);
+    const currentCount = subscribedThreadIds.get(threadId) ?? 0;
+    subscribedThreadIds.set(threadId, currentCount + 1);
+    if (currentCount > 0) return;
+    logChatSocket("join-thread", { threadId });
     emitJoinThread(threadId);
   }, []);
 
   const leaveThread = useCallback((threadId) => {
     if (!threadId) return;
+    const currentCount = subscribedThreadIds.get(threadId) ?? 0;
+    if (currentCount > 1) {
+      subscribedThreadIds.set(threadId, currentCount - 1);
+      return;
+    }
+
     subscribedThreadIds.delete(threadId);
+    logChatSocket("leave-thread", { threadId });
     emitLeaveThread(threadId);
   }, []);
 

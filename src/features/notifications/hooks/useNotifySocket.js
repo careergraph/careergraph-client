@@ -2,6 +2,9 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
 const NOTIFY_SOCKET_URL = import.meta.env.VITE_RTC_BASE_URL || "http://localhost:4000";
+const logNotifySocket = (...args) => {
+  console.info("[notify socket][candidate]", ...args);
+};
 
 const canUseBrowserNotifications = () =>
   typeof window !== "undefined" && "Notification" in window;
@@ -35,10 +38,12 @@ export function useNotifySocket({
   onNotification,
   onUnreadCounts,
   enableNativeNotification = true,
+  onConnect,
 }) {
   const socketRef = useRef(null);
   const notificationHandlerRef = useRef(onNotification);
   const unreadCountsHandlerRef = useRef(onUnreadCounts);
+  const connectHandlerRef = useRef(onConnect);
 
   useEffect(() => {
     notificationHandlerRef.current = onNotification;
@@ -47,6 +52,10 @@ export function useNotifySocket({
   useEffect(() => {
     unreadCountsHandlerRef.current = onUnreadCounts;
   }, [onUnreadCounts]);
+
+  useEffect(() => {
+    connectHandlerRef.current = onConnect;
+  }, [onConnect]);
 
   useEffect(() => {
     if (!token) {
@@ -66,7 +75,24 @@ export function useNotifySocket({
 
     socketRef.current = socket;
 
+    socket.on("connect", () => {
+      logNotifySocket("connected", { id: socket.id, url: `${NOTIFY_SOCKET_URL}/notify` });
+      connectHandlerRef.current?.();
+    });
+
+    socket.on("disconnect", (reason) => {
+      logNotifySocket("disconnected", { reason });
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("[notify socket][candidate] connect_error", error.message);
+    });
+
     socket.on("notification", (payload) => {
+      logNotifySocket("notification", {
+        id: payload?.id,
+        type: payload?.type,
+      });
       notificationHandlerRef.current(payload);
 
       if (
@@ -92,6 +118,7 @@ export function useNotifySocket({
     });
 
     socket.on("unread-counts", (payload) => {
+      logNotifySocket("unread-counts", payload);
       unreadCountsHandlerRef.current(payload);
     });
 
