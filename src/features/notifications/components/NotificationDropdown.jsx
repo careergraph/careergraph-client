@@ -8,7 +8,6 @@ import {
   CheckCheck,
   CheckCircle2,
   Eye,
-  MessageSquareText,
   RotateCcw,
   SearchCheck,
   UserRoundPlus,
@@ -106,12 +105,9 @@ const getNavigatePath = (notification) => {
     }
   }
 
-  const threadId = toDataString(notification.data, "threadId");
   const applicationId = toDataString(notification.data, "applicationId");
 
   switch (notification.type) {
-    case "NEW_MESSAGE":
-      return threadId ? `/messages?thread=${threadId}` : "/messages";
     case "APPLICATION_STATUS_CHANGED":
     case "APPLICATION_SHORTLISTED":
     case "APPLICATION_REJECTED":
@@ -137,12 +133,6 @@ const getNavigatePath = (notification) => {
 
 const getNotificationTypeMeta = (type) => {
   switch (type) {
-    case "NEW_MESSAGE":
-      return {
-        icon: <MessageSquareText size={16} />,
-        iconClass:
-          "bg-sky-100 text-sky-600 dark:bg-sky-500/20 dark:text-sky-300",
-      };
     case "NEW_APPLICATION":
       return {
         icon: <UserRoundPlus size={16} />,
@@ -285,7 +275,7 @@ export default function NotificationDropdown({
             <Bell size={44} className="mx-auto mb-2 text-slate-300" />
             <p className="text-sm font-medium text-slate-700">Chưa có thông báo nào</p>
             <p className="mt-1 text-xs text-slate-500">
-              Khi có cập nhật hệ thống hoặc tin nhắn mới, bạn sẽ thấy tại đây.
+              Khi có cập nhật hệ thống, ứng tuyển hoặc phỏng vấn, bạn sẽ thấy tại đây.
             </p>
           </li>
         ) : null}
