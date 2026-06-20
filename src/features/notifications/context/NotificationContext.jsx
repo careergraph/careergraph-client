@@ -16,6 +16,9 @@ import { getToken } from "~/utils/storage";
 import NotificationContext from "~/features/notifications/context/notificationContextInstance";
 
 const PAGE_SIZE = 20;
+const UNREAD_SYNC_INTERVAL_MS = 30000;
+const countUnreadItems = (items) =>
+  items.reduce((total, item) => total + (item.read ? 0 : 1), 0);
 
 const isRecord = (value) =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -245,6 +248,9 @@ export const NotificationProvider = ({ children }) => {
     onNotification: handleIncomingNotification,
     onUnreadCounts: handleUnreadCounts,
     enableNativeNotification: true,
+    onConnect: () => {
+      void refreshUnreadCounts();
+    },
   });
 
   useEffect(() => {
@@ -267,12 +273,54 @@ export const NotificationProvider = ({ children }) => {
   }, [fetchNotifications, loading, notifications.length, token, unreadCount]);
 
   useEffect(() => {
+    if (!token || !initialized || loading) {
+      return;
+    }
+
+    const localUnreadCount = countUnreadItems(notifications);
+    if (unreadCount > localUnreadCount) {
+      void fetchNotifications({ reset: true });
+    }
+  }, [fetchNotifications, initialized, loading, notifications, token, unreadCount]);
+
+  useEffect(() => {
     if (authInitializing || !isAuthenticated || !token) {
       return;
     }
 
     void requestBrowserNotificationPermission();
   }, [authInitializing, isAuthenticated, token]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    const syncUnread = () => {
+      void refreshUnreadCounts();
+    };
+
+    const handleWindowFocus = () => {
+      syncUnread();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        syncUnread();
+      }
+    };
+
+    const intervalId = window.setInterval(syncUnread, UNREAD_SYNC_INTERVAL_MS);
+
+    window.addEventListener("focus", handleWindowFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleWindowFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [refreshUnreadCounts, token]);
 
   const value = useMemo(
     () => ({
