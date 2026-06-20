@@ -55,11 +55,13 @@ export function useNotifySocket({
 
     const socket = io(`${NOTIFY_SOCKET_URL}/notify`, {
       auth: { token },
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
       reconnectionAttempts: Infinity,
+      timeout: 20000,
     });
 
     socketRef.current = socket;

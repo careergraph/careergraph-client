@@ -62,14 +62,14 @@ function CVOptionsMenu({ open, onClose, onRename, onDelete, onShareWithRecruiter
         <Pencil size={16} className="text-indigo-600" />
         Đổi tên CV
       </button>
-      <button
+      {/* <button
         type="button"
         onClick={onShareWithRecruiter}
         className="w-full px-4 py-3 text-left text-[13px] font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2 border-b"
       >
         <Share2 size={16} className="text-violet-600" />
         Cho phép tìm kiếm CV
-      </button>
+      </button> */}
       <button
         type="button"
         onClick={onDelete}
