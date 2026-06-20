@@ -453,14 +453,17 @@ export default function Navbar() {
             ))}
         </div>
 
-        <button
+        <div className="ml-auto flex items-center gap-2 md:hidden">
+          {!authInitializing && isAuthenticated ? <NotificationBell /> : null}
+          <button
           type="button"
-          className="inline-flex size-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:bg-slate-100 md:hidden"
+          className="inline-flex size-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition hover:bg-slate-100"
           onClick={() => setOpenMobileMenu(true)}
           aria-label="Mở menu điều hướng"
         >
           <MenuIcon size={20} />
-        </button>
+          </button>
+        </div>
         </div>
       </nav>
       {mobileMenu}

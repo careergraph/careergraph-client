@@ -17,8 +17,14 @@ import NotificationContext from "~/features/notifications/context/notificationCo
 
 const PAGE_SIZE = 20;
 const UNREAD_SYNC_INTERVAL_MS = 30000;
+const MESSAGE_NOTIFICATION_TYPE = "NEW_MESSAGE";
 const countUnreadItems = (items) =>
   items.reduce((total, item) => total + (item.read ? 0 : 1), 0);
+const hasNotificationId = (items, notificationId) =>
+  items.some((item) => item.id === notificationId);
+
+const isBellNotification = (notification) =>
+  notification?.type !== MESSAGE_NOTIFICATION_TYPE;
 
 const isRecord = (value) =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -108,7 +114,10 @@ export const NotificationProvider = ({ children }) => {
 
   const refreshUnreadCounts = useCallback(async () => {
     if (!token) {
-      return;
+      return {
+        notifications: 0,
+        messages: 0,
+      };
     }
 
     try {
@@ -120,10 +129,18 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(Math.max(0, nextNotificationUnread || 0));
       setMessageUnreadCount(Math.max(0, nextMessageUnread || 0));
       syncMessagingUnreadCount(nextMessageUnread || 0);
+      return {
+        notifications: Math.max(0, nextNotificationUnread || 0),
+        messages: Math.max(0, nextMessageUnread || 0),
+      };
     } catch {
       // Keep local unread badges unchanged on transient errors.
+      return {
+        notifications: unreadCount,
+        messages: messageUnreadCount,
+      };
     }
-  }, [token]);
+  }, [messageUnreadCount, token, unreadCount]);
 
   const fetchNotifications = useCallback(
     async ({ reset = false } = {}) => {
@@ -142,11 +159,12 @@ export const NotificationProvider = ({ children }) => {
 
       try {
         const response = await notificationApi.getNotifications(targetPage, PAGE_SIZE);
+        const bellNotifications = response.notifications.filter(isBellNotification);
 
         setNotifications((prev) => {
           const next = reset
-            ? response.notifications
-            : mergeNotifications(prev, response.notifications);
+            ? bellNotifications
+            : mergeNotifications(prev, bellNotifications);
           return sortByLatest(next);
         });
 
@@ -164,14 +182,19 @@ export const NotificationProvider = ({ children }) => {
   );
 
   const ensureLoaded = useCallback(async () => {
-    const shouldLoadNotifications = !initialized || (unreadCount > 0 && notifications.length === 0);
+    const nextCounts = await refreshUnreadCounts();
+
+    const localUnreadCount = countUnreadItems(notifications);
+    const shouldLoadNotifications =
+      !initialized ||
+      notifications.length === 0 ||
+      nextCounts.notifications > localUnreadCount ||
+      (initialized && nextCounts.notifications > 0);
 
     if (shouldLoadNotifications) {
       await fetchNotifications({ reset: true });
     }
-
-    await refreshUnreadCounts();
-  }, [fetchNotifications, initialized, notifications.length, refreshUnreadCounts, unreadCount]);
+  }, [fetchNotifications, initialized, notifications, refreshUnreadCounts, unreadCount]);
 
   const markAsRead = useCallback(
     async (notificationId) => {
@@ -220,9 +243,19 @@ export const NotificationProvider = ({ children }) => {
   const handleIncomingNotification = useCallback((payload) => {
     const nextNotification = normalizeNotification(payload);
 
-    setNotifications((prev) => mergeNotifications([nextNotification], prev));
+    if (!isBellNotification(nextNotification)) {
+      return;
+    }
 
-    if (!nextNotification.read) {
+    let shouldIncreaseUnread = false;
+
+    setNotifications((prev) => {
+      const alreadyExists = hasNotificationId(prev, nextNotification.id);
+      shouldIncreaseUnread = !alreadyExists && !nextNotification.read;
+      return mergeNotifications([nextNotification], prev);
+    });
+
+    if (shouldIncreaseUnread) {
       setUnreadCount((prev) => prev + 1);
     }
   }, []);
@@ -250,6 +283,10 @@ export const NotificationProvider = ({ children }) => {
     enableNativeNotification: true,
     onConnect: () => {
       void refreshUnreadCounts();
+
+      if (initialized && (notifications.length > 0 || unreadCount > 0)) {
+        void fetchNotifications({ reset: true });
+      }
     },
   });
 
