@@ -125,8 +125,10 @@ export function useWebRTC({ roomCode, token, localStream }) {
 
     const socket = io(RTC_URL, {
       auth: { token },
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
       autoConnect: false,
+      timeout: 20000,
     });
     socketRef.current = socket;
 
