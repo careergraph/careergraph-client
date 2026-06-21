@@ -17,7 +17,7 @@ export const navLinks = [
   {
     name: "NTD bạn quan tâm",
     href: "/employers/following",
-    priority: "primary",
+    priority: "secondary",
   },
   // {
   //   name: "Cẩm nang",
