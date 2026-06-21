@@ -21,7 +21,6 @@ function FilterButton({ active, children, onClick }) {
 export default function TemplateSelectionModal({
   open,
   activeFilter,
-  onFilterChange,
   onClose,
   onSelectTemplate,
   selectingTemplateId,
@@ -69,18 +68,6 @@ export default function TemplateSelectionModal({
             >
               <X size={18} />
             </button>
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center gap-2 rounded-full bg-slate-100 p-1.5 w-fit">
-            <FilterButton active={activeFilter === "all"} onClick={() => onFilterChange("all")}>
-              Tất cả
-            </FilterButton>
-            <FilterButton active={activeFilter === "free"} onClick={() => onFilterChange("free")}>
-              Miễn phí
-            </FilterButton>
-            <FilterButton active={activeFilter === "premium"} onClick={() => onFilterChange("premium")}>
-              Premium
-            </FilterButton>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import { Plus, Trash2, ChevronDown } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useState } from "react";
 
 const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExperiences = [] }) => {
@@ -141,178 +141,114 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
     return new Set((data.experience || []).map(exp => exp.id));
   };
 
+  const updateSectionOrder = (id, direction) => {
+    const order = data.layout?.sectionOrder || ["experience", "education", "skills", "languages", "awards"];
+    const index = order.indexOf(id);
+    if (index === -1) return;
+    
+    if (direction === "up" && index > 0) {
+      const newOrder = [...order];
+      [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+      onChange({ ...data, layout: { ...data.layout, sectionOrder: newOrder } });
+    } else if (direction === "down" && index < order.length - 1) {
+      const newOrder = [...order];
+      [newOrder[index + 1], newOrder[index]] = [newOrder[index], newOrder[index + 1]];
+      onChange({ ...data, layout: { ...data.layout, sectionOrder: newOrder } });
+    }
+  };
+
   // Helper inputs classes
   const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10";
   const textareaClass = "w-full min-h-[90px] rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 resize-y";
   const sectionClass = "rounded-xl border border-slate-250 bg-white p-5 shadow-sm";
 
-  return (
-    <div className="space-y-6">
-      {/* 1. Personal Information Section */}
-      <section className={sectionClass}>
-        <header className="mb-4">
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Thông tin cá nhân</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Các thông tin xuất hiện ở phần đầu CV</p>
-        </header>
+  const renderOrderControls = (id) => {
+    const order = data.layout?.sectionOrder || ["experience", "education", "skills", "languages", "awards"];
+    const index = order.indexOf(id);
+    return (
+      <div className="flex gap-1 ml-3 border-l border-slate-200 pl-3">
+        <button
+          type="button"
+          onClick={() => updateSectionOrder(id, "up")}
+          disabled={index <= 0}
+          className="p-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition"
+        >
+          <ArrowUp size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={() => updateSectionOrder(id, "down")}
+          disabled={index >= order.length - 1}
+          className="p-1 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition"
+        >
+          <ArrowDown size={14} />
+        </button>
+      </div>
+    );
+  };
 
-        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-slate-600">Họ và tên</span>
-            <input
-              type="text"
-              className={inputClass}
-              value={data.personal?.fullName || ""}
-              onChange={(event) => updatePersonal("fullName", event.target.value)}
-              placeholder="Ví dụ: Nguyễn Thị Minh Anh"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-slate-600">Vị trí / Headline</span>
-            <input
-              type="text"
-              className={inputClass}
-              value={data.personal?.headline || ""}
-              onChange={(event) => updatePersonal("headline", event.target.value)}
-              placeholder="Ví dụ: Product Designer"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1 md:col-span-2">
-            <span className="text-xs font-semibold text-slate-600">Tóm tắt nghề nghiệp</span>
-            <textarea
-              className={textareaClass}
-              value={data.personal?.summary || ""}
-              onChange={(event) => updatePersonal("summary", event.target.value)}
-              placeholder="Nêu bật kinh nghiệm, thế mạnh của bạn."
-            />
-          </label>
-
-          <label className="flex flex-col gap-1 md:col-span-2">
-            <span className="text-xs font-semibold text-slate-600">Địa điểm</span>
-            <input
-              type="text"
-              className={inputClass}
-              value={data.personal?.location || ""}
-              onChange={(event) => updatePersonal("location", event.target.value)}
-              placeholder="Ví dụ: Hà Nội, Việt Nam"
-            />
-          </label>
-        </div>
-      </section>
-
-      {/* 2. Contact Section */}
-      <section className={sectionClass}>
-        <header className="mb-4">
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Liên hệ</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Cách nhà tuyển dụng kết nối với bạn</p>
-        </header>
-
-        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-slate-600">Email</span>
-            <input
-              type="email"
-              className={inputClass}
-              value={data.contact?.email || ""}
-              onChange={(event) => updateContact("email", event.target.value)}
-              placeholder="email@domain.com"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-slate-600">Số điện thoại</span>
-            <input
-              type="text"
-              className={inputClass}
-              value={data.contact?.phone || ""}
-              onChange={(event) => updateContact("phone", event.target.value)}
-              placeholder="Ví dụ: +84 912 345 678"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-slate-600">Website / Portfolio</span>
-            <input
-              type="text"
-              className={inputClass}
-              value={data.contact?.website || ""}
-              onChange={(event) => updateContact("website", event.target.value)}
-              placeholder="Ví dụ: www.portfolio.com"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-slate-600">LinkedIn</span>
-            <input
-              type="text"
-              className={inputClass}
-              value={data.contact?.linkedin || ""}
-              onChange={(event) => updateContact("linkedin", event.target.value)}
-              placeholder="linkedin.com/in/..."
-            />
-          </label>
-        </div>
-      </section>
-
-      {/* 3. Work Experience Section */}
-      <section className={sectionClass}>
+  const sectionsMap = {
+    experience: (
+      <section className={sectionClass} key="experience">
         <header className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Kinh nghiệm làm việc</h2>
             <p className="text-xs text-slate-500 mt-0.5">Các vị trí công việc gần đây của bạn</p>
           </div>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowExperienceDropdown(!showExperienceDropdown)}
-              className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-            >
-              <Plus size={14} />
-              Thêm
-              <ChevronDown size={14} className="ml-0.5" />
-            </button>
+          <div className="flex items-center">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowExperienceDropdown(!showExperienceDropdown)}
+                className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                <Plus size={14} />
+                Thêm
+                <ChevronDown size={14} className="ml-0.5" />
+              </button>
 
-            {showExperienceDropdown && (
-              <div className="absolute right-0 top-full mt-1.5 w-60 rounded border border-slate-200 bg-white shadow-lg z-20 overflow-hidden text-xs">
-                {userExperiences.length > 0 && (
-                  <>
-                    <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Chọn từ kinh nghiệm có sẵn
-                    </div>
-                    <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
-                      {userExperiences.map((userExp) => {
-                        const isAdded = getAlreadyAddedExperienceIds().has(userExp.id);
-                        return (
-                          <button
-                            key={userExp.id}
-                            type="button"
-                            onClick={() => handleAddExistingExperience(userExp)}
-                            disabled={isAdded}
-                            className={`w-full px-3 py-2 text-left transition cursor-pointer ${
-                              isAdded
-                                ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400"
-                                : "hover:bg-slate-50 text-slate-800"
-                            }`}
-                          >
-                            <div className="font-semibold text-slate-900 truncate">{userExp.jobTitle}</div>
-                            <div className="text-[10px] text-slate-500 truncate">{userExp.companyName}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div className="border-t border-slate-100 px-3 py-1 bg-slate-50/50" />
-                  </>
-                )}
-                <button
-                  type="button"
-                  onClick={handleAddNewExperience}
-                  className="w-full px-3 py-2 text-left font-semibold text-indigo-600 hover:bg-slate-50 transition cursor-pointer"
-                >
-                  + Thêm kinh nghiệm mới
-                </button>
-              </div>
-            )}
+              {showExperienceDropdown && (
+                <div className="absolute right-0 top-full mt-1.5 w-60 rounded border border-slate-200 bg-white shadow-lg z-20 overflow-hidden text-xs">
+                  {userExperiences.length > 0 && (
+                    <>
+                      <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Chọn từ kinh nghiệm có sẵn
+                      </div>
+                      <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
+                        {userExperiences.map((userExp) => {
+                          const isAdded = getAlreadyAddedExperienceIds().has(userExp.id);
+                          return (
+                            <button
+                              key={userExp.id}
+                              type="button"
+                              onClick={() => handleAddExistingExperience(userExp)}
+                              disabled={isAdded}
+                              className={`w-full px-3 py-2 text-left transition cursor-pointer ${
+                                isAdded
+                                  ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400"
+                                  : "hover:bg-slate-50 text-slate-800"
+                              }`}
+                            >
+                              <div className="font-semibold text-slate-900 truncate">{userExp.jobTitle}</div>
+                              <div className="text-[10px] text-slate-500 truncate">{userExp.companyName}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="border-t border-slate-100 px-3 py-1 bg-slate-50/50" />
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleAddNewExperience}
+                    className="w-full px-3 py-2 text-left font-semibold text-indigo-600 hover:bg-slate-50 transition cursor-pointer"
+                  >
+                    + Thêm kinh nghiệm mới
+                  </button>
+                </div>
+              )}
+            </div>
+            {renderOrderControls("experience")}
           </div>
         </header>
 
@@ -433,30 +369,33 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
           ))}
         </div>
       </section>
-
-      {/* 4. Education Section */}
-      <section className={sectionClass}>
+    ),
+    education: (
+      <section className={sectionClass} key="education">
         <header className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Học vấn</h2>
             <p className="text-xs text-slate-500 mt-0.5">Trường học và ngành học của bạn</p>
           </div>
-          <button
-            type="button"
-            onClick={() =>
-              addCollectionItem("education", {
-                id: createId("edu"),
-                school: "",
-                degree: "",
-                startDate: "",
-                endDate: "",
-              })
-            }
-            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-          >
-            <Plus size={14} />
-            Thêm
-          </button>
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() =>
+                addCollectionItem("education", {
+                  id: createId("edu"),
+                  school: "",
+                  degree: "",
+                  startDate: "",
+                  endDate: "",
+                })
+              }
+              className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            >
+              <Plus size={14} />
+              Thêm
+            </button>
+            {renderOrderControls("education")}
+          </div>
         </header>
 
         <div className="space-y-4">
@@ -523,22 +462,25 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
           ))}
         </div>
       </section>
-
-      {/* 5. Skills Section */}
-      <section className={sectionClass}>
+    ),
+    skills: (
+      <section className={sectionClass} key="skills">
         <header className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Kỹ năng</h2>
             <p className="text-xs text-slate-500 mt-0.5">Các kỹ năng chuyên môn của bạn</p>
           </div>
-          <button
-            type="button"
-            onClick={() => addCollectionItem("skills", { id: createId("skill"), name: "" })}
-            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-          >
-            <Plus size={14} />
-            Thêm
-          </button>
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => addCollectionItem("skills", { id: createId("skill"), name: "" })}
+              className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            >
+              <Plus size={14} />
+              Thêm
+            </button>
+            {renderOrderControls("skills")}
+          </div>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -565,9 +507,9 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
           })}
         </div>
       </section>
-
-      {/* 6. Languages Section */}
-      <section className={sectionClass}>
+    ),
+    languages: (
+      <section className={sectionClass} key="languages">
         <header className="mb-4 flex items-center justify-between">
           <label className="flex items-center cursor-pointer select-none">
             <input
@@ -579,20 +521,23 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
             <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Ngôn ngữ</span>
           </label>
 
-          <button
-            type="button"
-            onClick={() =>
-              addCollectionItem("languages", {
-                id: createId("lang"),
-                name: "",
-              })
-            }
-            disabled={!sectionsVisibility.languages}
-            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Plus size={14} />
-            Thêm
-          </button>
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() =>
+                addCollectionItem("languages", {
+                  id: createId("lang"),
+                  name: "",
+                })
+              }
+              disabled={!sectionsVisibility.languages}
+              className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus size={14} />
+              Thêm
+            </button>
+            {renderOrderControls("languages")}
+          </div>
         </header>
 
         <div className={`space-y-2 transition ${sectionsVisibility.languages ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
@@ -616,9 +561,9 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
           ))}
         </div>
       </section>
-
-      {/* 7. Awards & Certifications Section */}
-      <section className={sectionClass}>
+    ),
+    awards: (
+      <section className={sectionClass} key="awards">
         <header className="mb-4 flex items-center justify-between">
           <label className="flex items-center cursor-pointer select-none">
             <input
@@ -630,22 +575,25 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
             <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Chứng chỉ & Giải thưởng</span>
           </label>
 
-          <button
-            type="button"
-            onClick={() =>
-              addCollectionItem("awards", {
-                id: createId("awd"),
-                title: "",
-                issuer: "",
-                year: "",
-              })
-            }
-            disabled={!sectionsVisibility.awards}
-            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Plus size={14} />
-            Thêm
-          </button>
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() =>
+                addCollectionItem("awards", {
+                  id: createId("awd"),
+                  title: "",
+                  issuer: "",
+                  year: "",
+                })
+              }
+              disabled={!sectionsVisibility.awards}
+              className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus size={14} />
+              Thêm
+            </button>
+            {renderOrderControls("awards")}
+          </div>
         </header>
 
         <div className={`space-y-4 transition ${sectionsVisibility.awards ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
@@ -699,6 +647,162 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExp
           ))}
         </div>
       </section>
+    ),
+  };
+
+  const sectionOrder = data.layout?.sectionOrder || ["experience", "education", "skills", "languages", "awards"];
+
+  return (
+    <div className="space-y-6">
+      {/* 1. Personal Information Section */}
+      <section className={sectionClass}>
+        <header className="mb-4">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Thông tin cá nhân</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Các thông tin xuất hiện ở phần đầu CV</p>
+        </header>
+
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Họ và tên</span>
+            <input
+              type="text"
+              className={inputClass}
+              value={data.personal?.fullName || ""}
+              onChange={(event) => updatePersonal("fullName", event.target.value)}
+              placeholder="Ví dụ: Nguyễn Thị Minh Anh"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Vị trí / Headline</span>
+            <input
+              type="text"
+              className={inputClass}
+              value={data.personal?.headline || ""}
+              onChange={(event) => updatePersonal("headline", event.target.value)}
+              placeholder="Ví dụ: Product Designer"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-xs font-semibold text-slate-600">Tóm tắt nghề nghiệp</span>
+            <textarea
+              className={textareaClass}
+              value={data.personal?.summary || ""}
+              onChange={(event) => updatePersonal("summary", event.target.value)}
+              placeholder="Nêu bật kinh nghiệm, thế mạnh của bạn."
+            />
+          </label>
+
+          <label className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-xs font-semibold text-slate-600">Địa điểm</span>
+            <input
+              type="text"
+              className={inputClass}
+              value={data.personal?.location || ""}
+              onChange={(event) => updatePersonal("location", event.target.value)}
+              placeholder="Ví dụ: Hà Nội, Việt Nam"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-xs font-semibold text-slate-600">Ảnh đại diện (Avatar)</span>
+            <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-lg p-3">
+              {data.personal?.avatar ? (
+                <div className="relative group">
+                  <img src={data.personal.avatar} alt="Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" />
+                  <button 
+                    type="button"
+                    onClick={() => updatePersonal("avatar", "")}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition shadow-sm cursor-pointer"
+                  >
+                    <Trash2 size={10} />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">
+                  <span className="text-xs">Ảnh</span>
+                </div>
+              )}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        updatePersonal("avatar", reader.result);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer transition"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">Hỗ trợ JPG, PNG. Tối đa 2MB.</p>
+              </div>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      {/* 2. Contact Section */}
+      <section className={sectionClass}>
+        <header className="mb-4">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Liên hệ</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Cách nhà tuyển dụng kết nối với bạn</p>
+        </header>
+
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Email</span>
+            <input
+              type="email"
+              className={inputClass}
+              value={data.contact?.email || ""}
+              onChange={(event) => updateContact("email", event.target.value)}
+              placeholder="email@domain.com"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Số điện thoại</span>
+            <input
+              type="text"
+              className={inputClass}
+              value={data.contact?.phone || ""}
+              onChange={(event) => updateContact("phone", event.target.value)}
+              placeholder="Ví dụ: +84 912 345 678"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Website / Portfolio</span>
+            <input
+              type="text"
+              className={inputClass}
+              value={data.contact?.website || ""}
+              onChange={(event) => updateContact("website", event.target.value)}
+              placeholder="Ví dụ: www.portfolio.com"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">LinkedIn</span>
+            <input
+              type="text"
+              className={inputClass}
+              value={data.contact?.linkedin || ""}
+              onChange={(event) => updateContact("linkedin", event.target.value)}
+              placeholder="linkedin.com/in/..."
+            />
+          </label>
+        </div>
+      </section>
+
+      {/* Render sections dynamically */}
+      {sectionOrder.map((key) => sectionsMap[key])}
     </div>
   );
 };

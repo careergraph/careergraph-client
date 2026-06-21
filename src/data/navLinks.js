@@ -15,10 +15,15 @@ export const navLinks = [
     priority: "primary",
   },
   {
-    name: "Cẩm nang",
-    href: "/handbook",
-    priority: "secondary",
+    name: "NTD bạn quan tâm",
+    href: "/employers/following",
+    priority: "primary",
   },
+  // {
+  //   name: "Cẩm nang",
+  //   href: "/handbook",
+  //   priority: "secondary",
+  // },
   {
     name: "Giới thiệu",
     href: "/about",

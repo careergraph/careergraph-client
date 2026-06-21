@@ -332,7 +332,7 @@ export default function Navbar() {
                 fetchPriority="high"
               />
               <div className="text-lg font-bold leading-none bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent lg:text-xl">
-                Career Graph
+                careergraph
               </div>
             </div>
           </Link>

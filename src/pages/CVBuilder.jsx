@@ -18,18 +18,49 @@ const cloneDeep = (value) => JSON.parse(JSON.stringify(value));
 export default function CVBuilder() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const templateFromUrl = searchParams.get("template");
+  const colorFromUrl = searchParams.get("color");
 
+  const storageKey = (() => {
+    const suggestionId = searchParams.get("suggestionId");
+    if (suggestionId) return `cvBuilderData_suggestion_${suggestionId}`;
+    const job = location.state?.job;
+    if (job?.id) return `cvBuilderData_job_${job.id}`;
+    return "cvBuilderData_default";
+  })();
+
+  const isLoadedFromStorageRef = useRef(false);
   const [selectedTemplate, setSelectedTemplate] = useState(
     templateFromUrl || "harvard",
   );
-  const [cvData, setCvData] = useState(() => cloneDeep(defaultCvData));
+  const [cvData, setCvData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (!parsed.expiry || Date.now() > parsed.expiry) {
+           localStorage.removeItem(storageKey);
+        } else {
+           isLoadedFromStorageRef.current = true;
+           return parsed.data;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse cvBuilderData from localStorage", e);
+    }
+    const defaultData = cloneDeep(defaultCvData);
+    if (colorFromUrl) {
+      defaultData.personal = defaultData.personal || {};
+      defaultData.personal.themeColor = colorFromUrl;
+    }
+    return defaultData;
+  });
   const [sectionsVisibility, setSectionsVisibility] = useState(() => ({
     ...defaultSectionsVisibility,
   }));
 
   const user = useUserStore((state) => state.user);
-  const location = useLocation();
   const jobFromState = location.state?.job;
   const [suggestedCv, setSuggestedCv] = useState(location.state?.suggestedCv);
 
@@ -121,6 +152,7 @@ export default function CVBuilder() {
     }
 
     if (user && !userLoadedRef.current) {
+      userLoadedRef.current = true; // Mark as loaded so it doesn't trigger again
 
       // Nếu đang chờ API suggestionId thì không load user data
       const suggestionId = searchParams.get("suggestionId");
@@ -128,6 +160,12 @@ export default function CVBuilder() {
         console.log('[CV Debug] Skipping user data load - suggestionId present in URL:', suggestionId);
         return;
       }
+
+      // If we already successfully loaded their draft from localStorage, don't overwrite it with base profile data
+      if (isLoadedFromStorageRef.current) {
+        return;
+      }
+
       const hasExperience = user.experiences && user.experiences.length > 0;
       const hasEducation = user.educations && user.educations.length > 0;
       const hasSkills = user.skills && user.skills.length > 0;
@@ -193,7 +231,6 @@ export default function CVBuilder() {
         personal: { ...prev.personal, ...newCvData.personal },
         contact: { ...prev.contact, ...newCvData.contact },
       }));
-      userLoadedRef.current = true;
     }
   }, [user, jobFromState, suggestedCv]);
 
@@ -273,6 +310,15 @@ export default function CVBuilder() {
     setCvData(nextData);
   };
 
+  // Save to localStorage whenever cvData changes
+  useEffect(() => {
+    const dataToSave = {
+      data: cvData,
+      expiry: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+    };
+    localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+  }, [cvData, storageKey]);
+
   const handleToggleSection = (sectionKey, isVisible) => {
     setSectionsVisibility((current) => ({
       ...current,
@@ -338,6 +384,7 @@ export default function CVBuilder() {
                 fileName={`${cvData.personal?.fullName || "cv"}-${selectedTemplate}.pdf`}
                 job={jobFromState}
                 cvData={cvData}
+                onThemeColorChange={(color) => setCvData(prev => ({ ...prev, personal: { ...prev.personal, themeColor: color } }))}
               />
             </div>
           </div>

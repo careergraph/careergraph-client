@@ -28,84 +28,91 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     fontFamily: "Roboto",
     fontSize: 10,
-    color: "#111827",
+    color: "#334155",
     padding: 40,
+    paddingTop: 50,
   },
   header: {
-    borderBottom: "1.5 solid #e0e7ff",
-    paddingBottom: 16,
-    marginBottom: 20,
+    borderBottom: "1 solid #e2e8f0",
+    paddingBottom: 20,
+    marginBottom: 24,
   },
   name: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 700,
+    letterSpacing: 1,
+    color: "#0f172a",
   },
   headline: {
-    fontSize: 11,
-    color: "#4c6ef5",
+    fontSize: 12,
+    color: "#64748b",
     marginTop: 6,
-    letterSpacing: 1,
+    letterSpacing: 2,
     textTransform: "uppercase",
-    fontWeight: 500,
+    fontWeight: 400,
   },
   summary: {
-    marginTop: 10,
-    lineHeight: 1.6,
-    fontSize: 9.5,
-    color: "#374151",
+    marginTop: 14,
+    lineHeight: 1.8,
+    fontSize: 10.5,
+    color: "#475569",
   },
   infoRow: {
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginTop: 10,
-    fontSize: 9,
+    gap: 14,
+    marginTop: 14,
+    fontSize: 9.5,
+    color: "#64748b",
   },
   link: {
-    color: "#4c6ef5",
+    color: "#3b82f6",
     textDecoration: "none",
   },
   section: {
-    marginBottom: 18,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 10.5,
+    fontSize: 12,
     fontWeight: 700,
-    letterSpacing: 1.5,
+    letterSpacing: 2,
     textTransform: "uppercase",
-    marginBottom: 10,
-    color: "#1f2667",
+    marginBottom: 12,
+    color: "#0f172a",
   },
   timeline: {
-    color: "#6b7280",
-    fontSize: 8.5,
+    color: "#94a3b8",
+    fontSize: 9,
+    marginTop: 2,
   },
   experienceItem: {
-    marginBottom: 10,
+    marginBottom: 14,
   },
   bullet: {
     marginLeft: 10,
-    lineHeight: 1.5,
-    fontSize: 9,
+    lineHeight: 1.7,
+    fontSize: 10,
+    color: "#475569",
+    marginTop: 3,
   },
   columns: {
     display: "flex",
     flexDirection: "row",
-    gap: 20,
+    gap: 28,
   },
   column: {
     flex: 1,
   },
   pill: {
-    borderRadius: 999,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    backgroundColor: "#eef2ff",
-    color: "#4338ca",
-    fontSize: 8.5,
-    marginRight: 5,
-    marginBottom: 5,
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    backgroundColor: "#f1f5f9",
+    color: "#334155",
+    fontSize: 9.5,
+    marginRight: 6,
+    marginBottom: 6,
   },
 });
 
@@ -118,6 +125,7 @@ const MinimalTemplate = ({ data }) => {
     skills = [],
     languages = [],
     awards = [],
+    layout = {},
   } = data || {};
 
   // Ensure arrays are valid
@@ -133,6 +141,95 @@ const MinimalTemplate = ({ data }) => {
     return `${start || ""} - ${end || ""}`.trim();
   };
 
+  const themeColor = personal?.themeColor || "#3b82f6";
+  const sectionOrder = layout?.sectionOrder || ["experience", "education", "skills", "languages", "awards"];
+
+  const getSortedSections = (keys) => {
+    return keys.sort((a, b) => sectionOrder.indexOf(a) - sectionOrder.indexOf(b));
+  };
+
+  const leftColSections = getSortedSections(["education", "awards"]);
+  const rightColSections = getSortedSections(["skills", "languages"]);
+
+  const renderSection = (key) => {
+    switch (key) {
+      case "experience":
+        return safeExperience.length > 0 ? (
+          <View style={styles.section} wrap key="experience">
+            <Text style={styles.sectionTitle}>Kinh nghiệm</Text>
+            {safeExperience.map((item, index) => (
+              <View key={item?.id || `exp-${index}`} style={styles.experienceItem} wrap>
+                <Text style={{ fontWeight: 700 }}>{item?.role || ""}</Text>
+                <Text>{item?.company || ""}</Text>
+                <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
+                {Array.isArray(item?.bulletPoints) && item.bulletPoints.length ? (
+                  <View>
+                    {item.bulletPoints.map((bullet, bulletIndex) => (
+                      <Text key={`${item?.id || index}-bullet-${bulletIndex}`} style={styles.bullet}>
+                        • {bullet}
+                      </Text>
+                    ))}
+                  </View>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        ) : null;
+      case "education":
+        return safeEducation.length > 0 ? (
+          <View style={styles.section} key="education">
+            <Text style={styles.sectionTitle}>Học vấn</Text>
+            {safeEducation.map((item, index) => (
+              <View key={item?.id || `edu-${index}`} style={{ marginBottom: 10 }}>
+                <Text style={{ fontWeight: 700 }}>{item?.school || ""}</Text>
+                <Text>{item?.degree || ""}</Text>
+                <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null;
+      case "awards":
+        return safeAwards.length > 0 ? (
+          <View style={styles.section} key="awards">
+            <Text style={styles.sectionTitle}>Giải thưởng</Text>
+            {safeAwards.map((award, index) => (
+              <View key={award?.id || `award-${index}`} style={{ marginBottom: 10 }}>
+                <Text style={{ fontWeight: 700 }}>{award?.title || ""}</Text>
+                <Text>{award?.issuer || ""}</Text>
+                <Text style={styles.timeline}>{award?.year || ""}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null;
+      case "skills":
+        return safeSkills.length > 0 ? (
+          <View style={styles.section} key="skills">
+            <Text style={styles.sectionTitle}>Kỹ năng</Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+              {safeSkills.map((skill, index) => (
+                <Text key={skill?.id || `skill-${index}`} style={styles.pill}>
+                  {skill?.name || skill}
+                </Text>
+              ))}
+            </View>
+          </View>
+        ) : null;
+      case "languages":
+        return safeLanguages.length > 0 ? (
+          <View style={styles.section} key="languages">
+            <Text style={styles.sectionTitle}>Ngôn ngữ</Text>
+            {safeLanguages.map((lang, index) => (
+              <Text key={lang?.id || `lang-${index}`} style={{ marginBottom: 6 }}>
+                {lang?.name || ""}
+              </Text>
+            ))}
+          </View>
+        ) : null;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Document>
       <Page size="A4" style={styles.page} wrap>
@@ -145,93 +242,33 @@ const MinimalTemplate = ({ data }) => {
 
           <View style={styles.infoRow}>
             {contact?.email ? (
-              <Link style={styles.link} src={`mailto:${contact.email}`}>
+              <Link style={[styles.link, { color: themeColor }]} src={`mailto:${contact.email}`}>
                 {contact.email}
               </Link>
             ) : null}
             {contact?.phone ? <Text>{contact.phone}</Text> : null}
             {contact?.website ? (
-              <Link style={styles.link} src={`https://${contact.website.replace(/^https?:\/\//, "")}`}>
+              <Link style={[styles.link, { color: themeColor }]} src={`https://${contact.website.replace(/^https?:\/\//, "")}`}>
                 {contact.website}
               </Link>
             ) : null}
             {contact?.linkedin ? (
-              <Link style={styles.link} src={`https://${contact.linkedin.replace(/^https?:\/\//, "")}`}>
+              <Link style={[styles.link, { color: themeColor }]} src={`https://${contact.linkedin.replace(/^https?:\/\//, "")}`}>
                 {contact.linkedin}
               </Link>
             ) : null}
           </View>
         </View>
 
-        <View style={styles.section} wrap>
-          <Text style={styles.sectionTitle}>Kinh nghiệm</Text>
-          {safeExperience.map((item, index) => (
-            <View key={item?.id || `exp-${index}`} style={styles.experienceItem} wrap>
-              <Text style={{ fontWeight: 700 }}>{item?.role || ""}</Text>
-              <Text>{item?.company || ""}</Text>
-              <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
-              {Array.isArray(item?.bulletPoints) && item.bulletPoints.length ? (
-                <View>
-                  {item.bulletPoints.map((bullet, bulletIndex) => (
-                    <Text key={`${item?.id || index}-bullet-${bulletIndex}`} style={styles.bullet}>
-                      • {bullet}
-                    </Text>
-                  ))}
-                </View>
-              ) : null}
-            </View>
-          ))}
-        </View>
+        {renderSection("experience")}
 
         <View style={styles.columns}>
           <View style={styles.column}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Học vấn</Text>
-              {safeEducation.map((item, index) => (
-                <View key={item?.id || `edu-${index}`} style={{ marginBottom: 10 }}>
-                  <Text style={{ fontWeight: 700 }}>{item?.school || ""}</Text>
-                  <Text>{item?.degree || ""}</Text>
-                  <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
-                </View>
-              ))}
-            </View>
-
-            {safeAwards.length ? (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Giải thưởng</Text>
-                {safeAwards.map((award, index) => (
-                  <View key={award?.id || `award-${index}`} style={{ marginBottom: 10 }}>
-                    <Text style={{ fontWeight: 700 }}>{award?.title || ""}</Text>
-                    <Text>{award?.issuer || ""}</Text>
-                    <Text style={styles.timeline}>{award?.year || ""}</Text>
-                  </View>
-                ))}
-              </View>
-            ) : null}
+            {leftColSections.map((key) => renderSection(key))}
           </View>
 
           <View style={styles.column}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Kỹ năng</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                {safeSkills.map((skill, index) => (
-                  <Text key={skill?.id || `skill-${index}`} style={styles.pill}>
-                    {skill?.name || skill}
-                  </Text>
-                ))}
-              </View>
-            </View>
-
-            {safeLanguages.length ? (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Ngôn ngữ</Text>
-                {safeLanguages.map((lang, index) => (
-                  <Text key={lang?.id || `lang-${index}`} style={{ marginBottom: 6 }}>
-                    {lang?.name || ""}
-                  </Text>
-                ))}
-              </View>
-            ) : null}
+            {rightColSections.map((key) => renderSection(key))}
           </View>
         </View>
       </Page>

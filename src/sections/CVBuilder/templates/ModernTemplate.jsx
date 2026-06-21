@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, Link, StyleSheet, Font } from "@react-pdf/renderer";
+import { Document, Page, Text, View, Link, StyleSheet, Font, Image } from "@react-pdf/renderer";
 
 Font.register({
   family: 'Roboto',
@@ -27,129 +27,131 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     fontFamily: "Roboto",
     fontSize: 10,
-    color: "#1f2937",
+    color: "#334155",
     padding: 0,
   },
   header: {
-    backgroundColor: "#2563EB",
+    backgroundColor: "#3b82f6",
     color: "#ffffff",
-    padding: 30,
-    paddingBottom: 24,
+    padding: 35,
+    paddingBottom: 28,
   },
   name: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 700,
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    letterSpacing: 1,
+    marginBottom: 6,
   },
   headline: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 300,
-    letterSpacing: 2,
+    letterSpacing: 2.5,
     textTransform: "uppercase",
     marginTop: 4,
+    color: "#eff6ff",
   },
   contactBar: {
-    backgroundColor: "#1e40af",
+    backgroundColor: "#1e3a8a",
     color: "#ffffff",
-    padding: 12,
-    paddingHorizontal: 30,
+    padding: 14,
+    paddingHorizontal: 35,
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 16,
-    fontSize: 9,
+    gap: 20,
+    fontSize: 9.5,
   },
   contactItem: {
-    color: "#ffffff",
+    color: "#e0e7ff",
     textDecoration: "none",
   },
   content: {
-    padding: 30,
+    padding: 35,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 700,
-    color: "#2563EB",
-    marginBottom: 12,
+    color: "#2563eb",
+    marginBottom: 14,
     textTransform: "uppercase",
-    letterSpacing: 1.2,
-    borderBottom: "2 solid #2563EB",
-    paddingBottom: 4,
+    letterSpacing: 1.5,
+    borderBottom: "2 solid #bfdbfe",
+    paddingBottom: 6,
   },
   summary: {
-    lineHeight: 1.7,
-    fontSize: 10,
-    color: "#374151",
+    lineHeight: 1.8,
+    fontSize: 10.5,
+    color: "#475569",
     marginBottom: 4,
   },
   experienceItem: {
-    marginBottom: 14,
+    marginBottom: 16,
   },
   jobTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
-    color: "#111827",
-    marginBottom: 2,
+    color: "#0f172a",
+    marginBottom: 3,
   },
   company: {
-    fontSize: 10,
-    color: "#2563EB",
+    fontSize: 10.5,
+    color: "#3b82f6",
     fontWeight: 500,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   timeline: {
-    fontSize: 9,
-    color: "#6b7280",
-    marginBottom: 6,
+    fontSize: 9.5,
+    color: "#64748b",
+    marginBottom: 8,
   },
   bulletPoints: {
-    paddingLeft: 12,
+    paddingLeft: 14,
   },
   bullet: {
-    fontSize: 9.5,
-    lineHeight: 1.6,
-    marginBottom: 3,
-    color: "#374151",
+    fontSize: 10,
+    lineHeight: 1.7,
+    marginBottom: 4,
+    color: "#475569",
   },
   twoColumns: {
     display: "flex",
     flexDirection: "row",
-    gap: 20,
+    gap: 24,
   },
   column: {
     flex: 1,
   },
   educationItem: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
   degree: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 700,
-    color: "#111827",
+    color: "#0f172a",
   },
   school: {
-    fontSize: 9.5,
-    color: "#4b5563",
-    marginTop: 2,
+    fontSize: 10,
+    color: "#475569",
+    marginTop: 3,
   },
   skillsGrid: {
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 6,
+    gap: 8,
   },
   skillPill: {
-    backgroundColor: "#dbeafe",
-    color: "#1e40af",
-    fontSize: 9,
+    backgroundColor: "#eff6ff",
+    color: "#1d4ed8",
+    fontSize: 9.5,
     fontWeight: 500,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    border: "1 solid #bfdbfe",
   },
 });
 
@@ -162,6 +164,7 @@ const ModernTemplate = ({ data }) => {
     skills = [],
     languages = [],
     awards = [],
+    layout = {},
   } = data || {};
 
   const safeSkills = Array.isArray(skills) ? skills : [];
@@ -176,13 +179,109 @@ const ModernTemplate = ({ data }) => {
     return `${start || ""} - ${end || ""}`.trim();
   };
 
+  const themeColor = personal?.themeColor || "#3b82f6";
+  const darkerThemeColor = personal?.themeColor || "#2563eb";
+
+  const sectionOrder = layout?.sectionOrder || ["experience", "education", "skills", "languages", "awards"];
+
+  const getSortedSections = (keys) => {
+    return keys.sort((a, b) => sectionOrder.indexOf(a) - sectionOrder.indexOf(b));
+  };
+
+  const leftColSections = getSortedSections(["education", "languages"]);
+  const rightColSections = getSortedSections(["skills", "awards"]);
+
+  const renderSection = (key) => {
+    switch (key) {
+      case "experience":
+        return safeExperience.length > 0 ? (
+          <View style={styles.section} wrap key="experience">
+            <Text style={[styles.sectionTitle, { color: darkerThemeColor, borderBottomColor: themeColor }]}>Kinh nghiệm làm việc</Text>
+            {safeExperience.map((item, index) => (
+              <View key={item?.id || `exp-${index}`} style={styles.experienceItem}>
+                <Text style={styles.jobTitle}>{item?.role || ""}</Text>
+                <Text style={[styles.company, { color: themeColor }]}>{item?.company || ""}</Text>
+                <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
+                {Array.isArray(item?.bulletPoints) && item.bulletPoints.length > 0 && (
+                  <View style={styles.bulletPoints}>
+                    {item.bulletPoints.map((bullet, idx) => (
+                      <Text key={`${item?.id || index}-bullet-${idx}`} style={styles.bullet}>
+                        • {bullet}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+        ) : null;
+      case "education":
+        return safeEducation.length > 0 ? (
+          <View style={styles.section} key="education">
+            <Text style={[styles.sectionTitle, { color: darkerThemeColor, borderBottomColor: themeColor }]}>Học vấn</Text>
+            {safeEducation.map((item, index) => (
+              <View key={item?.id || `edu-${index}`} style={styles.educationItem}>
+                <Text style={styles.degree}>{item?.degree || ""}</Text>
+                <Text style={styles.school}>{item?.school || ""}</Text>
+                <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null;
+      case "languages":
+        return safeLanguages.length > 0 ? (
+          <View style={styles.section} key="languages">
+            <Text style={[styles.sectionTitle, { color: darkerThemeColor, borderBottomColor: themeColor }]}>Ngôn ngữ</Text>
+            {safeLanguages.map((lang, index) => (
+              <Text key={lang?.id || `lang-${index}`} style={{ fontSize: 9.5, marginBottom: 4 }}>
+                • {lang?.name || ""}
+              </Text>
+            ))}
+          </View>
+        ) : null;
+      case "skills":
+        return safeSkills.length > 0 ? (
+          <View style={styles.section} key="skills">
+            <Text style={[styles.sectionTitle, { color: darkerThemeColor, borderBottomColor: themeColor }]}>Kỹ năng</Text>
+            <View style={styles.skillsGrid}>
+              {safeSkills.map((skill, index) => (
+                <Text key={skill?.id || `skill-${index}`} style={[styles.skillPill, { color: darkerThemeColor, borderColor: themeColor }]}>
+                  {skill?.name || skill}
+                </Text>
+              ))}
+            </View>
+          </View>
+        ) : null;
+      case "awards":
+        return safeAwards.length > 0 ? (
+          <View style={styles.section} key="awards">
+            <Text style={[styles.sectionTitle, { color: darkerThemeColor, borderBottomColor: themeColor }]}>Giải thưởng</Text>
+            {safeAwards.map((award, index) => (
+              <View key={award?.id || `award-${index}`} style={{ marginBottom: 8 }}>
+                <Text style={{ fontWeight: 700, fontSize: 9.5 }}>{award?.title || ""}</Text>
+                <Text style={{ fontSize: 9, color: "#6b7280" }}>{award?.issuer || ""}</Text>
+                <Text style={{ fontSize: 8.5, color: "#9ca3af" }}>{award?.year || ""}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.name}>{personal?.fullName}</Text>
-          <Text style={styles.headline}>{personal?.headline}</Text>
+        <View style={[styles.header, { backgroundColor: themeColor, display: "flex", flexDirection: "row", alignItems: "center", gap: 24 }]}>
+          {personal?.avatar && (
+            <Image src={personal.avatar} style={{ width: 80, height: 80, borderRadius: 40, objectFit: "cover", border: "3 solid rgba(255,255,255,0.3)" }} />
+          )}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.name}>{personal?.fullName}</Text>
+            <Text style={styles.headline}>{personal?.headline}</Text>
+          </View>
         </View>
 
         {/* Contact Bar */}
@@ -202,92 +301,21 @@ const ModernTemplate = ({ data }) => {
           {/* Summary */}
           {personal?.summary && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Giới thiệu</Text>
+              <Text style={[styles.sectionTitle, { color: darkerThemeColor, borderBottomColor: themeColor }]}>Giới thiệu</Text>
               <Text style={styles.summary}>{personal.summary}</Text>
             </View>
           )}
 
-          {/* Experience */}
-          {safeExperience.length > 0 && (
-            <View style={styles.section} wrap>
-              <Text style={styles.sectionTitle}>Kinh nghiệm làm việc</Text>
-              {safeExperience.map((item, index) => (
-                <View key={item?.id || `exp-${index}`} style={styles.experienceItem}>
-                  <Text style={styles.jobTitle}>{item?.role || ""}</Text>
-                  <Text style={styles.company}>{item?.company || ""}</Text>
-                  <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
-                  {Array.isArray(item?.bulletPoints) && item.bulletPoints.length > 0 && (
-                    <View style={styles.bulletPoints}>
-                      {item.bulletPoints.map((bullet, idx) => (
-                        <Text key={`${item?.id || index}-bullet-${idx}`} style={styles.bullet}>
-                          • {bullet}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
+          {renderSection("experience")}
 
           {/* Two Columns: Education & Skills */}
           <View style={styles.twoColumns}>
-            {/* Education */}
             <View style={styles.column}>
-              {safeEducation.length > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Học vấn</Text>
-                  {safeEducation.map((item, index) => (
-                    <View key={item?.id || `edu-${index}`} style={styles.educationItem}>
-                      <Text style={styles.degree}>{item?.degree || ""}</Text>
-                      <Text style={styles.school}>{item?.school || ""}</Text>
-                      <Text style={styles.timeline}>{formatTimeline(item?.startDate, item?.endDate)}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* Languages */}
-              {safeLanguages.length > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Ngôn ngữ</Text>
-                  {safeLanguages.map((lang, index) => (
-                    <Text key={lang?.id || `lang-${index}`} style={{ fontSize: 9.5, marginBottom: 4 }}>
-                      • {lang?.name || ""}
-                    </Text>
-                  ))}
-                </View>
-              )}
+              {leftColSections.map((key) => renderSection(key))}
             </View>
 
-            {/* Skills */}
             <View style={styles.column}>
-              {safeSkills.length > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Kỹ năng</Text>
-                  <View style={styles.skillsGrid}>
-                    {safeSkills.map((skill, index) => (
-                      <Text key={skill?.id || `skill-${index}`} style={styles.skillPill}>
-                        {skill?.name || skill}
-                      </Text>
-                    ))}
-                  </View>
-                </View>
-              )}
-
-              {/* Awards */}
-              {safeAwards.length > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Giải thưởng</Text>
-                  {safeAwards.map((award, index) => (
-                    <View key={award?.id || `award-${index}`} style={{ marginBottom: 8 }}>
-                      <Text style={{ fontWeight: 700, fontSize: 9.5 }}>{award?.title || ""}</Text>
-                      <Text style={{ fontSize: 9, color: "#6b7280" }}>{award?.issuer || ""}</Text>
-                      <Text style={{ fontSize: 8.5, color: "#9ca3af" }}>{award?.year || ""}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
+              {rightColSections.map((key) => renderSection(key))}
             </View>
           </View>
         </View>

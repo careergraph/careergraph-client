@@ -27,92 +27,93 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     fontFamily: "Roboto",
     fontSize: 10,
-    color: "#1f2937",
-    padding: 50,
-    paddingTop: 45,
+    color: "#334155",
+    padding: 55,
+    paddingTop: 50,
   },
   header: {
-    borderBottom: "2 solid #111827",
-    paddingBottom: 16,
-    marginBottom: 20,
+    borderBottom: "2 solid #0f172a",
+    paddingBottom: 20,
+    marginBottom: 24,
   },
   name: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 700,
-    color: "#111827",
-    letterSpacing: 1,
-    marginBottom: 4,
+    color: "#0f172a",
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: "uppercase",
   },
   headline: {
-    fontSize: 10.5,
-    color: "#4b5563",
+    fontSize: 12,
+    color: "#475569",
     marginTop: 4,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   contactRow: {
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 14,
-    fontSize: 9,
-    color: "#4b5563",
+    gap: 18,
+    fontSize: 9.5,
+    color: "#64748b",
     marginTop: 8,
   },
   contactItem: {
-    color: "#4b5563",
+    color: "#64748b",
     textDecoration: "none",
   },
   section: {
-    marginBottom: 18,
+    marginBottom: 22,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
-    color: "#111827",
+    color: "#0f172a",
     textTransform: "uppercase",
-    letterSpacing: 1.5,
-    marginBottom: 10,
-    paddingBottom: 4,
-    borderBottom: "1 solid #d1d5db",
+    letterSpacing: 2,
+    marginBottom: 12,
+    paddingBottom: 6,
+    borderBottom: "1 solid #cbd5e1",
   },
   summary: {
-    fontSize: 9.5,
-    lineHeight: 1.7,
-    color: "#374151",
-    marginBottom: 4,
+    fontSize: 10.5,
+    lineHeight: 1.8,
+    color: "#475569",
+    marginBottom: 6,
   },
   experienceItem: {
-    marginBottom: 13,
+    marginBottom: 16,
   },
   experienceHeader: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   jobTitle: {
-    fontSize: 10.5,
+    fontSize: 11.5,
     fontWeight: 700,
-    color: "#111827",
+    color: "#0f172a",
   },
   timeline: {
-    fontSize: 9,
-    color: "#6b7280",
+    fontSize: 9.5,
+    color: "#94a3b8",
   },
   company: {
-    fontSize: 9.5,
-    color: "#4b5563",
-    marginBottom: 5,
+    fontSize: 10.5,
+    color: "#475569",
+    marginBottom: 6,
     fontWeight: 500,
   },
   bulletPoints: {
-    paddingLeft: 14,
+    paddingLeft: 16,
   },
   bullet: {
-    fontSize: 9,
-    lineHeight: 1.6,
-    marginBottom: 2,
-    color: "#4b5563",
+    fontSize: 10,
+    lineHeight: 1.7,
+    marginBottom: 3,
+    color: "#475569",
   },
   educationItem: {
     marginBottom: 10,
@@ -170,6 +171,7 @@ const ClassicTemplate = ({ data }) => {
     skills = [],
     languages = [],
     awards = [],
+    layout = {},
   } = data || {};
 
   const safeSkills = Array.isArray(skills) ? skills : [];
@@ -184,37 +186,15 @@ const ClassicTemplate = ({ data }) => {
     return `${start || ""} - ${end || ""}`.trim();
   };
 
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.name}>{personal?.fullName}</Text>
-          <Text style={styles.headline}>{personal?.headline}</Text>
-          <View style={styles.contactRow}>
-            {contact?.email && <Text style={styles.contactItem}>{contact.email}</Text>}
-            {contact?.phone && <Text style={styles.contactItem}>{contact.phone}</Text>}
-            {personal?.location && <Text style={styles.contactItem}>{personal.location}</Text>}
-            {contact?.website && (
-              <Link style={styles.contactItem} src={`https://${contact.website.replace(/^https?:\/\//, "")}`}>
-                {contact.website}
-              </Link>
-            )}
-          </View>
-        </View>
+  const themeColor = personal?.themeColor || "#0f172a";
+  const sectionOrder = layout?.sectionOrder || ["experience", "education", "skills", "languages", "awards"];
 
-        {/* Summary */}
-        {personal?.summary && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tóm tắt</Text>
-            <Text style={styles.summary}>{personal.summary}</Text>
-          </View>
-        )}
-
-        {/* Experience */}
-        {safeExperience.length > 0 && (
-          <View style={styles.section} wrap>
-            <Text style={styles.sectionTitle}>Kinh nghiệm làm việc</Text>
+  const renderSection = (key) => {
+    switch (key) {
+      case "experience":
+        return safeExperience.length > 0 ? (
+          <View style={styles.section} wrap key="experience">
+            <Text style={[styles.sectionTitle, { color: themeColor, borderBottomColor: themeColor }]}>Kinh nghiệm làm việc</Text>
             {safeExperience.map((item, index) => (
               <View key={item?.id || `exp-${index}`} style={styles.experienceItem}>
                 <View style={styles.experienceHeader}>
@@ -234,12 +214,11 @@ const ClassicTemplate = ({ data }) => {
               </View>
             ))}
           </View>
-        )}
-
-        {/* Education */}
-        {safeEducation.length > 0 && (
-          <View style={styles.section} wrap>
-            <Text style={styles.sectionTitle}>Học vấn</Text>
+        ) : null;
+      case "education":
+        return safeEducation.length > 0 ? (
+          <View style={styles.section} wrap key="education">
+            <Text style={[styles.sectionTitle, { color: themeColor, borderBottomColor: themeColor }]}>Học vấn</Text>
             {safeEducation.map((item, index) => (
               <View key={item?.id || `edu-${index}`} style={styles.educationItem}>
                 <Text style={styles.degree}>{item?.degree || ""}</Text>
@@ -248,12 +227,11 @@ const ClassicTemplate = ({ data }) => {
               </View>
             ))}
           </View>
-        )}
-
-        {/* Skills */}
-        {safeSkills.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Kỹ năng</Text>
+        ) : null;
+      case "skills":
+        return safeSkills.length > 0 ? (
+          <View style={styles.section} key="skills">
+            <Text style={[styles.sectionTitle, { color: themeColor, borderBottomColor: themeColor }]}>Kỹ năng</Text>
             <View style={styles.skillsRow}>
               {safeSkills.map((skill, index) => (
                 <View key={skill?.id || `skill-${index}`} style={{ flexDirection: "row" }}>
@@ -263,24 +241,22 @@ const ClassicTemplate = ({ data }) => {
               ))}
             </View>
           </View>
-        )}
-
-        {/* Languages */}
-        {safeLanguages.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ngôn ngữ</Text>
+        ) : null;
+      case "languages":
+        return safeLanguages.length > 0 ? (
+          <View style={styles.section} key="languages">
+            <Text style={[styles.sectionTitle, { color: themeColor, borderBottomColor: themeColor }]}>Ngôn ngữ</Text>
             {safeLanguages.map((lang, index) => (
               <Text key={lang?.id || `lang-${index}`} style={styles.languageItem}>
                 {lang?.name || ""}
               </Text>
             ))}
           </View>
-        )}
-
-        {/* Awards */}
-        {safeAwards.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Giải thưởng & Chứng chỉ</Text>
+        ) : null;
+      case "awards":
+        return safeAwards.length > 0 ? (
+          <View style={styles.section} key="awards">
+            <Text style={[styles.sectionTitle, { color: themeColor, borderBottomColor: themeColor }]}>Giải thưởng & Chứng chỉ</Text>
             {safeAwards.map((award, index) => (
               <View key={award?.id || `award-${index}`} style={styles.awardItem}>
                 <Text style={styles.awardTitle}>{award?.title || ""}</Text>
@@ -288,7 +264,42 @@ const ClassicTemplate = ({ data }) => {
               </View>
             ))}
           </View>
+        ) : null;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={[styles.header, { borderBottomColor: themeColor }]}>
+          <Text style={[styles.name, { color: themeColor }]}>{personal?.fullName}</Text>
+          <Text style={styles.headline}>{personal?.headline}</Text>
+          <View style={styles.contactRow}>
+            {contact?.email && <Text style={styles.contactItem}>{contact.email}</Text>}
+            {contact?.phone && <Text style={styles.contactItem}>{contact.phone}</Text>}
+            {personal?.location && <Text style={styles.contactItem}>{personal.location}</Text>}
+            {contact?.website && (
+              <Link style={styles.contactItem} src={`https://${contact.website.replace(/^https?:\/\//, "")}`}>
+                {contact.website}
+              </Link>
+            )}
+          </View>
+        </View>
+
+        {/* Summary */}
+        {personal?.summary && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: themeColor, borderBottomColor: themeColor }]}>Tóm tắt</Text>
+            <Text style={styles.summary}>{personal.summary}</Text>
+          </View>
         )}
+
+        {/* Dynamic Sections */}
+        {sectionOrder.map((key) => renderSection(key))}
+
       </Page>
     </Document>
   );

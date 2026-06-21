@@ -85,7 +85,7 @@ export default function Jobs() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-10 sm:pb-12">
           <div className="max-w-3xl">
             <h1
-              className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight bg-clip-text text-transparent"
+              className="text-3xl sm:text-4xl md:text-4xl font-semibold leading-tight bg-clip-text text-transparent"
               style={{
                 backgroundImage:
                   "linear-gradient(to right, #4f46e5, #6366f1, #8b5cf6)",

@@ -38,6 +38,10 @@ function JobCardPersonal({ job }) {
     return false;
   })();
 
+  const expiryLabel = job.expiryDate
+    ? new Date(job.expiryDate).toLocaleDateString("vi-VN")
+    : "Không thời hạn";
+
   // View job details handler
   const handleViewJob = () => navigate(`/jobs/${job.id}`);
 
@@ -92,6 +96,13 @@ function JobCardPersonal({ job }) {
             </span>
           </div>
         ) : null}
+
+        <div className="flex items-center gap-2 text-slate-600">
+          <Sparkles className="size-4 text-orange-500" />
+          <span className="line-clamp-1">
+            Hạn nộp: {expiryLabel}
+          </span>
+        </div>
       </div>
     </div>
   );

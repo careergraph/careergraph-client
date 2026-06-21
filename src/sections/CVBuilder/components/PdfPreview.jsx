@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import LoadingSpinner from "~/components/Feedback/LoadingSpinner";
 import { http } from "~/services/http/request";
 
-const PdfPreview = ({ TemplateComponent, data, fileName, job, cvData }) => {
+const PdfPreview = ({ TemplateComponent, data, fileName, job, cvData, onThemeColorChange }) => {
   const [debouncedData, setDebouncedData] = useState(data);
   const fileInputRef = useRef(null);
   const lastTemplateRef = useRef(TemplateComponent);
@@ -59,7 +59,7 @@ const PdfPreview = ({ TemplateComponent, data, fileName, job, cvData }) => {
     const timer = setTimeout(() => {
       setDebouncedData(data);
       setViewerVersion((version) => version + 1);
-    }, 400);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [data, TemplateComponent]);
@@ -136,6 +136,20 @@ const PdfPreview = ({ TemplateComponent, data, fileName, job, cvData }) => {
           </h3>
         </div>
         <div className="flex items-center gap-2">
+          {/* Color Picker */}
+          {onThemeColorChange && (
+            <div className="flex items-center gap-1.5 mr-2 border-r border-slate-200 pr-3" title="Đổi màu chủ đạo">
+              <input
+                type="color"
+                value={cvData?.personal?.themeColor || "#3b82f6"}
+                onChange={(e) => onThemeColorChange(e.target.value)}
+                className="w-5 h-5 rounded cursor-pointer border-0 p-0 m-0"
+                style={{ WebkitAppearance: "none" }}
+              />
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Màu</span>
+            </div>
+          )}
+
           {/* AI Review Button */}
           <button
             type="button"

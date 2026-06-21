@@ -1,32 +1,19 @@
-import { Crown, Sparkles, Check } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, Check } from "lucide-react";
+import { useState, useMemo } from "react";
+import { templateRegistry } from "../templates";
+import { defaultCvData } from "~/data/defaultCvData";
+import { BlobProvider } from "@react-pdf/renderer";
 
 export default function TemplateCard({ template, onSelect, isSelected = false }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Map template ID to image file
-  const getTemplateImage = (id) => {
-    const imageMap = {
-      harvard: "polished",
-      minimal: "modern",
-      modern: "modern",
-      professional: "classic",
-      creative: "creative",
-      executive: "elegant",
-      simple: "temporary",
-      elegant: "elegant",
-      technical: "timeline",
-      graduate: "dublin",
-      classic: "classic",
-      bold: "vintage",
-      academic: "london",
-      compact: "legue",
-      startup: "moscow",
-    };
+  const TemplateComponent = templateRegistry[template.id] || templateRegistry["modern"];
 
-    const imageName = imageMap[id] || "modern";
-    return new URL(`../../../assets/templates/${imageName}.png`, import.meta.url).href;
-  };
+  // Memoize the document so it doesn't trigger BlobProvider regeneration on every render
+  const pdfDocument = useMemo(
+    () => <TemplateComponent data={defaultCvData} />,
+    [TemplateComponent]
+  );
 
   return (
     <div
@@ -35,23 +22,31 @@ export default function TemplateCard({ template, onSelect, isSelected = false })
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Template Preview Image */}
-      <div className="relative aspect-[1/1.4] bg-white overflow-hidden flex items-center justify-center">
-        <img
-          src={getTemplateImage(template.id)}
-          alt={template.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-
-        {/* Premium Badge */}
-        {template.tier === "premium" && (
-          <div className="absolute top-4 right-4 z-10">
-            <span className="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-900 text-xs font-bold rounded-full flex items-center gap-1.5 shadow-lg">
-              <Crown size={14} />
-              Premium
-            </span>
-          </div>
-        )}
+      {/* Template Preview Image via Component */}
+      <div className="relative aspect-[1/1.4] bg-slate-50 overflow-hidden flex items-center justify-center">
+        {/* Render the actual template scaled down */}
+        <BlobProvider document={pdfDocument}>
+          {({ url, loading, error }) => {
+            if (loading) {
+              return (
+                <div className="flex flex-col items-center justify-center text-slate-400">
+                  <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2" />
+                  <span className="text-xs">Đang tải...</span>
+                </div>
+              );
+            }
+            if (error) {
+              return <span className="text-xs text-red-500">Lỗi hiển thị</span>;
+            }
+            return (
+              <iframe
+                src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                className="w-full h-full border-none pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                title={`Preview ${template.name}`}
+              />
+            );
+          }}
+        </BlobProvider>
 
         {/* Selected Badge */}
         {isSelected && (
@@ -86,16 +81,11 @@ export default function TemplateCard({ template, onSelect, isSelected = false })
 
       {/* Template Info */}
       <div className="p-5 space-y-3">
-        {/* Title and Tier */}
+        {/* Title */}
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-bold text-lg text-slate-900 leading-tight">
             {template.name}
           </h3>
-          {template.tier === "free" && (
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-md whitespace-nowrap">
-              Miễn phí
-            </span>
-          )}
         </div>
 
         {/* Description */}
@@ -123,7 +113,7 @@ export default function TemplateCard({ template, onSelect, isSelected = false })
         {/* Color Accent Indicator */}
         <div className="flex items-center gap-2 pt-2">
           <div
-            className="w-8 h-8 rounded-lg shadow-sm border-2 border-white"
+            className="w-8 h-8 rounded-lg shadow-sm border-2 border-slate-200"
             style={{ backgroundColor: template.accent }}
           />
           <span className="text-xs text-slate-500">Màu chủ đạo</span>
