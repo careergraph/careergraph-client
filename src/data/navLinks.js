@@ -10,34 +10,30 @@ export const navLinks = [
     priority: "primary",
   },
   {
+    name: "Tạo CV",
+    href: "/template-cv",
+    priority: "primary",
+  },
+  {
     name: "Cẩm nang",
     href: "/handbook",
     priority: "secondary",
-  },
-  {
-    name: "Tiện ích",
-    priority: "primary",
-    subLinks: [
-      {
-        name: "Xây dựng CV",
-        href: "/build-cv",
-      },
-      {
-        name: "Mẫu CV",
-        href: "/template-cv",
-      },
-      {
-        name: "Định vị nghề nghiệp",
-        href: "/personalized",
-      },
-    ],
   },
   {
     name: "Giới thiệu",
     href: "/about",
     priority: "secondary",
   },
+  {
+    name: "Điều khoản",
+    href: "",
+    priority: "secondary",
+  },
 ];
 
-export const primaryNavLinks = navLinks.filter((link) => link.priority !== "secondary");
-export const secondaryNavLinks = navLinks.filter((link) => link.priority === "secondary");
+export const primaryNavLinks = navLinks.filter(
+  (link) => link.priority !== "secondary",
+);
+export const secondaryNavLinks = navLinks.filter(
+  (link) => link.priority === "secondary",
+);

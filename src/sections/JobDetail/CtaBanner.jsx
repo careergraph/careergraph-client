@@ -15,6 +15,7 @@ export default function CtaBanner({ job }) {
 
   const title = job?.title || "vị trí này";
   const companyLogo = job?.companyAvatar || job?.companyLogo || null;
+  const isExpired = job?.isExpired;
 
   const openTemplateSelection = () => {
     if (!job?.id) {
@@ -30,11 +31,15 @@ export default function CtaBanner({ job }) {
     setIsModalOpen(false);
   };
 
-  const navigateToBuilder = (templateId, suggestedCv = null) => {
-    navigate(`/build-cv?template=${templateId}`, {
+  const navigateToBuilder = (templateId, suggestionId = null, suggestedCv = null) => {
+    const params = new URLSearchParams({ template: templateId });
+    if (suggestionId) {
+      params.append("suggestionId", suggestionId);
+    }
+    navigate(`/build-cv?${params.toString()}`, {
       state: {
         job,
-        ...(suggestedCv ? { suggestedCv } : {}),
+        suggestedCv,
       },
     });
   };
@@ -55,7 +60,8 @@ export default function CtaBanner({ job }) {
       setSelectingTemplateId(templateId);
       const response = await JobService.fetchCvSuggestion(job.id);
       setIsModalOpen(false);
-      navigateToBuilder(templateId, response);
+      const suggestionId = response.data?.suggestionId || response.suggestionId;
+      navigateToBuilder(templateId, suggestionId, response.data || response);
     } catch (error) {
       console.error("Failed to fetch CV suggestion:", error);
       toast.error("Không thể tạo gợi ý CV. Hệ thống sẽ mở editor với dữ liệu hồ sơ hiện có.");
@@ -126,22 +132,32 @@ export default function CtaBanner({ job }) {
           </div>
 
           <div className="flex flex-shrink-0 flex-col items-center gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={openTemplateSelection}
-              className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-md hover:opacity-95"
-              aria-label={`Tạo CV cho ${title}`}
-            >
-              Tạo CV
-            </button>
+            {isExpired ? (
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-sm font-semibold text-white">
+                  ❌ Công việc này đã hết hạn ứng tuyển
+                </p>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={openTemplateSelection}
+                  className="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-md hover:opacity-95"
+                  aria-label={`Tạo CV cho ${title}`}
+                >
+                  Tạo CV
+                </button>
 
-            <a
-              href="/about"
-              className="inline-flex items-center justify-center rounded-md border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
-              aria-label="Nhận tư vấn tuyển dụng"
-            >
-              Nhận tư vấn
-            </a>
+                <a
+                  href="/about"
+                  className="inline-flex items-center justify-center rounded-md border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+                  aria-label="Nhận tư vấn tuyển dụng"
+                >
+                  Nhận tư vấn
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>

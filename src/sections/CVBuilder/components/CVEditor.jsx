@@ -1,6 +1,8 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
-const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
+const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection, userExperiences = [] }) => {
+  const [showExperienceDropdown, setShowExperienceDropdown] = useState(false);
 
   const createId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -103,51 +105,94 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
     });
   };
 
+  const mapUserExperienceToCvEntry = (userExp) => {
+    return {
+      id: userExp.id || createId("exp"),
+      role: userExp.jobTitle || "",
+      company: userExp.companyName || "",
+      location: "",
+      startDate: userExp.startDate || "",
+      endDate: userExp.isCurrent ? "Hiện tại" : (userExp.endDate || ""),
+      bulletPoints: userExp.description ? userExp.description.split('\n').filter(line => line.trim()) : [""],
+      relevant: userExp.relevant !== false,
+    };
+  };
+
+  const handleAddExistingExperience = (userExp) => {
+    addCollectionItem("experience", mapUserExperienceToCvEntry(userExp));
+    setShowExperienceDropdown(false);
+  };
+
+  const handleAddNewExperience = () => {
+    addCollectionItem("experience", {
+      id: createId("exp"),
+      role: "",
+      company: "",
+      location: "",
+      startDate: "",
+      endDate: "",
+      bulletPoints: [""],
+      relevant: true,
+    });
+    setShowExperienceDropdown(false);
+  };
+
+  const getAlreadyAddedExperienceIds = () => {
+    return new Set((data.experience || []).map(exp => exp.id));
+  };
+
+  // Helper inputs classes
+  const inputClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10";
+  const textareaClass = "w-full min-h-[90px] rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 resize-y";
+  const sectionClass = "rounded-xl border border-slate-250 bg-white p-5 shadow-sm";
+
   return (
-    <div className="space-y-8">
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Thông tin cá nhân</h2>
-            <p className="text-sm text-slate-500">Các thông tin chính xuất hiện ở phần đầu CV</p>
-          </div>
+    <div className="space-y-6">
+      {/* 1. Personal Information Section */}
+      <section className={sectionClass}>
+        <header className="mb-4">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Thông tin cá nhân</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Các thông tin xuất hiện ở phần đầu CV</p>
         </header>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">Họ và tên</span>
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Họ và tên</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="text"
+              className={inputClass}
               value={data.personal?.fullName || ""}
               onChange={(event) => updatePersonal("fullName", event.target.value)}
               placeholder="Ví dụ: Nguyễn Thị Minh Anh"
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">Vị trí / Headline</span>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Vị trí / Headline</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="text"
+              className={inputClass}
               value={data.personal?.headline || ""}
               onChange={(event) => updatePersonal("headline", event.target.value)}
               placeholder="Ví dụ: Product Designer"
             />
           </label>
 
-          <label className="flex flex-col gap-2 md:col-span-2">
-            <span className="text-sm font-medium text-slate-600">Tóm tắt ngắn gọn</span>
+          <label className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-xs font-semibold text-slate-600">Tóm tắt nghề nghiệp</span>
             <textarea
-              className="min-h-[120px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              className={textareaClass}
               value={data.personal?.summary || ""}
               onChange={(event) => updatePersonal("summary", event.target.value)}
-              placeholder="Nêu bật kinh nghiệm, thế mạnh và lĩnh vực quan tâm của bạn."
+              placeholder="Nêu bật kinh nghiệm, thế mạnh của bạn."
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">Địa điểm</span>
+          <label className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-xs font-semibold text-slate-600">Địa điểm</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="text"
+              className={inputClass}
               value={data.personal?.location || ""}
               onChange={(event) => updatePersonal("location", event.target.value)}
               placeholder="Ví dụ: Hà Nội, Việt Nam"
@@ -156,49 +201,52 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Liên hệ</h2>
-            <p className="text-sm text-slate-500">Cung cấp cách nhà tuyển dụng có thể kết nối với bạn</p>
-          </div>
+      {/* 2. Contact Section */}
+      <section className={sectionClass}>
+        <header className="mb-4">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Liên hệ</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Cách nhà tuyển dụng kết nối với bạn</p>
         </header>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">Email</span>
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Email</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="email"
+              className={inputClass}
               value={data.contact?.email || ""}
               onChange={(event) => updateContact("email", event.target.value)}
               placeholder="email@domain.com"
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">Số điện thoại</span>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Số điện thoại</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="text"
+              className={inputClass}
               value={data.contact?.phone || ""}
               onChange={(event) => updateContact("phone", event.target.value)}
               placeholder="Ví dụ: +84 912 345 678"
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">Website / Portfolio</span>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">Website / Portfolio</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="text"
+              className={inputClass}
               value={data.contact?.website || ""}
               onChange={(event) => updateContact("website", event.target.value)}
-              placeholder="Ví dụ: https://minhanh.design"
+              placeholder="Ví dụ: www.portfolio.com"
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-slate-600">LinkedIn</span>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-slate-600">LinkedIn</span>
             <input
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 shadow-inner focus:border-indigo-500 focus:outline-none"
+              type="text"
+              className={inputClass}
               value={data.contact?.linkedin || ""}
               onChange={(event) => updateContact("linkedin", event.target.value)}
               placeholder="linkedin.com/in/..."
@@ -207,88 +255,142 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      {/* 3. Work Experience Section */}
+      <section className={sectionClass}>
+        <header className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Kinh nghiệm làm việc</h2>
-            <p className="text-sm text-slate-500">Mô tả các vị trí quan trọng nhất liên quan tới mục tiêu nghề nghiệp</p>
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Kinh nghiệm làm việc</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Các vị trí công việc gần đây của bạn</p>
           </div>
-          <button
-            type="button"
-            onClick={() =>
-              addCollectionItem("experience", {
-                id: createId("exp"),
-                role: "",
-                company: "",
-                location: "",
-                startDate: "",
-                endDate: "",
-                bulletPoints: [""],
-              })
-            }
-            className="flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-white"
-          >
-            <Plus size={16} />
-            Thêm kinh nghiệm
-          </button>
-        </header>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowExperienceDropdown(!showExperienceDropdown)}
+              className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            >
+              <Plus size={14} />
+              Thêm
+              <ChevronDown size={14} className="ml-0.5" />
+            </button>
 
-        <div className="space-y-6">
-          {data.experience?.map((item, index) => (
-            <div key={item.id} className="rounded-xl border border-slate-200 bg-white/60 p-5 shadow-inner">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-700">Vai trò #{index + 1}</p>
+            {showExperienceDropdown && (
+              <div className="absolute right-0 top-full mt-1.5 w-60 rounded border border-slate-200 bg-white shadow-lg z-20 overflow-hidden text-xs">
+                {userExperiences.length > 0 && (
+                  <>
+                    <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Chọn từ kinh nghiệm có sẵn
+                    </div>
+                    <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
+                      {userExperiences.map((userExp) => {
+                        const isAdded = getAlreadyAddedExperienceIds().has(userExp.id);
+                        return (
+                          <button
+                            key={userExp.id}
+                            type="button"
+                            onClick={() => handleAddExistingExperience(userExp)}
+                            disabled={isAdded}
+                            className={`w-full px-3 py-2 text-left transition cursor-pointer ${
+                              isAdded
+                                ? "opacity-50 cursor-not-allowed bg-slate-50 text-slate-400"
+                                : "hover:bg-slate-50 text-slate-800"
+                            }`}
+                          >
+                            <div className="font-semibold text-slate-900 truncate">{userExp.jobTitle}</div>
+                            <div className="text-[10px] text-slate-500 truncate">{userExp.companyName}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="border-t border-slate-100 px-3 py-1 bg-slate-50/50" />
+                  </>
+                )}
                 <button
                   type="button"
-                  onClick={() => removeCollectionItem("experience", index)}
-                  className="rounded-full border border-transparent p-2 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
+                  onClick={handleAddNewExperience}
+                  className="w-full px-3 py-2 text-left font-semibold text-indigo-600 hover:bg-slate-50 transition cursor-pointer"
                 >
-                  <Trash2 size={16} />
+                  + Thêm kinh nghiệm mới
                 </button>
               </div>
+            )}
+          </div>
+        </header>
 
-              <div className="space-y-4">
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Chức danh</span>
+        <div className="space-y-4">
+          {data.experience?.map((item, index) => (
+            <div key={item.id} className="rounded-lg border border-slate-200 bg-slate-50/30 p-4 relative">
+              <div className="mb-3 flex items-center justify-between border-b border-slate-200/50 pb-2">
+                <span className="text-xs font-bold text-slate-600">Vị trí #{index + 1}</span>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={item.relevant !== false}
+                      onChange={(event) => updateCollection("experience", index, "relevant", event.target.checked)}
+                      className="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-[10px] font-semibold text-slate-600">Liên quan</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => removeCollectionItem("experience", index)}
+                    className="text-slate-450 hover:text-red-500 transition cursor-pointer"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Chức danh</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={item.role || ""}
                     onChange={(event) => updateCollection("experience", index, "role", event.target.value)}
-                    placeholder="Ví dụ: Senior Product Designer"
+                    placeholder="Ví dụ: Senior Developer"
                   />
                 </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Công ty</span>
+
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Công ty</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={item.company || ""}
                     onChange={(event) => updateCollection("experience", index, "company", event.target.value)}
-                    placeholder="Ví dụ: VNG Corporation"
+                    placeholder="Ví dụ: FPT Software"
                   />
                 </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Địa điểm</span>
+
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Địa điểm</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={item.location || ""}
                     onChange={(event) => updateCollection("experience", index, "location", event.target.value)}
-                    placeholder="Ví dụ: TP. Hồ Chí Minh"
+                    placeholder="Ví dụ: Hà Nội"
                   />
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm text-slate-500">Bắt đầu</span>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase">Bắt đầu</span>
                     <input
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                      type="text"
+                      className={inputClass}
                       value={item.startDate || ""}
                       onChange={(event) => updateCollection("experience", index, "startDate", event.target.value)}
-                      placeholder="01/2020"
+                      placeholder="01/2021"
                     />
                   </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm text-slate-500">Kết thúc</span>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase">Kết thúc</span>
                     <input
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                      type="text"
+                      className={inputClass}
                       value={item.endDate || ""}
                       onChange={(event) => updateCollection("experience", index, "endDate", event.target.value)}
                       placeholder="Hiện tại"
@@ -297,32 +399,34 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
                 </div>
               </div>
 
-              <div className="mt-4 space-y-3">
-                <p className="text-sm font-medium text-slate-600">Điểm nổi bật</p>
-                {item.bulletPoints?.map((bullet, bulletIndex) => (
-                  <div key={`${item.id}-bullet-${bulletIndex}`} className="flex gap-2">
-                    <textarea
-                      className="h-20 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none resize-none"
-                      value={bullet || ""}
-                      onChange={(event) => updateBullet(index, bulletIndex, event.target.value)}
-                      placeholder="Mô tả thành tựu, trách nhiệm hoặc kết quả đạt được..."
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeBullet(index, bulletIndex)}
-                      className="flex-shrink-0 rounded-lg border border-transparent p-2 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
+              {/* Bullet Points */}
+              <div className="mt-4 border-t border-slate-200/50 pt-3 space-y-2">
+                <span className="text-[11px] font-semibold text-slate-500 uppercase">Chi tiết công việc</span>
+                <div className="space-y-2">
+                  {item.bulletPoints?.map((bullet, bulletIndex) => (
+                    <div key={`${item.id}-bullet-${bulletIndex}`} className="flex gap-1.5 items-start">
+                      <textarea
+                        className="h-14 flex-1 rounded border border-slate-200 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none resize-none transition"
+                        value={bullet || ""}
+                        onChange={(event) => updateBullet(index, bulletIndex, event.target.value)}
+                        placeholder="Mô tả nhiệm vụ hoặc thành tích của bạn..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeBullet(index, bulletIndex)}
+                        className="mt-1 text-slate-400 hover:text-red-500 cursor-pointer"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
                 <button
                   type="button"
                   onClick={() => addBullet(index)}
-                  className="flex items-center gap-2 text-sm font-medium text-indigo-500 hover:text-indigo-600"
+                  className="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition cursor-pointer"
                 >
-                  <Plus size={16} />
-                  Thêm ý chính
+                  + Thêm dòng mô tả
                 </button>
               </div>
             </div>
@@ -330,11 +434,12 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      {/* 4. Education Section */}
+      <section className={sectionClass}>
+        <header className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Học vấn</h2>
-            <p className="text-sm text-slate-500">Thêm trường học và chương trình đào tạo nổi bật</p>
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Học vấn</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Trường học và ngành học của bạn</p>
           </div>
           <button
             type="button"
@@ -347,63 +452,69 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
                 endDate: "",
               })
             }
-            className="flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-white"
+            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
           >
-            <Plus size={16} />
-            Thêm học vấn
+            <Plus size={14} />
+            Thêm
           </button>
         </header>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {data.education?.map((item, index) => (
-            <div key={item.id} className="rounded-xl border border-slate-200 bg-white/60 p-5 shadow-inner">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-700">Chương trình #{index + 1}</p>
+            <div key={item.id} className="rounded-lg border border-slate-200 bg-slate-50/30 p-4">
+              <div className="mb-3 flex items-center justify-between border-b border-slate-200/50 pb-2">
+                <span className="text-xs font-bold text-slate-600">Trường học #{index + 1}</span>
                 <button
                   type="button"
                   onClick={() => removeCollectionItem("education", index)}
-                  className="rounded-full border border-transparent p-2 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
+                  className="text-slate-450 hover:text-red-500 transition cursor-pointer"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={15} />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Trường</span>
+              <div className="grid grid-cols-1 gap-3">
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Tên trường</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={item.school || ""}
                     onChange={(event) => updateCollection("education", index, "school", event.target.value)}
-                    placeholder="Ví dụ: Đại học Bách Khoa Hà Nội"
+                    placeholder="Ví dụ: Đại học Quốc gia Hà Nội"
                   />
                 </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Chương trình</span>
+
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Ngành học / Bằng cấp</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={item.degree || ""}
                     onChange={(event) => updateCollection("education", index, "degree", event.target.value)}
-                    placeholder="Ví dụ: Cử nhân Khoa học Máy tính"
+                    placeholder="Ví dụ: Kỹ sư Công nghệ thông tin"
                   />
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm text-slate-500">Bắt đầu</span>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase">Bắt đầu</span>
                     <input
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                      type="text"
+                      className={inputClass}
                       value={item.startDate || ""}
                       onChange={(event) => updateCollection("education", index, "startDate", event.target.value)}
-                      placeholder="2016"
+                      placeholder="2018"
                     />
                   </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm text-slate-500">Kết thúc</span>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase">Kết thúc</span>
                     <input
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                      type="text"
+                      className={inputClass}
                       value={item.endDate || ""}
                       onChange={(event) => updateCollection("education", index, "endDate", event.target.value)}
-                      placeholder="2020"
+                      placeholder="2022"
                     />
                   </label>
                 </div>
@@ -413,37 +524,39 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      {/* 5. Skills Section */}
+      <section className={sectionClass}>
+        <header className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Kỹ năng</h2>
-            <p className="text-sm text-slate-500">Liệt kê 6 - 10 kỹ năng nổi bật giúp bạn đứng out</p>
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Kỹ năng</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Các kỹ năng chuyên môn của bạn</p>
           </div>
           <button
             type="button"
             onClick={() => addCollectionItem("skills", { id: createId("skill"), name: "" })}
-            className="flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-white"
+            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
           >
-            <Plus size={16} />
-            Thêm kỹ năng
+            <Plus size={14} />
+            Thêm
           </button>
         </header>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {data.skills?.map((skill, index) => {
             const skillObj = typeof skill === 'string' ? { id: skill, name: skill } : skill;
             return (
-              <div key={skillObj.id || `skill-${index}`} className="flex gap-2">
+              <div key={skillObj.id || `skill-${index}`} className="flex gap-1.5 items-center">
                 <input
-                  className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                  type="text"
+                  className={inputClass}
                   value={skillObj.name || ""}
                   onChange={(event) => updateCollection("skills", index, "name", event.target.value)}
-                  placeholder="Ví dụ: JavaScript, React, Node.js"
+                  placeholder="Ví dụ: React, Node.js..."
                 />
                 <button
                   type="button"
                   onClick={() => removeCollectionItem("skills", index)}
-                  className="flex-shrink-0 rounded-lg border border-transparent p-2 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
+                  className="text-slate-400 hover:text-red-500 cursor-pointer"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -453,51 +566,49 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Ngôn ngữ</h2>
-            <p className="text-sm text-slate-500">Tùy chọn bật/tắt hiển thị khi không cần thiết</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
-              <input
-                type="checkbox"
-                checked={Boolean(sectionsVisibility.languages)}
-                onChange={(event) => onToggleSection("languages", event.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              Hiển thị trong CV
-            </label>
-            <button
-              type="button"
-              onClick={() =>
-                addCollectionItem("languages", {
-                  id: createId("lang"),
-                  name: "",
-                })
-              }
-              className="flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-white"
-            >
-              <Plus size={16} />
-              Thêm ngôn ngữ
-            </button>
-          </div>
+      {/* 6. Languages Section */}
+      <section className={sectionClass}>
+        <header className="mb-4 flex items-center justify-between">
+          <label className="flex items-center cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={Boolean(sectionsVisibility.languages)}
+              onChange={(event) => onToggleSection("languages", event.target.checked)}
+              className="mr-2 h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Ngôn ngữ</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={() =>
+              addCollectionItem("languages", {
+                id: createId("lang"),
+                name: "",
+              })
+            }
+            disabled={!sectionsVisibility.languages}
+            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus size={14} />
+            Thêm
+          </button>
         </header>
 
-        <div className="space-y-3">
+        <div className={`space-y-2 transition ${sectionsVisibility.languages ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
           {data.languages?.map((language, index) => (
-            <div key={language.id} className="flex gap-2">
+            <div key={language.id} className="flex gap-1.5 items-center">
               <input
-                className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                type="text"
+                className={inputClass}
                 value={language.name || ""}
                 onChange={(event) => updateCollection("languages", index, "name", event.target.value)}
-                placeholder="Ví dụ: Tiếng Anh"
+                placeholder="Ví dụ: Tiếng Anh (IELTS 7.0)"
               />
               <button
                 type="button"
                 onClick={() => removeCollectionItem("languages", index)}
-                className="flex-shrink-0 rounded-lg border border-transparent p-2 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
+                className="text-slate-400 hover:text-red-500 cursor-pointer"
               >
                 <Trash2 size={16} />
               </button>
@@ -506,77 +617,80 @@ const CVEditor = ({ data, onChange, sectionsVisibility, onToggleSection }) => {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Giải thưởng & Chứng nhận</h2>
-            <p className="text-sm text-slate-500">Ghi lại những thành tích nổi bật hỗ trợ cho câu chuyện nghề nghiệp</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
-              <input
-                type="checkbox"
-                checked={Boolean(sectionsVisibility.awards)}
-                onChange={(event) => onToggleSection("awards", event.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              Hiển thị trong CV
-            </label>
-            <button
-              type="button"
-              onClick={() =>
-                addCollectionItem("awards", {
-                  id: createId("awd"),
-                  title: "",
-                  issuer: "",
-                  year: "",
-                })
-              }
-              className="flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 transition hover:border-indigo-300 hover:bg-white"
-            >
-              <Plus size={16} />
-              Thêm ghi nhận
-            </button>
-          </div>
+      {/* 7. Awards & Certifications Section */}
+      <section className={sectionClass}>
+        <header className="mb-4 flex items-center justify-between">
+          <label className="flex items-center cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={Boolean(sectionsVisibility.awards)}
+              onChange={(event) => onToggleSection("awards", event.target.checked)}
+              className="mr-2 h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Chứng chỉ & Giải thưởng</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={() =>
+              addCollectionItem("awards", {
+                id: createId("awd"),
+                title: "",
+                issuer: "",
+                year: "",
+              })
+            }
+            disabled={!sectionsVisibility.awards}
+            className="flex items-center gap-1 rounded border border-slate-350 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus size={14} />
+            Thêm
+          </button>
         </header>
 
-        <div className="space-y-4">
+        <div className={`space-y-4 transition ${sectionsVisibility.awards ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
           {data.awards?.map((award, index) => (
-            <div key={award.id} className="rounded-xl border border-slate-200 bg-white/60 p-4 shadow-inner">
+            <div key={award.id} className="rounded-lg border border-slate-200 bg-slate-50/30 p-4 relative">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Tên giải thưởng</span>
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Tên giải thưởng / Chứng chỉ</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={award.title || ""}
                     onChange={(event) => updateCollection("awards", index, "title", event.target.value)}
-                    placeholder="Ví dụ: Top 10 Innovators"
+                    placeholder="Ví dụ: AWS Cloud Practitioner"
                   />
                 </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm text-slate-500">Đơn vị trao tặng</span>
+
+                <label className="flex flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Nơi cấp</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={award.issuer || ""}
                     onChange={(event) => updateCollection("awards", index, "issuer", event.target.value)}
-                    placeholder="Ví dụ: Forbes Vietnam"
+                    placeholder="Ví dụ: Amazon Web Services"
                   />
                 </label>
               </div>
-              <div className="mt-3 flex gap-2">
-                <label className="flex flex-1 flex-col gap-2">
-                  <span className="text-sm text-slate-500">Năm</span>
+
+              <div className="mt-3 flex gap-2 items-end">
+                <label className="flex flex-1 flex-col gap-1">
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase">Năm nhận</span>
                   <input
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                    type="text"
+                    className={inputClass}
                     value={award.year || ""}
                     onChange={(event) => updateCollection("awards", index, "year", event.target.value)}
-                    placeholder="2024"
+                    placeholder="2023"
                   />
                 </label>
+
                 <button
                   type="button"
                   onClick={() => removeCollectionItem("awards", index)}
-                  className="mt-6 rounded-lg border border-transparent p-2 text-slate-400 transition hover:border-red-100 hover:bg-red-50 hover:text-red-500"
+                  className="rounded border border-transparent p-1.5 text-slate-400 transition hover:text-red-500 cursor-pointer"
                 >
                   <Trash2 size={16} />
                 </button>

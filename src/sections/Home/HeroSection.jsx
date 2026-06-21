@@ -10,14 +10,14 @@ export default function HeroSection() {
       style={{ backgroundImage: `url(${dotBanner})` }}
     >
       <a
-        href="#"
+        href="/jobs?page=1"
         className="flex items-center gap-2 rounded-full p-1 pr-3 mt-25 text-indigo-600 bg-indigo-50 mb-2"
       >
         <span className="bg-indigo-600 text-white text-xs px-3.5 py-1 rounded-full">
           LIVE
         </span>
         <p className="flex items-center gap-1">
-          <span>3,000+ việc làm tuần này </span>
+          <span>Khám phá công việc cho riêng bạn</span>
           <ChevronRightIcon size={16} />
         </p>
       </a>

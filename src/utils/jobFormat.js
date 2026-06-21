@@ -98,7 +98,6 @@ const formatLocation = (job) => {
   const specific = safeText(
     job?.specific || job?.address || job?.addressLine || job?.meta?.raw?.address
   );
-  if (specific) return specific;
 
   const district = safeText(
     job?.districtName ||
@@ -112,6 +111,12 @@ const formatLocation = (job) => {
   const state = safeText(
     job?.stateName || job?.stateLabel || job?.state || job?.meta?.raw?.state
   );
+
+  if (specific && state) {
+    return `${specific}, ${state}`;
+  }
+
+  if (specific) return specific;
 
   const parts = [district, city, state].filter(Boolean);
   if (parts.length) return parts.join(", ");

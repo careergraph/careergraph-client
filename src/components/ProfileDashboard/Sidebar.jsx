@@ -188,33 +188,12 @@ export default function SideBar({
           <div className="mb-1 space-y-1">
             <SubLink to="/jobs/applied" label="Việc làm đã ứng tuyển" />
             <SubLink to="/jobs/saved" label="Việc làm đã lưu" />
-            <SubLink to="/jobs/waiting" label="Việc làm chờ ứng tuyển" />
-            <SubLink to="/jobs/alerts" label="Thông báo việc làm" />
+            {/* <SubLink to="/jobs/waiting" label="Việc làm chờ ứng tuyển" />
+            <SubLink to="/jobs/alerts" label="Thông báo việc làm" /> */}
           </div>
         ) : null}
 
-        <button
-          type="button"
-          onClick={() => setOpenNTD((value) => !value)}
-          aria-expanded={openNTD}
-          className={baseItemCls}
-        >
-          <span className="flex items-center gap-3">
-            <Shield size={20} className="text-slate-500" />
-            <span className="text-[15px] font-medium">NTD bạn quan tâm</span>
-          </span>
-          {openNTD ? (
-            <ChevronDown size={18} className="text-slate-400" />
-          ) : (
-            <ChevronRight size={18} className="text-slate-400" />
-          )}
-        </button>
-        {openNTD ? (
-          <div className="mb-1 space-y-1">
-            <SubLink to="/employers/views" label="Nhà tuyển dụng xem hồ sơ bạn" />
-            <SubLink to="/employers/following" label="Nhà tuyển dụng đang theo dõi" />
-          </div>
-        ) : null}
+        <LinkItem to="/employers/following" icon={Shield} label="NTD bạn quan tâm" has={false} />
 
         <LinkItem to="/account" icon={UserRound} label="Quản lý tài khoản" has={false} />
       </nav>

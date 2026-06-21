@@ -6,19 +6,10 @@ function JobsCardCommon({ job }) {
   const navigate = useNavigate();
   if (!job) return null;
 
-  const extractDistrictProvince = (loc) => {
-    if (!loc || typeof loc !== "string") return loc || "";
-    const parts = loc
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (parts.length >= 2) {
-      return parts.slice(-2).join(", ");
-    }
-    return loc;
-  };  
-
   const companyLabel = job.department || "Đang cập nhật";
+  const expiryLabel = job.expiryDate
+    ? new Date(job.expiryDate).toLocaleDateString("vi-VN")
+    : "Không thời hạn";
   const summary =
     job.summary || job.description || "Mô tả công việc đang cập nhật.";
   const isNewJob = (() => {
@@ -85,12 +76,15 @@ function JobsCardCommon({ job }) {
 
         {job.location ? (
           <div className="flex items-center gap-2 text-slate-600">
-            <MapPin className="size-4 text-indigo-500" />
-            <span className="line-clamp-1">
-              {extractDistrictProvince(job.location)}
-            </span>
+            <MapPin className="size-4 text-indigo-500 shrink-0" />
+            <span className="line-clamp-1">{job.location}</span>
           </div>
         ) : null}
+
+        <div className="flex items-center gap-2 text-orange-600 mt-1">
+          <span className="size-4 flex items-center justify-center shrink-0">⏳</span>
+          <span className="text-xs font-medium">{expiryLabel}</span>
+        </div>
       </div>
     </div>
   );

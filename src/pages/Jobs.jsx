@@ -91,11 +91,8 @@ export default function Jobs() {
                   "linear-gradient(to right, #4f46e5, #6366f1, #8b5cf6)",
               }}
             >
-              Tìm việc làm tốt nhất, nhanh nhất
+              Tìm việc làm phù hợp nhất
             </h1>
-            <p className="mt-3 text-sm sm:text-base md:text-lg text-slate-500 max-w-2xl">
-              Hơn 1,000+ tin tuyển dụng được cập nhật hàng ngày
-            </p>
           </div>
         </div>
       </section>

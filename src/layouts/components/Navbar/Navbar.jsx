@@ -22,6 +22,7 @@ import { useAuthStore } from "~/stores/authStore";
 import NotificationBell from "./NotificationBell";
 import UserAvatar from "./UserAvatar";
 import { useMessagingUnread } from "~/features/messaging/hooks/useMessagingUnread";
+import TermsModal from "~/components/TermsModal";
 
 const secondaryNavIcons = {
   "Cẩm nang": BriefcaseBusiness,
@@ -42,12 +43,28 @@ function isLinkActive(pathname, link) {
   return false;
 }
 
-function SecondaryMenu({ links, pathname, onNavigate }) {
+function SecondaryMenu({ links, pathname, onNavigate, onOpenTerms }) {
   return (
     <div className="absolute right-0 top-full mt-3 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/8">
       {links.map((link) => {
         const Icon = secondaryNavIcons[link.name] || PanelTopOpen;
         const active = isLinkActive(pathname, link);
+
+        if (link.name === "Điều khoản") {
+          return (
+            <button
+              key={link.name}
+              onClick={() => {
+                onNavigate();
+                if (onOpenTerms) onOpenTerms();
+              }}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition text-slate-700 hover:bg-slate-50`}
+            >
+              <Icon size={17} className="text-slate-400" />
+              <span>{link.name}</span>
+            </button>
+          );
+        }
 
         return (
           <NavLink
@@ -76,6 +93,7 @@ export default function Navbar() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [openMoreMenu, setOpenMoreMenu] = useState(false);
+  const [openTerms, setOpenTerms] = useState(false);
 
   const { isAuthenticated, authInitializing, logout } = useAuthStore();
   const { unreadCount: unreadMessages } = useMessagingUnread({
@@ -209,6 +227,21 @@ export default function Navbar() {
                     );
                   }
 
+                  if (link.name === "Điều khoản") {
+                    return (
+                      <button
+                        key={link.name}
+                        onClick={() => {
+                          setOpenMobileMenu(false);
+                          setOpenTerms(true);
+                        }}
+                        className="block w-full text-left rounded-2xl border bg-white px-4 py-3.5 text-sm font-semibold transition border-slate-200 text-slate-800 hover:bg-slate-50"
+                      >
+                        {link.name}
+                      </button>
+                    );
+                  }
+
                   return (
                     <NavLink
                       key={link.name}
@@ -298,7 +331,7 @@ export default function Navbar() {
                 height={40}
                 fetchPriority="high"
               />
-              <div className="hidden text-lg font-bold leading-none text-slate-900 xs:block lg:text-xl">
+              <div className="text-lg font-bold leading-none bg-gradient-to-r from-[#583DF2] to-[#F3359D] bg-clip-text text-transparent lg:text-xl">
                 Career Graph
               </div>
             </div>
@@ -412,6 +445,7 @@ export default function Navbar() {
                 links={secondaryNavLinks}
                 pathname={location.pathname}
                 onNavigate={() => setOpenMoreMenu(false)}
+                onOpenTerms={() => setOpenTerms(true)}
               />
             </div>
           </div>
@@ -467,6 +501,7 @@ export default function Navbar() {
         </div>
       </nav>
       {mobileMenu}
+      <TermsModal open={openTerms} onClose={() => setOpenTerms(false)} />
     </>
   );
 }

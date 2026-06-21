@@ -210,6 +210,21 @@ export const JobAPI = {
     });
   },
 
+  /**
+   * Gọi API lấy gợi ý CV đã được lưu dựa trên suggestionId.
+   * GET /jobs/cv-suggestion/{suggestionId}
+   */
+  getCvSuggestionById(suggestionId) {
+    if (!suggestionId) {
+      return Promise.reject(new Error("Suggestion id is required"));
+    }
+    const path = `/jobs/cv-suggestion/${suggestionId}`;
+    return http(path, {
+      method: "GET",
+      auth: true,
+    });
+  },
+
   getJobEnums({ signal } = {}) {
     return http(apiConfig.endpoints.jobs.enums, {
       method: "GET",

@@ -24,6 +24,7 @@ export const defaultCvData = {
         "Dẫn dắt nhóm 4 designer xây dựng hệ sinh thái công cụ tuyển dụng cho hơn 120 trường đại học.",
         "Tăng tỷ lệ chuyển đổi ứng viên trên nền tảng thêm 32% thông qua cải tiến luồng ứng tuyển.",
       ],
+      relevant: true,
     },
     {
       id: "exp-2",
@@ -36,6 +37,7 @@ export const defaultCvData = {
         "Thiết kế hệ thống quản lý CV giúp hơn 50.000 người dùng tối ưu hóa thông tin nghề nghiệp.",
         "Phối hợp với các nhóm sản phẩm để triển khai thư viện thành phần UI thống nhất.",
       ],
+      relevant: true,
     },
   ],
   education: [

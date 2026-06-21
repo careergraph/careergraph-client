@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { navLinks } from "../../../data/navLinks";
 import logoSvg from "../../../assets/logo.svg";
+import { useState } from "react";
+import TermsModal from "~/components/TermsModal";
 
 export default function Footer() {
+  const [openTerms, setOpenTerms] = useState(false);
   return (
-    <footer className="px-6 md:px-16 lg:px-24 xl:px-32 mt-40 w-full text-slate-500">
+    <footer className="px-6 md:px-16 lg:px-24 xl:px-32 w-full text-slate-500">
       <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-gray-200 pb-6">
         <div className="md:max-w-114">
           <div className="flex items-center justify-items-center gap-2">
@@ -35,9 +38,18 @@ export default function Footer() {
             <ul className="space-y-2">
               {navLinks.map((link, index) => (
                 <li key={index}>
-                  <Link to={link.href} className="hover:text-indigo-600">
-                    {link.name}
-                  </Link>
+                  {link.name === "Điều khoản" ? (
+                    <button 
+                      onClick={() => setOpenTerms(true)} 
+                      className="hover:text-indigo-600"
+                    >
+                      {link.name}
+                    </button>
+                  ) : (
+                    <Link to={link.href} className="hover:text-indigo-600">
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -55,6 +67,8 @@ export default function Footer() {
       <p className="pt-4 text-center pb-5">
         Copyright 2025 © HCMUTE. All Right Reserved.
       </p>
+      
+      <TermsModal open={openTerms} onClose={() => setOpenTerms(false)} />
     </footer>
   );
 }

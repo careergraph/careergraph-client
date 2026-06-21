@@ -404,4 +404,9 @@ export const JobService = {
   async fetchCvSuggestion(jobId) {
     return JobAPI.getCvSuggestion(jobId);
   },
+
+  /** Lấy gợi ý CV đã được lưu bằng ID. */
+  async fetchCvSuggestionById(suggestionId) {
+    return JobAPI.getCvSuggestionById(suggestionId);
+  },
 };
