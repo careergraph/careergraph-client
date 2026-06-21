@@ -40,9 +40,10 @@ export default function TemplateCard({ template, onSelect, isSelected = false })
             }
             return (
               <iframe
-                src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                src={`${url}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
                 className="w-full h-full border-none pointer-events-none transition-transform duration-500 group-hover:scale-105"
                 title={`Preview ${template.name}`}
+                scrolling="no"
               />
             );
           }}
