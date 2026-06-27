@@ -5,6 +5,7 @@ import { useUserStore } from "~/stores/userStore";
 import { UserAPI } from "~/services/api/user";
 import { CompanyAPI } from "~/services/api/company";
 import { shallow } from "zustand/shallow";
+import { toast } from "sonner";
 
 /* ---------------- utils ---------------- */
 const pad2 = (n) => String(n).padStart(2, "0");
@@ -343,19 +344,36 @@ export default function WorkExperienceCard({className }) {
   const closeModal = () => setModal({ open: false, mode: "create", editing: null });
 
   const upsert = async (payload) => {
-    if (payload?.id && experiences?.some((it) => it.id === payload?.id)) {
-      const res = await UserAPI.updateExperience({experienceId: payload.id, payload:payload})
-      useUserStore.getState().updateUserPart({ experiences: res?.data })
-    } else {
-      const res = await UserAPI.addExperience(payload)
-      useUserStore.getState().updateUserPart({ experiences: res?.data })
+    try {
+      if (payload?.id && experiences?.some((it) => it.id === payload?.id)) {
+        const { id, ...requestPayload } = payload;
+        const res = await UserAPI.updateExperience({
+          experienceId: id,
+          payload: requestPayload,
+        });
+        useUserStore.getState().updateUserPart({ experiences: res?.data });
+        toast.success("Đã cập nhật kinh nghiệm làm việc.");
+      } else {
+        const res = await UserAPI.addExperience(payload);
+        useUserStore.getState().updateUserPart({ experiences: res?.data });
+        toast.success("Đã thêm kinh nghiệm làm việc.");
+      }
+      closeModal();
+    } catch (error) {
+      console.error("Lưu kinh nghiệm làm việc thất bại:", error);
+      toast.error(error?.message || "Không thể lưu kinh nghiệm làm việc. Vui lòng thử lại.");
     }
-    closeModal();
   };
 
   const remove = async (id) => {
-    const res = await UserAPI.removeExperience(id)
-    useUserStore.getState().updateUserPart({ experiences: res?.data })
+    try {
+      const res = await UserAPI.removeExperience(id);
+      useUserStore.getState().updateUserPart({ experiences: res?.data });
+      toast.success("Đã xóa kinh nghiệm làm việc.");
+    } catch (error) {
+      console.error("Xóa kinh nghiệm làm việc thất bại:", error);
+      toast.error(error?.message || "Không thể xóa kinh nghiệm làm việc. Vui lòng thử lại.");
+    }
   };
 
 
