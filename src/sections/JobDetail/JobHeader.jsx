@@ -12,6 +12,7 @@ export default function JobHeader({
   applyDisabled,
   applyDisabledLabel,
   isSaved,
+  showReapplyText,
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -93,6 +94,7 @@ export default function JobHeader({
         disabled={applyDisabled}
         disabledLabel={applyDisabledLabel}
         isSaved={isSaved}
+        showReapplyText={showReapplyText}
       />
     </div>
   );

@@ -11,6 +11,7 @@ export default function ApplyBar({
   disabled = false,
   disabledLabel = "",
   isSaved = false,
+  showReapplyText = false,
 }) {
   const { user } = useUserStore();
   const [isCallAPI, setIsCallAPI] = useState(false);
@@ -85,12 +86,18 @@ export default function ApplyBar({
     }
   };
 
+  const applyButtonText = disabled
+    ? disabledLabel || "Không thể ứng tuyển"
+    : showReapplyText
+      ? "Ứng tuyển lại"
+      : "Ứng tuyển ngay";
+
   return (
     <div className="mx-4 my-4 flex w-auto flex-col gap-3 sm:flex-row">
       <div className="sm:flex-[5]">
         <PrimaryButton
           className="w-full"
-          text={disabled ? disabledLabel || "Không thể ứng tuyển" : "Ứng tuyển ngay"}
+          text={applyButtonText}
           onClick={handleApplyClick}
           disabled={disabled}
         />

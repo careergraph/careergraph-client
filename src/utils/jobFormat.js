@@ -424,6 +424,8 @@ const normalizeJob = (job = {}) => {
     shares: normalizeShares(job),
     isSaved: Boolean(job.isLiked || job.liked || job.isSaved),
     isApplied: Boolean(job.isApplied),
+    hasApplied: Boolean(job.hasApplied ?? job.isApplied),
+    reapplyBlocked: Boolean(job.reapplyBlocked),
     detailUrl:
       safeText(
         job.detailUrl ||

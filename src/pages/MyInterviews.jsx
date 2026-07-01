@@ -25,6 +25,7 @@ const statusMap = {
 };
 
 const ACTIVE_ROOM_STATUSES = new Set(["SCHEDULED", "CONFIRMED", "PENDING_RESCHEDULE", "IN_PROGRESS"]);
+const KICK_BADGE_ALLOWED_STATUSES = new Set(["SCHEDULED", "CONFIRMED", "PENDING_RESCHEDULE", "IN_PROGRESS"]);
 
 const ROOM_REPRESENTATIVE_PRIORITY = {
   IN_PROGRESS: 1,
@@ -87,6 +88,24 @@ function clearKickedStatus(interviewId) {
   try {
     localStorage.removeItem(`interview-kicked:${interviewId}`);
   } catch { /* ignore */ }
+}
+
+function getEffectiveKickedStatus(interview) {
+  if (!interview?.id) {
+    return null;
+  }
+
+  const kickedStatus = getKickedStatus(interview.id);
+  if (!kickedStatus) {
+    return null;
+  }
+
+  if (KICK_BADGE_ALLOWED_STATUSES.has(interview.interviewStatus)) {
+    return kickedStatus;
+  }
+
+  clearKickedStatus(interview.id);
+  return null;
 }
 
 function StatusBadge({ value }) {
@@ -658,7 +677,7 @@ export default function MyInterviews() {
                   const interview = room.currentInterview;
                   if (!interview) return null;
 
-                  const kickedStatus = getKickedStatus(interview.id);
+                  const kickedStatus = getEffectiveKickedStatus(interview);
                   const isKickedPermanent = kickedStatus === "kicked-permanent";
                   const isKicked = kickedStatus === "kicked";
                   const endAtMs = interview.endAt
