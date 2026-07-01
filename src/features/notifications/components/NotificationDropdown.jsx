@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import {
@@ -194,6 +194,7 @@ export default function NotificationDropdown({
   onClose,
   dropdownId = "candidate-notification-dropdown",
 }) {
+  const hasLoadedForCurrentOpenRef = useRef(false);
   const {
     notifications,
     unreadCount,
@@ -208,9 +209,15 @@ export default function NotificationDropdown({
 
   useEffect(() => {
     if (!isOpen) {
+      hasLoadedForCurrentOpenRef.current = false;
       return;
     }
 
+    if (hasLoadedForCurrentOpenRef.current) {
+      return;
+    }
+
+    hasLoadedForCurrentOpenRef.current = true;
     void ensureLoaded();
   }, [ensureLoaded, isOpen]);
 
