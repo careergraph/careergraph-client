@@ -31,12 +31,14 @@ export function useWebRTC({ roomCode, token, localStream }) {
 
   // Room lifecycle
   const [roomStatus, setRoomStatus] = useState("SCHEDULED");
+  const [roomOpenedAt, setRoomOpenedAt] = useState(null);
   const [roomClosingGrace, setRoomClosingGrace] = useState(false);
 
   const closePeer = useCallback(() => {
     pcRef.current?.close();
     pcRef.current = null;
     remoteSocketIdRef.current = null;
+    pendingCandidates.current = [];
     setRemoteStream(null);
     setConnected(false);
   }, []);
@@ -122,6 +124,7 @@ export function useWebRTC({ roomCode, token, localStream }) {
     setAdmissionStatus("idle");
     setPeerCount(0);
     setRoomClosingGrace(false);
+    setRoomOpenedAt(null);
 
     const socket = io(RTC_URL, {
       auth: { token },
@@ -165,8 +168,9 @@ export function useWebRTC({ roomCode, token, localStream }) {
     socket.on("recording-stopped", () => setIsBeingRecorded(false));
 
     // ── Room lifecycle events ─────────────────────────
-    socket.on("room-status-changed", ({ status }) => {
+    socket.on("room-status-changed", ({ status, openedAt }) => {
       setRoomStatus(status);
+      setRoomOpenedAt(typeof openedAt === "string" ? openedAt : null);
     });
 
     socket.on("room-closing", () => {
@@ -300,6 +304,13 @@ export function useWebRTC({ roomCode, token, localStream }) {
     setAdmissionStatus("idle");
   }, []);
 
+  const leaveRoom = useCallback(() => {
+    socketRef.current?.emit("leave-room");
+    closePeer();
+    setPeerCount(0);
+    setAdmissionStatus("idle");
+  }, [closePeer]);
+
   // Broadcast media state to room
   const emitMediaStateChanged = useCallback((state) => {
     socketRef.current?.emit("media-state-changed", state);
@@ -313,7 +324,9 @@ export function useWebRTC({ roomCode, token, localStream }) {
     admissionStatus,
     isBeingRecorded,
     cancelJoin,
+    leaveRoom,
     roomStatus,
+    roomOpenedAt,
     roomClosingGrace,
     emitMediaStateChanged,
   };

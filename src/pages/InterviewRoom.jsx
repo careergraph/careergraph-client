@@ -69,6 +69,7 @@ export default function InterviewRoom() {
   const [screenSharing, setScreenSharing] = useState(false);
   const [joined, setJoined] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [clockNow, setClockNow] = useState(() => Date.now());
   const cameraTrackRef = useRef(null);
 
   // Interview info & early join state
@@ -221,7 +222,7 @@ export default function InterviewRoom() {
   }, [interview]);
 
   // WebRTC peer connection
-  const { remoteStream, connected, peerCount, replaceTrack, admissionStatus, isBeingRecorded, cancelJoin, roomClosingGrace, emitMediaStateChanged } = useWebRTC({
+  const { remoteStream, connected, peerCount, replaceTrack, admissionStatus, isBeingRecorded, cancelJoin, leaveRoom, roomStatus, roomOpenedAt, roomClosingGrace, emitMediaStateChanged } = useWebRTC({
     roomCode: joined && roomCode ? roomCode : "",
     token: getToken() ?? "",
     localStream: localStream,
@@ -247,6 +248,27 @@ export default function InterviewRoom() {
     const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
     return () => clearInterval(timer);
   }, [joined]);
+
+  useEffect(() => {
+    if (!joined) return;
+    const timer = window.setInterval(() => setClockNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [joined]);
+
+  const displayElapsed = (() => {
+    if (roomOpenedAt) {
+      const startMs = new Date(roomOpenedAt).getTime();
+      if (Number.isFinite(startMs)) {
+        return Math.max(0, Math.floor((clockNow - startMs) / 1000));
+      }
+    }
+    return elapsed;
+  })();
+
+  const remoteWaitingMessage =
+    roomStatus === "ACTIVE" || peerCount > 0
+      ? "HR đã vào phòng, đang chờ kết nối media..."
+      : "Đang chờ HR tham gia...";
 
   // Handle rejected / kicked / room-ended
   useEffect(() => {
@@ -439,7 +461,11 @@ export default function InterviewRoom() {
     setJoined(true);
   };
 
-  const handleLeave = () => {
+  const handleLeave = async () => {
+    if (roomCode && interview?.candidateId) {
+      leaveRoom();
+      await InterviewAPI.leaveParticipant(roomCode, interview.candidateId).catch(() => null);
+    }
     localStream?.getTracks().forEach((t) => t.stop());
     setLocalStream(null);
     setJoined(false);
@@ -889,7 +915,7 @@ export default function InterviewRoom() {
           )}
           <span className="flex items-center gap-1.5 text-sm text-gray-300">
             <Clock className="h-3.5 w-3.5" />
-            {fmtElapsed(elapsed)}
+            {fmtElapsed(displayElapsed)}
           </span>
         </div>
         <p className="text-sm font-medium text-white">Phòng phỏng vấn</p>
@@ -955,7 +981,7 @@ export default function InterviewRoom() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-700 text-2xl font-bold text-white mb-3">
                     HR
                   </div>
-                  <p className="text-sm text-gray-400">Đang chờ HR tham gia...</p>
+                  <p className="text-sm text-gray-400">{remoteWaitingMessage}</p>
                 </div>
               </div>
             )}

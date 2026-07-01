@@ -47,4 +47,12 @@ export const InterviewAPI = {
     const path = apiConfig.endpoints.interviews.room.replace(":roomCode", roomCode);
     return http(path, { method: "GET", auth: true, signal });
   },
+
+  leaveParticipant(roomCode, candidateId) {
+    return http(`/rooms/${roomCode}/participants/${candidateId}/leave`, {
+      method: "POST",
+      auth: true,
+      body: {},
+    });
+  },
 };
