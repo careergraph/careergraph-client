@@ -34,7 +34,7 @@ export default function Footer() {
         </div>
         <div className="flex-1 flex items-start md:justify-end gap-20">
           <div>
-            <h2 className="font-semibold mb-5 text-gray-800">Company</h2>
+            <h2 className="font-semibold mb-5 text-gray-800">Dịch vụ</h2>
             <ul className="space-y-2">
               {navLinks.map((link, index) => (
                 <li key={index}>
@@ -55,11 +55,11 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h2 className="font-semibold mb-5 text-gray-800">Get in touch</h2>
+            <h2 className="font-semibold mb-5 text-gray-800">Liên lạc</h2>
             <div className="space-y-2">
               <p>0976870127</p>
               <p>congquynguyen296@gmail.com</p>
-              <p>tcrow0604@gmail.com</p>
+              <p>quangthinh06112004@gmail.com</p>
             </div>
           </div>
         </div>

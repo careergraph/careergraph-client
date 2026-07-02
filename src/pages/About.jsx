@@ -11,7 +11,7 @@ export default function About() {
       <BlogListSection />
       {/* <SectionPricing /> */}
       <FaqSection />
-      <NewsLetterSection />
+      {/* <NewsLetterSection /> */}
     </>
   );
 }
