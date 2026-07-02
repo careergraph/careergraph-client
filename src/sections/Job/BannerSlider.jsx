@@ -1,15 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
+import bannerHomeSacombank from "../../assets/slide/banner_home_sacombank.png";
+import concentrixBanner from "../../assets/slide/concentrix_banner.png";
+import mazdaLangHa from "../../assets/slide/MAZDA-LANG-HA.png";
+import vnrGroup from "../../assets/slide/VNR-Group.png";
 
 export default function BannerSlider() {
   const sliderRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-    "https://media-blog.jobsgo.vn/blog/wp-content/uploads/2025/10/VNR-Group.png",
-    "https://media-blog.jobsgo.vn/blog/wp-content/uploads/2025/10/MAZDA-LANG-HA.png",
-    "https://jobsgo.vn/uploads/banner/concentrix_banner.png",
-    "https://jobsgo.vn/uploads/banner/banner_home_sacombank.jpg",
+    vnrGroup,
+    mazdaLangHa,
+    concentrixBanner,
+    bannerHomeSacombank,
   ];
 
   const totalSlides = slides.length;
