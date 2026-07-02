@@ -202,7 +202,7 @@ export default function Login() {
 
           <div className="mt-5 flex w-full flex-col gap-3 text-slate-500 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <input
+              {/* <input
                 className="h-4 w-4 rounded border-slate-300 text-indigo-600"
                 type="checkbox"
                 id="rememberMe"
@@ -212,7 +212,7 @@ export default function Login() {
               />
               <label className="text-sm" htmlFor="rememberMe">
                 Ghi nhớ đăng nhập
-              </label>
+              </label> */}
             </div>
             <Link className="text-sm font-medium text-indigo-600 transition hover:text-indigo-700" to="/forgot-password">
               Quên mật khẩu?

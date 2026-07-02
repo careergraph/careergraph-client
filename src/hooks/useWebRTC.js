@@ -37,6 +37,7 @@ export function useWebRTC({ roomCode, token, localStream }) {
     pcRef.current?.close();
     pcRef.current = null;
     remoteSocketIdRef.current = null;
+    pendingCandidates.current = [];
     setRemoteStream(null);
     setConnected(false);
   }, []);
@@ -202,7 +203,10 @@ export function useWebRTC({ roomCode, token, localStream }) {
     socket.on("user-joined", ({ socketId }) => {
       setAdmissionStatus("admitted");
       setPeerCount((c) => c + 1);
-      remoteSocketIdRef.current = socketId;
+      if (remoteSocketIdRef.current !== socketId) {
+        closePeer();
+        remoteSocketIdRef.current = socketId;
+      }
       // Candidate stays passive to avoid offer glare; host will initiate.
     });
 
@@ -221,7 +225,10 @@ export function useWebRTC({ roomCode, token, localStream }) {
       socket.emit("answer", { to: from, answer: pc.localDescription });
     });
 
-    socket.on("answer", async ({ answer }) => {
+    socket.on("answer", async ({ from, answer }) => {
+      if (remoteSocketIdRef.current && from !== remoteSocketIdRef.current) {
+        return;
+      }
       const pc = pcRef.current;
       if (pc && pc.signalingState === "have-local-offer") {
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
@@ -233,7 +240,10 @@ export function useWebRTC({ roomCode, token, localStream }) {
       }
     });
 
-    socket.on("ice-candidate", async ({ candidate }) => {
+    socket.on("ice-candidate", async ({ from, candidate }) => {
+      if (remoteSocketIdRef.current && from !== remoteSocketIdRef.current) {
+        return;
+      }
       const pc = pcRef.current;
       if (pc && pc.remoteDescription) {
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
@@ -242,9 +252,11 @@ export function useWebRTC({ roomCode, token, localStream }) {
       }
     });
 
-    socket.on("user-left", () => {
+    socket.on("user-left", ({ socketId }) => {
       setPeerCount((c) => Math.max(0, c - 1));
-      closePeer();
+      if (!socketId || remoteSocketIdRef.current === socketId) {
+        closePeer();
+      }
     });
 
     socket.connect();

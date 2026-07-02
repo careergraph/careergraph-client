@@ -248,6 +248,18 @@ export default function InterviewRoom() {
     return () => clearInterval(timer);
   }, [joined]);
 
+  useEffect(() => {
+    if (!interview?.id) return;
+
+    if (admissionStatus === "admitted" || interview?.interviewStatus === "COMPLETED") {
+      try {
+        localStorage.removeItem(`interview-kicked:${interview.id}`);
+      } catch {
+        // ignore storage cleanup failure
+      }
+    }
+  }, [admissionStatus, interview?.id, interview?.interviewStatus]);
+
   // Handle rejected / kicked / room-ended
   useEffect(() => {
     if (admissionStatus === "rejected") {

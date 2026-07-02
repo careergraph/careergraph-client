@@ -6,6 +6,7 @@ import { useAuthStore } from '~/stores/authStore';
 import { toast } from 'sonner';
 import { setVerifyCurrent } from '~/utils/storage';
 import AuthSplitLayout from '~/components/Auth/AuthSplitLayout';
+import TermsModal from '~/components/TermsModal';
 
 export default function Register() {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -20,12 +21,14 @@ export default function Register() {
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    acceptTerms: false
   });
 
   // State để hiển thị thông báo lỗi và thành công
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [openTerms, setOpenTerms] = useState(false);
 
   // Hook để điều hướng và sử dụng authentication
   const navigate = useNavigate();
@@ -52,10 +55,10 @@ export default function Register() {
 
   // Hàm xử lý thay đổi input
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -80,6 +83,11 @@ export default function Register() {
     // Kiểm tra độ dài mật khẩu
     if (formData.password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự!');
+      return;
+    }
+
+    if (!formData.acceptTerms) {
+      setError('Vui lòng xác nhận đồng ý với Điều khoản sử dụng để tiếp tục đăng ký.');
       return;
     }
 
@@ -211,6 +219,28 @@ export default function Register() {
             />
           </div>
 
+          <label className="mt-4 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm leading-6 text-slate-600">
+            <input
+              type="checkbox"
+              name="acceptTerms"
+              checked={formData.acceptTerms}
+              onChange={handleChange}
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              required
+            />
+            <span>
+              Tôi xác nhận đồng ý tạo tài khoản trên CareerGraph và chấp nhận{" "}
+              <button
+                type="button"
+                onClick={() => setOpenTerms(true)}
+                className="font-semibold text-indigo-600 transition hover:text-indigo-700 hover:underline"
+              >
+                Điều khoản sử dụng
+              </button>
+              .
+            </span>
+          </label>
+
           <button
             type="submit"
             disabled={isLoading}
@@ -225,6 +255,7 @@ export default function Register() {
             </Link>
           </p>
       </form>
+      <TermsModal open={openTerms} onClose={() => setOpenTerms(false)} />
     </AuthSplitLayout>
   );
 }

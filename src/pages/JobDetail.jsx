@@ -387,9 +387,10 @@ export default function JobDetailPage() {
   const postedDateText = formatPostedDate(job.postedDate);
   const deadlineText = formatDeadline(job.expiryDate);
   const isApplyDeadlinePassed = isJobExpired(job.expiryDate);
-  const applyDisabled = Boolean(job.isApplied || isApplyDeadlinePassed);
-  const applyDisabledLabel = job.isApplied
-    ? "Đã ứng tuyển"
+  const hasApplied = Boolean(job.hasApplied ?? job.isApplied);
+  const applyDisabled = Boolean(job.reapplyBlocked || isApplyDeadlinePassed);
+  const applyDisabledLabel = job.reapplyBlocked
+    ? "Hồ sơ của bạn đang trong quá trình tuyển dụng"
     : isApplyDeadlinePassed
       ? "Đã hết hạn ứng tuyển"
       : "";
@@ -460,6 +461,7 @@ export default function JobDetailPage() {
             applyDisabled={applyDisabled}
             applyDisabledLabel={applyDisabledLabel}
             isSaved={job.isSaved}
+            showReapplyText={hasApplied}
           />
 
           {/* Sections: Mô tả, yêu cầu, quyền lợi */}
@@ -518,7 +520,12 @@ export default function JobDetailPage() {
         jobTitle={job.title}
         coverLetterRequired={Boolean(job.applicationRequirements?.coverLetter)}
         onAppliedSuccess={() => {
-          setJob(prev => ({ ...prev, isApplied: false }));
+          setJob((prev) => ({
+            ...prev,
+            isApplied: true,
+            hasApplied: true,
+            reapplyBlocked: false,
+          }));
         }}
       />
     </div>

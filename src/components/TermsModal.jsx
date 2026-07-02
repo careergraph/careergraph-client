@@ -38,29 +38,49 @@ export default function TermsModal({ open, onClose }) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-6 text-sm text-slate-600 space-y-4">
+          <p className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 leading-6 text-slate-600">
+            Khi tạo tài khoản hoặc tiếp tục sử dụng CareerGraph, bạn xác nhận rằng mình đã đọc,
+            hiểu và đồng ý với các nguyên tắc sử dụng nền tảng dưới đây.
+          </p>
+
           <h3 className="text-base font-semibold text-slate-800">1. Chấp nhận các điều khoản</h3>
           <p>
-            Bằng việc truy cập và sử dụng nền tảng Career Graph, bạn đồng ý tuân thủ các điều khoản và điều kiện được quy định dưới đây. Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng không sử dụng dịch vụ của chúng tôi.
+            Việc đăng ký tài khoản, truy cập hoặc sử dụng nền tảng CareerGraph đồng nghĩa với việc
+            bạn chấp nhận các điều khoản áp dụng tại thời điểm sử dụng. Nếu không đồng ý, vui lòng
+            không tiếp tục tạo tài khoản hoặc sử dụng dịch vụ.
           </p>
 
-          <h3 className="text-base font-semibold text-slate-800">2. Quyền riêng tư và Bảo mật</h3>
+          <h3 className="text-base font-semibold text-slate-800">2. Tài khoản và thông tin cung cấp</h3>
           <p>
-            Chúng tôi cam kết bảo vệ thông tin cá nhân của bạn. Dữ liệu CV, thông tin ứng tuyển và các hoạt động trên nền tảng sẽ được sử dụng nhằm mục đích kết nối bạn với nhà tuyển dụng và cải thiện trải nghiệm dịch vụ.
+            Bạn cam kết cung cấp thông tin đầy đủ, chính xác và cập nhật khi đăng ký. Bạn chịu trách
+            nhiệm bảo mật thông tin đăng nhập và mọi hoạt động phát sinh từ tài khoản của mình.
           </p>
 
-          <h3 className="text-base font-semibold text-slate-800">3. Trách nhiệm của người dùng</h3>
+          <h3 className="text-base font-semibold text-slate-800">3. Quyền riêng tư và bảo mật</h3>
           <p>
-            Bạn chịu trách nhiệm về tính chính xác của các thông tin cung cấp trong hồ sơ và CV của mình. Nghiêm cấm mọi hành vi tạo tài khoản giả mạo, spam ứng tuyển, hoặc sử dụng hệ thống cho các mục đích vi phạm pháp luật.
+            CareerGraph nỗ lực bảo vệ dữ liệu cá nhân và dữ liệu nghề nghiệp của bạn theo các biện
+            pháp bảo mật phù hợp. Thông tin được sử dụng để cung cấp dịch vụ, tối ưu trải nghiệm và
+            hỗ trợ kết nối giữa ứng viên với nhà tuyển dụng.
           </p>
 
-          <h3 className="text-base font-semibold text-slate-800">4. Dịch vụ AI và Gợi ý tự động</h3>
+          <h3 className="text-base font-semibold text-slate-800">4. Trách nhiệm sử dụng nền tảng</h3>
           <p>
-            Tính năng "Đánh giá bằng AI" và Gợi ý CV cung cấp kết quả tham khảo dựa trên thuật toán máy học. Chúng tôi không đảm bảo 100% tính chính xác tuyệt đối và kết quả chỉ mang tính định hướng.
+            Bạn không được sử dụng hệ thống để tạo hồ sơ giả mạo, phát tán nội dung sai lệch, gây ảnh
+            hưởng đến vận hành dịch vụ hoặc thực hiện bất kỳ hành vi nào vi phạm pháp luật, đạo đức
+            nghề nghiệp hay quyền lợi của bên thứ ba.
           </p>
 
-          <h3 className="text-base font-semibold text-slate-800">5. Thay đổi điều khoản</h3>
+          <h3 className="text-base font-semibold text-slate-800">5. Tính năng AI và nội dung tham khảo</h3>
           <p>
-            Career Graph có quyền cập nhật hoặc thay đổi các điều khoản này bất cứ lúc nào. Các thay đổi sẽ có hiệu lực ngay khi được đăng tải trên nền tảng.
+            Một số tính năng như gợi ý CV, đánh giá hồ sơ hoặc đề xuất nội dung có thể được hỗ trợ bởi
+            AI. Các kết quả này mang tính tham khảo và không thay thế cho quyết định chuyên môn, tuyển
+            dụng hoặc pháp lý của người dùng.
+          </p>
+
+          <h3 className="text-base font-semibold text-slate-800">6. Cập nhật điều khoản</h3>
+          <p>
+            CareerGraph có thể điều chỉnh điều khoản để phù hợp với vận hành thực tế hoặc yêu cầu pháp
+            lý. Phiên bản cập nhật có hiệu lực kể từ thời điểm được công bố trên nền tảng.
           </p>
         </div>
 
