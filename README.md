@@ -22,23 +22,23 @@ Candidate portal hiện bao gồm các nhóm trải nghiệm chính:
 
 Trang chủ và discovery:
 
-![CareerGraph Client Home](./docs/assets/readme/home.png)
+![CareerGraph Client Home](./public/assets/readme/home.png)
 
 Danh sách việc làm:
 
-![CareerGraph Client Jobs](./docs/assets/readme/jobs.png)
+![CareerGraph Client Jobs](./public/assets/readme/jobs.png)
 
 CV builder:
 
-![CareerGraph Client CV Builder](./docs/assets/readme/cv-builder.png)
+![CareerGraph Client CV Builder](./public/assets/readme/cv-builder.png)
 
 Messaging với nhà tuyển dụng:
 
-![CareerGraph Client Messages](./docs/assets/readme/messages.png)
+![CareerGraph Client Messages](./public/assets/readme/messages.png)
 
 Interview room:
 
-![CareerGraph Client Interview Room](./docs/assets/readme/interview-room.png)
+![CareerGraph Client Interview Room](./public/assets/readme/interview-room.png)
 
 ## Core capabilities
 
