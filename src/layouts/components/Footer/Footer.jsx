@@ -64,8 +64,10 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <p className="pt-4 text-center pb-5">
-        Copyright 2025 © HCMUTE. All Right Reserved.
+      <p className="pt-4 pb-5 text-center text-sm text-gray-500 leading-6">
+        © 2026 CareerGraph. All rights reserved.
+        <br />
+        Developed by Luong Quang Thinh &amp; Nguyen Cong Quy | HCMUTE
       </p>
       
       <TermsModal open={openTerms} onClose={() => setOpenTerms(false)} />
