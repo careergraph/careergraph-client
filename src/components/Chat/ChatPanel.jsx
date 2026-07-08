@@ -12,6 +12,7 @@ import {
   saveChatHistory,
   clearChatHistory,
   formatMessage,
+  getChatHistory,
 } from "~/services/geminiService";
 function ConfirmClearHistoryModal({ open, onCancel, onConfirm }) {
   useEffect(() => {
@@ -129,17 +130,17 @@ const JobRecommendationCard = ({ job }) => {
 };
 
 export default function ChatPanel({ isOpen, onClose }) {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const savedMessages = getChatHistory();
+    return savedMessages && savedMessages.length > 0 ? savedMessages : [];
+  });
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState(null);
+  const [conversationId, setConversationId] = useState(() => {
+    return localStorage.getItem("conversationId") || null;
+  });
   const [isClearHistoryModalOpen, setIsClearHistoryModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
-
-  // Reset conversationId khi component mount (refresh trang)
-  useEffect(() => {
-    setConversationId(null);
-  }, []);
 
   // Auto scroll to bottom khi có tin nhắn mới
   const scrollToBottom = () => {
@@ -204,6 +205,7 @@ export default function ChatPanel({ isOpen, onClose }) {
       // Lưu conversationId từ response để dùng cho lần gửi tiếp theo
       if (newConvId) {
         setConversationId(newConvId);
+        localStorage.setItem("conversationId", newConvId);
       }
 
       // Tạo tin nhắn bot với nội dung phản hồi
