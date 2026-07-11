@@ -14,6 +14,7 @@ import {
   formatMessage,
   getChatHistory,
 } from "~/services/geminiService";
+import { useAuthStore } from "~/stores/authStore";
 function ConfirmClearHistoryModal({ open, onCancel, onConfirm }) {
   useEffect(() => {
     if (!open) return undefined;
@@ -97,11 +98,11 @@ const JobRecommendationCard = ({ job }) => {
             <span className="font-medium line-clamp-1">{job.company}</span>
           </div>
         </div>
-        {job.relevanceScore && (
+        {/* {job.relevanceScore && (
           <div className="bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
             {Math.round(job.relevanceScore * 100)}% phù hợp
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="mt-3 space-y-1.5">
@@ -141,6 +142,20 @@ export default function ChatPanel({ isOpen, onClose }) {
   });
   const [isClearHistoryModalOpen, setIsClearHistoryModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
+  const { isAuthenticated } = useAuthStore();
+
+  // Reset chat state when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setConversationId(null);
+      const welcomeMessage = formatMessage(
+        "Xin chào! 👋 Tôi là Hyra, trợ lý tìm việc của CareerGraph. Tôi có thể giúp bạn:\n\n💼 Tìm việc làm phù hợp\n📝 Tư vấn CV\n💡 Hướng dẫn phỏng vấn\n🎯 Tư vấn nghề nghiệp\n\nBạn cần giúp gì hôm nay?",
+        "bot"
+      );
+      setMessages([welcomeMessage]);
+      // The authStore already cleared localStorage, we just sync the memory state here.
+    }
+  }, [isAuthenticated]);
 
   // Auto scroll to bottom khi có tin nhắn mới
   const scrollToBottom = () => {

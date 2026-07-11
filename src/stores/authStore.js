@@ -170,6 +170,9 @@ export const useAuthStore = create((set, get) => ({
       useUserStore.getState().clearUser();
       set({ isAuthenticated: false });
       
+      // Xóa localStorage của ChatPanel khi đăng xuất
+      localStorage.removeItem("conversationId");
+      localStorage.removeItem("hyra_chat_history");
     }
   },
 }));
