@@ -102,6 +102,7 @@ export const apiConfig = {
       education: "/candidates/educations",
       skill: "/candidates/skills",
       appliedJobs: "/candidates/applied-jobs",
+      appliedJobsFilterOptions: "/candidates/applied-jobs/filter-options",
       savedJobs: "/candidates/saved-jobs",
       media: "/candidates/media",
       openWork: "/candidates/job-search-status",

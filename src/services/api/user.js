@@ -83,8 +83,19 @@ export const UserAPI = {
     });
   },
 
-  getAppliedJobs(status=""){
-     return http(`${apiConfig.endpoints.user.appliedJobs}?status=${status}`, {
+  getAppliedJobs(status="", companyId=""){
+     const params = new URLSearchParams();
+     if (status) params.set("status", status);
+     if (companyId) params.set("companyId", companyId);
+     const query = params.toString();
+     return http(`${apiConfig.endpoints.user.appliedJobs}${query ? `?${query}` : ""}`, {
+      method: "GET",
+      auth: true,
+    });
+  },
+  getAppliedJobFilterOptions(companyId=""){
+    const query = companyId ? `?companyId=${encodeURIComponent(companyId)}` : "";
+    return http(`${apiConfig.endpoints.user.appliedJobsFilterOptions}${query}`, {
       method: "GET",
       auth: true,
     });
