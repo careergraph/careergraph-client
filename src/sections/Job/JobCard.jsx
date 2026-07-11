@@ -89,6 +89,11 @@ export default function JobCard({ job, onDetail }) {
       className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-4 md:p-5"
       onClick={handleNavigate}
     >
+      {(job.viewCount > 150 || job.views > 150) && (
+        <span className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full bg-yellow-100 p-1.5 text-yellow-700 shadow-sm z-10" title="Hot Job">
+          <Zap className="size-4 fill-current" />
+        </span>
+      )}
       <div className="flex flex-col gap-4">
         {/* Top Section */}
         <div className="flex gap-3 sm:gap-4 md:gap-5">

@@ -1,4 +1,4 @@
-import { DollarSign, MapPin, Sparkles } from "lucide-react";
+import { DollarSign, MapPin, Sparkles, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import cardSectionCompanyAccessed from "../../assets/icons/company-accessed.svg";
 
@@ -28,22 +28,28 @@ function JobsCardCommon({ job }) {
     return false;
   })();
 
+  const isExpired = job.expiryDate
+    ? new Date(job.expiryDate).getTime() < Date.now()
+    : false;
+
   const handleViewJob = () => navigate(`/jobs/${job.id}`);
 
   return (
-    <div className="group relative w-full max-w-[300px] rounded-2xl border border-slate-100 bg-white/90 p-5 pt-6 text-gray-900 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-lg cursor-pointer"
+    <div className={`group relative w-full max-w-[300px] rounded-2xl border border-slate-100 bg-white/90 p-5 pt-6 text-gray-900 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-lg cursor-pointer ${isExpired ? 'opacity-60 grayscale' : ''}`}
     onClick={handleViewJob}>
-      {isNewJob ? (
-        <span className="absolute right-5 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
-          <Sparkles className="size-3.5" />
-          Mới
-        </span>
-      ) : (
-        <span className="absolute left-5 top-21 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
-          <Sparkles className="size-3.5" />
-          Mới
-        </span>
-      )}
+      <div className="absolute right-5 top-4 flex gap-2 z-10">
+        {(job.viewCount > 150 || job.views > 150) && (
+          <span className="inline-flex items-center justify-center rounded-full bg-yellow-100 p-1.5 text-yellow-700 shadow-sm" title="Hot Job">
+            <Zap className="size-4 fill-current" />
+          </span>
+        )}
+        {isNewJob && !isExpired && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-blue-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
+            <Sparkles className="size-3.5" />
+            Mới
+          </span>
+        )}
+      </div>
 
       <div className="flex items-start gap-3">
         <div className="flex size-14 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50">

@@ -11,21 +11,41 @@ function SimilarJobCard({ item }) {
     }
   };
 
+  const isNewJob = (() => {
+    if (item?.isNew !== undefined) return Boolean(item.isNew);
+    const createdAt = item?.createdAt || item?.publishedAt || item?.updatedAt;
+    if (createdAt) {
+      const date = new Date(createdAt);
+      if (!Number.isNaN(date)) {
+        const diffInDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
+        return diffInDays <= 14;
+      }
+    }
+    return false;
+  })();
+
+  const isExpired = item.expiryDate
+    ? new Date(item.expiryDate).getTime() < Date.now()
+    : false;
+
   return (
     <div
       onClick={handleClick}
-      className="relative group cursor-pointer rounded-lg border border-slate-200 bg-white p-3 transition hover:border-indigo-300 hover:shadow-sm"
+      className={`relative group cursor-pointer rounded-lg border border-slate-200 bg-white p-3 transition hover:border-indigo-300 hover:shadow-sm ${isExpired ? 'opacity-60 grayscale' : ''}`}
     >
       {/* Icon nổi bật */}
-      {item.isNew ? (
-        <span className="absolute -top-3 -right-3 bg-indigo-100 text-indigo-600 p-1.5 rounded-full shadow">
-          <Sparkles className="w-4 h-4" />
-        </span>
-      ) : (
-        <span className="absolute -top-3 -right-3 bg-green-100 text-green-500 p-1.5 rounded-full shadow">
-          <Zap className="w-4 h-4" />
-        </span>
-      )}
+      <div className="absolute -top-3 -right-3 flex gap-1 z-10">
+        {(item.viewCount > 150 || item.views > 150) && (
+          <span className="bg-yellow-100 text-yellow-700 p-1.5 rounded-full shadow" title="Hot Job">
+            <Zap className="w-4 h-4 fill-current" />
+          </span>
+        )}
+        {isNewJob && !isExpired && (
+          <span className="bg-indigo-100 text-indigo-600 p-1.5 rounded-full shadow" title="Mới">
+            <Sparkles className="w-4 h-4" />
+          </span>
+        )}
+      </div>
       <div className="flex gap-3">
         {/* Logo */}
         <div className="flex-shrink-0">
@@ -96,7 +116,14 @@ export default function SimilarJobsList({
       <div className="p-3">
         {items.length > 0 ? (
           <div className="space-y-2">
-            {items.map((item) => (
+            {[...items]
+              .sort((a, b) => {
+                const isAExpired = a.expiryDate ? new Date(a.expiryDate).getTime() < Date.now() : false;
+                const isBExpired = b.expiryDate ? new Date(b.expiryDate).getTime() < Date.now() : false;
+                if (isAExpired === isBExpired) return 0;
+                return isAExpired ? 1 : -1;
+              })
+              .map((item) => (
               <SimilarJobCard key={item.id} item={item} />
             ))}
           </div>

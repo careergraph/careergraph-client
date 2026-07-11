@@ -24,7 +24,14 @@ export default function CompanyJobs({ jobs }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {jobs.map((job) => (
+        {[...jobs]
+          .sort((a, b) => {
+            const isAExpired = a.expiryDate ? new Date(a.expiryDate).getTime() < Date.now() : false;
+            const isBExpired = b.expiryDate ? new Date(b.expiryDate).getTime() < Date.now() : false;
+            if (isAExpired === isBExpired) return 0;
+            return isAExpired ? 1 : -1;
+          })
+          .map((job) => (
           <div key={job.id} className="flex justify-center">
              <JobsCardCommon job={job} />
           </div>
