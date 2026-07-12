@@ -131,6 +131,9 @@ export default function AppliedJobs() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const prevParams = useRef({ companyId: null, status: null, ts: null });
+  const isFirstMount = useRef(true);
+
   const applicationIdParam = searchParams.get("applicationId");
   const companyIdParam = searchParams.get("companyId") || "";
   const statusParam = searchParams.get("status") || "";
@@ -225,6 +228,24 @@ export default function AppliedJobs() {
   }, [companyIdParam, statusParam, applicationIdParam, updateSearchParams]);
 
   useEffect(() => {
+    const isTsClearedOnly =
+      !isFirstMount.current &&
+      companyIdParam === prevParams.current.companyId &&
+      statusParam === prevParams.current.status &&
+      refreshTsParam === "" &&
+      prevParams.current.ts !== "";
+
+    prevParams.current = {
+      companyId: companyIdParam,
+      status: statusParam,
+      ts: refreshTsParam,
+    };
+    isFirstMount.current = false;
+
+    if (isTsClearedOnly) {
+      return;
+    }
+
     let cancelled = false;
     setIsLoading(true);
 
@@ -269,7 +290,6 @@ export default function AppliedJobs() {
 
     highlightTimerRef.current = setTimeout(() => {
       setHighlightedId(null);
-      updateSearchParams(companyIdParam || null, statusParam || null, null);
     }, 4000);
 
     return () => {
